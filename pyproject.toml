@@ -7,14 +7,12 @@ authors = [
     { name = "VBTI Contributors", email = "dev@vbti.nl" }
 ]
 license = "Apache-2.0"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 keywords = ["computer vision"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Topic :: Utilities",
 ]
@@ -67,7 +65,7 @@ Homepage = "https://github.com/VBTI-development/mmcv"
 
 [build-system]
 requires = [
-    "setuptools>=42",
+    "setuptools>=78",
     "wheel",
     "packaging",
 ]
