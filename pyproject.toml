@@ -92,7 +92,7 @@ extra_standard_library = "pkg_resources,setuptools,logging,os,warnings,abc"
 known_first_party = "mmcv"
 known_third_party = "addict,cv2,matplotlib,numpy,onnx,packaging,pytest,pytorch_sphinx_theme,scipy,sphinx,torch,torchvision,yaml,yapf"
 no_lines_before = "STDLIB,LOCALFOLDER"
-default_section = "THIRDPARTY"
+default_section = "THIRDPARTY" # codespell:ignore
 
 [tool.codespell]
 quiet-level = 3

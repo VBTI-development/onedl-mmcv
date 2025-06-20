@@ -2,10 +2,10 @@ import glob
 import os
 import platform
 import re
-# from pkg_resources import DistributionNotFound, get_distribution, parse_version
-from importlib.metadata import version, PackageNotFoundError
-from packaging.version import parse as parse_version
+from importlib.metadata import PackageNotFoundError, version
 from setuptools import find_packages, setup
+
+from packaging.version import parse as parse_version
 
 EXT_TYPE = ''
 try:
@@ -29,7 +29,7 @@ except ModuleNotFoundError:
     cmd_class = {}
     print('Skip building ext ops due to the absence of torch.')
 
-print(f"{EXT_TYPE=}")
+print(f'{EXT_TYPE=}')
 
 
 def choose_requirement(primary, secondary):
@@ -179,7 +179,7 @@ def get_extensions():
             pytorch=True)
         extensions.append(ext_ops)
     elif EXT_TYPE == 'pytorch':
-        print("YES")
+        print('YES')
         ext_name = 'mmcv._ext'
         from torch.utils.cpp_extension import CppExtension, CUDAExtension
 
@@ -228,7 +228,7 @@ def get_extensions():
             pass
 
         if os.getenv('MMCV_WITH_DIOPI', '0') == '1':
-            print("a")
+            print('a')
             import mmengine  # NOQA: F401
             from mmengine.utils.version_utils import digit_version
             assert digit_version(mmengine.__version__) >= digit_version(
@@ -259,7 +259,7 @@ def get_extensions():
             libraries += ['torch_dipu']
         elif is_rocm_pytorch or torch.cuda.is_available() or os.getenv(
                 'FORCE_CUDA', '0') == '1':
-            print("b")
+            print('b')
             if is_rocm_pytorch:
                 define_macros += [('MMCV_WITH_HIP', None)]
             define_macros += [('MMCV_WITH_CUDA', None)]
@@ -276,7 +276,7 @@ def get_extensions():
         elif (hasattr(torch, 'is_mlu_available') and
                 torch.is_mlu_available()) or \
                 os.getenv('FORCE_MLU', '0') == '1':
-            print("c")
+            print('c')
             from torch_mlu.utils.cpp_extension import MLUExtension
 
             def get_mluops_version(file_path):
@@ -376,7 +376,7 @@ def get_extensions():
         elif (hasattr(torch.backends, 'mps')
               and torch.backends.mps.is_available()) or os.getenv(
                   'FORCE_MPS', '0') == '1':
-            print("d")
+            print('d')
             # objc compiler support
             from distutils.unixccompiler import UnixCCompiler
             if '.mm' not in UnixCCompiler.src_extensions:
@@ -401,7 +401,7 @@ def get_extensions():
             include_dirs.append(os.path.abspath('./mmcv/ops/csrc/common'))
             include_dirs.append(os.path.abspath('./mmcv/ops/csrc/common/mps'))
         elif (os.getenv('FORCE_NPU', '0') == '1'):
-            print("e")
+            print('e')
             print(f'Compiling {ext_name} only with CPU and NPU')
             try:
                 import importlib
@@ -436,7 +436,7 @@ def get_extensions():
             include_dirs.append(os.path.abspath('./mmcv/ops/csrc/common'))
             include_dirs.append(os.path.abspath('./mmcv/ops/csrc/common/npu'))
         elif hasattr(torch, 'musa') or os.getenv('FORCE_MUSA', '0') == '1':
-            print("f")
+            print('f')
             from torch_musa.testing import get_musa_arch
             from torch_musa.utils.musa_extension import MUSAExtension
             define_macros += [('MMCV_WITH_MUSA', None),
@@ -451,7 +451,7 @@ def get_extensions():
             include_dirs.append(os.path.abspath('./mmcv/ops/csrc/common/musa'))
             extension = MUSAExtension
         else:
-            print("g")
+            print('g')
             print(f'Compiling {ext_name} only with CPU')
             op_files = glob.glob('./mmcv/ops/csrc/pytorch/*.cpp') + \
                 glob.glob('./mmcv/ops/csrc/pytorch/cpu/*.cpp')
