@@ -54,7 +54,6 @@ test = [
 ]
 build = [
     "pytest-runner",
-    "setuptools"
 ]
 optional = [
     "ninja",
@@ -69,7 +68,6 @@ requires = [
     "setuptools>=78",
     "wheel",
     "packaging",
-    "torch",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -99,4 +97,4 @@ quiet-level = 3
 ignore-words-list = "inout,hist,ba,ro,inh"
 
 [tool.uv]
-no-build-isolation = true
+no-build-isolation-package = ["mmcv"]
