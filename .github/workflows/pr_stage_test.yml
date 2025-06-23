@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
+    env:
+      UV_TORCH_BACKEND: auto
     permissions:
       pull-requests: write
     strategy:
@@ -50,7 +52,7 @@ jobs:
         run: apt-get update && apt-get install -y git ffmpeg libturbojpeg
       - name: Install PyTorch
         run: |
-          uv pip install --link-mode=copy -vv torch==${{ matrix.torch }} torchvision
+          uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
@@ -82,6 +84,8 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+    env:
+      UV_TORCH_BACKEND: auto
     strategy:
       matrix:
         python-version: ["3.10"]
