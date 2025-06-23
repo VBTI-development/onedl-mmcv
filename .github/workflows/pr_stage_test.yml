@@ -54,9 +54,9 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --extra optional build
+        run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV from source
-        run: uv pip install -e . -v
+        run: uv pip install -e . -v --link-mode=copy
       - name: Install unit tests dependencies
         run: |
           uv pip install -r pyproject.toml --extra test
@@ -111,9 +111,9 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --extra optional build
+        run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV from source
-        run: uv pip install -e . -v
+        run: uv pip install -e . -v --link-mode=copy
       - name: Install unit tests dependencies
         run: |
           uv pip install -r pyproject.toml --extra test
@@ -141,7 +141,7 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --extra optional build
+        run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV from source
         run: uv pip install -e . -v
       - name: Install unit tests dependencies
@@ -168,7 +168,7 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --extra optional build
+        run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV from source
         run: uv pip install -e . -v
       - name: Install unit tests dependencies
