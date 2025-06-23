@@ -28,6 +28,7 @@ except ModuleNotFoundError:
     cmd_class = {}
     print('Skip building ext ops due to the absence of torch.')
 
+
 def get_extensions():
     extensions = []
 

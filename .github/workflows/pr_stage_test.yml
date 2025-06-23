@@ -40,8 +40,6 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          enable-cache: true
-          cache-dependency-glob: "pyproject.toml"
 
       # 安装 PyTorch
       - name: Install PyTorch
@@ -99,8 +97,6 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          enable-cache: true
-          cache-dependency-glob: "pyproject.toml"
 
       # 安装 PyTorch
       - name: Install PyTorch
@@ -139,9 +135,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          enable-cache: true
-          cache-dependency-glob: "pyproject.toml"
-
+      - name: Install PyTorch
+        run: |
+          uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
@@ -166,9 +162,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          enable-cache: true
-          cache-dependency-glob: "pyproject.toml"
-
+      - name: Install PyTorch
+        run: |
+          uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
@@ -179,4 +175,4 @@ jobs:
         run: |
           uv pip install -r pyproject.toml --extra test
       - name: Run unittests
-        run: un run pytest tests/ --ignore tests/test_image/test_io.py
+        run: uv run pytest tests/ --ignore tests/test_image/test_io.py
