@@ -193,7 +193,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install PyTorch
         run: |
-          uv pip install torch==${{ matrix.torch }} torchvision
+          uv pip install torch==2.3.1 torchvision
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
