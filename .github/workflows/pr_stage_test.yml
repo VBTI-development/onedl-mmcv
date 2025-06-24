@@ -49,7 +49,7 @@ jobs:
           apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
           apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
       - name: Install system dependencies
-        run: apt-get update && apt-get install -y git ffmpeg libturbojpeg
+        run: apt-get update && apt-get install -y git ffmpeg libturbojpeg python3-dev
       - name: Install PyTorch
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
@@ -58,7 +58,7 @@ jobs:
       - name: Install ninja to speed the compilation
         run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV from source
-        run: uv pip install -e . -v --link-mode=copy
+        run: uv pip install -e . -v
       - name: Install unit tests dependencies
         run: |
           uv pip install -r pyproject.toml --extra test
@@ -108,16 +108,16 @@ jobs:
           apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
           apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
       - name: Install system dependencies
-        run: apt-get update && apt-get install -y git ffmpeg libturbojpeg
+        run: apt-get update && apt-get install -y git ffmpeg libturbojpeg python3-dev
       - name: Install PyTorch
         run: |
-          uv pip install --link-mode=copy torch==${{ matrix.torch }} torchvision
+          uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
         run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV from source
-        run: uv pip install -e . -v --link-mode=copy
+        run: uv pip install -e . -v
       - name: Install unit tests dependencies
         run: |
           uv pip install -r pyproject.toml --extra test
