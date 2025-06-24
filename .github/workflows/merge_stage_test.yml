@@ -108,7 +108,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10']
-        torch: [ '2.0.0', '2.1.0', '2.3.1', '2.4.1', '2.5.1']
+        torch: [ '2.0.0', '2.1.0', '2.5.1']
     steps:
       - uses: actions/checkout@v3
       - name: Install uv and set the python version
@@ -138,10 +138,10 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10']
-        torch: [2.3.1]
+        torch: [2.5.1]
     env:
       FORCE_CUDA: 1
-      # MMCV_CUDA_ARGS: -gencode=arch=compute_61,code=sm_61
+      MMCV_CUDA_ARGS: -gencode=arch=compute_61,code=sm_61
       UV_TORCH_BACKEND: cu118
     steps:
       - uses: actions/checkout@v3
@@ -164,7 +164,7 @@ jobs:
         run: apt-get update && apt-get install -y git ffmpeg libturbojpeg python3-dev
       - name: Install PyTorch
         run: |
-          uv pip install --torch-backend=cu118 torch==${{ matrix.torch }} torchvision
+          uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
