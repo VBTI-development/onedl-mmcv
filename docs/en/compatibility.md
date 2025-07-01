@@ -28,7 +28,7 @@ The OpenMMLab team released MMCV v2.0.0 on April 6, 2023. In the 2.x version, it
 ```bash
 # Contains ops, because the highest version of mmcv-full is less than 2.0.0, so there is no need to add version restrictions
 pip install openmim
-mim install mmcv-full
+mim install onedl-mmcv-full
 
 # do not contain ops
 pip install openmim
@@ -41,11 +41,11 @@ mim install "mmcv < 2.0.0"
 ```bash
 # Contains ops
 pip install openmim
-mim install mmcv
+mim install onedl-mmcv
 
 # Ops are not included, because the starting version of mmcv-lite is 2.0.0rc1, so there is no need to add version restrictions
 pip install openmim
-mim install mmcv-lite
+mim install onedl-mmcv-lite
 ```
 
 </td>

@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/open-mmlab/mmcv/main/docs/en/mmcv-logo.png" width="300"/>
+  <img src="https://raw.githubusercontent.com/vbti-development/onedl-mmcv/main/docs/en/mmcv-logo.png" width="300"/>
   <div>&nbsp;</div>
   <div align="center">
     <b><font size="5">OpenMMLab 官网</font></b>
@@ -23,13 +23,13 @@
 [![pytorch](https://img.shields.io/badge/pytorch-1.8~2.0-orange)](https://pytorch.org/get-started/previous-versions/)
 [![cuda](https://img.shields.io/badge/cuda-10.1~11.8-green)](https://developer.nvidia.com/cuda-downloads)
 [![PyPI](https://img.shields.io/pypi/v/mmcv)](https://pypi.org/project/mmcv)
-[![badge](https://github.com/open-mmlab/mmcv/workflows/build/badge.svg)](https://github.com/open-mmlab/mmcv/actions)
-[![codecov](https://codecov.io/gh/open-mmlab/mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmcv)
-[![license](https://img.shields.io/github/license/open-mmlab/mmcv.svg)](https://github.com/open-mmlab/mmcv/blob/master/LICENSE)
+[![badge](https://github.com/vbti-development/onedl-mmcv/workflows/build/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
+[![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmcv)
+[![license](https://img.shields.io/github/license/open-mmlab/mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
 
 [📘使用文档](https://mmcv.readthedocs.io/zh_CN/latest/) |
 [🛠️安装教程](https://mmcv.readthedocs.io/zh_CN/latest/get_started/installation.html) |
-[🤔报告问题](https://github.com/open-mmlab/mmcv/issues/new/choose)
+[🤔报告问题](https://github.com/vbti-development/onedl-mmcv/issues/new/choose)
 
 </div>
 
@@ -65,7 +65,7 @@ OpenMMLab 团队于 2022 年 9 月 1 日在世界人工智能大会发布了新�
 
 MMCV v2.0.0 正式版本于 2023 年 4 月 6 日发布。在 2.x 版本中，它删除了和训练流程相关的组件，并新增了数据变换模块。另外，从 2.x 版本开始，重命名包名 **mmcv** 为 **mmcv-lite** 以及 **mmcv-full** 为 **mmcv**。详情见[兼容性文档](docs/zh_cn/compatibility.md)。
 
-MMCV 会同时维护 [1.x](https://github.com/open-mmlab/mmcv/tree/1.x) (对应原 [master](https://github.com/open-mmlab/mmcv/tree/master) 分支) 和 **2.x**（对应 **main** 分支，现为默认分支）版本，详情见[分支维护计划](README_zh-CN.md#分支维护计划)。
+MMCV 会同时维护 [1.x](https://github.com/vbti-development/onedl-mmcv/tree/1.x) (对应原 [master](https://github.com/vbti-development/onedl-mmcv/tree/master) 分支) 和 **2.x**（对应 **main** 分支，现为默认分支）版本，详情见[分支维护计划](README_zh-CN.md#分支维护计划)。
 
 ## 简介
 
@@ -104,13 +104,13 @@ MMCV 有两个版本：
 
 ```bash
 pip install -U openmim
-mim install mmcv
+mim install onedl-mmcv
 ```
 
 如果需要指定 mmcv 的版本，可以使用以下命令
 
 ```bash
-mim install mmcv==2.0.0
+mim install onedl-mmcv==2.0.0
 ```
 
 如果发现上述的安装命令没有使用预编译包（以 `.whl` 结尾）而是使用源码包（以 `.tar.gz` 结尾）安装，则有可能是我们没有提供和当前环境的 PyTorch 版本、CUDA 版本相匹配的 mmcv 预编译包，此时，你可以[源码安装 mmcv](https://mmcv.readthedocs.io/zh_CN/latest/get_started/build.html)。
@@ -118,16 +118,16 @@ mim install mmcv==2.0.0
 <details>
 <summary>使用预编译包的安装日志</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv<br />
-<b>Downloading https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
+<b>Downloading https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
 
 </details>
 
 <details>
 <summary>使用源码包的安装日志</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv==2.0.0<br />
 <b>Downloading mmcv-2.0.0.tar.gz</b>
 
@@ -141,12 +141,12 @@ Collecting mmcv==2.0.0<br />
 
 ```bash
 pip install -U openmim
-mim install mmcv-lite
+mim install onedl-mmcv-lite
 ```
 
 ## FAQ
 
-如果你遇到了安装问题或者运行时问题，请查看[问题解决页面](https://mmcv.readthedocs.io/zh_CN/latest/faq.html)是否已有解决方案。如果问题仍然没有解决，欢迎提 [issue](https://github.com/open-mmlab/mmcv/issues)。
+如果你遇到了安装问题或者运行时问题，请查看[问题解决页面](https://mmcv.readthedocs.io/zh_CN/latest/faq.html)是否已有解决方案。如果问题仍然没有解决，欢迎提 [issue](https://github.com/vbti-development/onedl-mmcv/issues)。
 
 ## 贡献指南
 

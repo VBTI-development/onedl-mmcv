@@ -28,7 +28,7 @@ OpenMMLab 团队于 2023 年 4 月 6 日发布 MMCV [v2.0.0](https://github.com/
 ```bash
 # 包含算子，因为 mmcv-full 的最高版本小于 2.0.0，所以无需加版本限制
 pip install openmim
-mim install mmcv-full
+mim install onedl-mmcv-full
 
 # 不包含算子
 pip install openmim
@@ -41,11 +41,11 @@ mim install "mmcv < 2.0.0"
 ```bash
 # 包含算子
 pip install openmim
-mim install mmcv
+mim install onedl-mmcv
 
 # 不包含算子，因为 mmcv-lite 的起始版本为 2.0.0，所以无需加版本限制
 pip install openmim
-mim install mmcv-lite
+mim install onedl-mmcv-lite
 ```
 
 </td>

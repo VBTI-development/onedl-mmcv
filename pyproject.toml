@@ -1,6 +1,6 @@
 
 [project]
-name = "mmcv"
+name = "onedl-mmcv"
 description = "OpenMMLab Computer Vision Foundation"
 authors = [
     { name = "MMCV Contributors", email = "openmmlab@gmail.com" },
@@ -98,4 +98,4 @@ quiet-level = 3
 ignore-words-list = "inout,hist,ba,ro,inh"
 
 [tool.uv]
-no-build-isolation-package = ["mmcv"]
+no-build-isolation-package = ["onedl-mmcv"]

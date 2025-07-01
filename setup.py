@@ -373,7 +373,8 @@ def get_extensions():
 
 
 setup(
-    name='mmcv' if os.getenv('MMCV_WITH_OPS', '1') == '1' else 'mmcv-lite',
+    name='onedl-mmcv'
+    if os.getenv('MMCV_WITH_OPS', '1') == '1' else 'onedl-mmcv-lite',
     packages=find_packages(),
     ext_modules=get_extensions(),
     cmdclass=cmd_class,

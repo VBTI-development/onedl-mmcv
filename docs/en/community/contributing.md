@@ -188,7 +188,7 @@ If you are very good at handling conflicts, then you can use rebase to resolve c
 
 #### Unit test
 
-If you cannot run the unit test of some modules for lacking of some dependencies, such as [video](https://github.com/open-mmlab/mmcv/tree/main/mmcv/video) module, you can try to install the following dependencies:
+If you cannot run the unit test of some modules for lacking of some dependencies, such as [video](https://github.com/vbti-development/onedl-mmcv/tree/main/mmcv/video) module, you can try to install the following dependencies:
 
 ```shell
 # Linux

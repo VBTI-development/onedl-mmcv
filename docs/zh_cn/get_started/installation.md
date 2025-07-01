@@ -25,7 +25,7 @@ python -c 'import torch;print(torch.__version__)'
 
 ```bash
 pip install -U openmim
-mim install mmcv
+mim install onedl-mmcv
 ```
 
 如果发现上述的安装命令没有使用预编译包（以 `.whl` 结尾）而是使用源码包（以 `.tar.gz` 结尾）安装，则有可能是我们没有提供和当前环境的 PyTorch 版本、CUDA 版本相匹配的 mmcv 预编译包，此时，你可以[源码安装 mmcv](build.md)。
@@ -33,16 +33,16 @@ mim install mmcv
 <details>
 <summary>使用预编译包的安装日志</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv<br />
-<b>Downloading https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
+<b>Downloading https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
 
 </details>
 
 <details>
 <summary>使用源码包的安装日志</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv==2.0.0<br />
 <b>Downloading mmcv-2.0.0.tar.gz</b>
 
@@ -51,7 +51,7 @@ Collecting mmcv==2.0.0<br />
 如需安装指定版本的 mmcv，例如安装 2.0.0 版本的 mmcv，可使用以下命令
 
 ```bash
-mim install mmcv==2.0.0
+mim install onedl-mmcv==2.0.0
 ```
 
 :::{note}
@@ -65,7 +65,7 @@ mim install "mmcv>=2.0.0rc1" -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 :::
 
-安装完成后可以运行 [check_installation.py](https://github.com/open-mmlab/mmcv/blob/main/.dev_scripts/check_installation.py) 脚本检查 mmcv 是否安装成功。
+安装完成后可以运行 [check_installation.py](https://github.com/vbti-development/onedl-mmcv/blob/main/.dev_scripts/check_installation.py) 脚本检查 mmcv 是否安装成功。
 
 #### 使用 pip 安装
 
@@ -200,8 +200,8 @@ python -c 'import torch;print(torch.__version__);print(torch.version.cuda)'
     }
     function changeCmd() {
         const cmd = document.getElementById("select-cmd");
-        let cmdString = "pip install mmcv=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/{cu_version}/{torch_version}/index.html";
-        // e.g: pip install mmcv==2.0.0rc1 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9/index.html
+        let cmdString = "pip install mmcv=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/{cu_version}/{torch_version}/index.html";
+        // e.g: pip install mmcv==2.0.0rc1 -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu111/torch1.9/index.html
         let cudaVersion;
         if (cudaVal === "cpu" || cudaVal === "mps") {
             cudaVersion = "cpu";
@@ -330,12 +330,12 @@ PyTorch 版本是 1.8.1，你可以放心选择 1.8.x。
 另外，如果安装依赖库的时间过长，可以指定 pypi 源
 
 ```bash
-pip install mmcv -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/index.html -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install mmcv -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu111/torch1.9.0/index.html -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 :::
 
-安装完成后可以运行 [check_installation.py](https://github.com/open-mmlab/mmcv/blob/main/.dev_scripts/check_installation.py) 脚本检查 mmcv 是否安装成功。
+安装完成后可以运行 [check_installation.py](https://github.com/vbti-development/onedl-mmcv/blob/main/.dev_scripts/check_installation.py) 脚本检查 mmcv 是否安装成功。
 
 #### 使用 docker 镜像
 

@@ -71,7 +71,7 @@ you can first install it before installing MMCV to skip the installation of `ope
 
    If no error is reported by the above command, the installation is successful. If there is an error reported, please check [Frequently Asked Questions](../faq.md) to see if there is already a solution.
 
-   If no solution is found, please feel free to open an [issue](https://github.com/open-mmlab/mmcv/issues).
+   If no solution is found, please feel free to open an [issue](https://github.com/vbti-development/onedl-mmcv/issues).
 
 #### Build on macOS
 
@@ -106,7 +106,7 @@ If you are using a mac with apple silicon chip, install the PyTorch 1.13+, other
 
    If no error is reported by the above command, the installation is successful. If there is an error reported, please check [Frequently Asked Questions](../faq.md) to see if there is already a solution.
 
-   If no solution is found, please feel free to open an [issue](https://github.com/open-mmlab/mmcv/issues).
+   If no solution is found, please feel free to open an [issue](https://github.com/vbti-development/onedl-mmcv/issues).
 
 #### Build on Windows
 
@@ -266,7 +266,7 @@ Build and install
 ```
 
 If no error is reported by the above command, the installation is successful. If there is an error reported, please check [Frequently Asked Questions](../faq.md) to see if there is already a solution.
-If no solution is found, please feel free to open an [issue](https://github.com/open-mmlab/mmcv/issues).
+If no solution is found, please feel free to open an [issue](https://github.com/vbti-development/onedl-mmcv/issues).
 
 ### Build mmcv-lite
 

@@ -1,20 +1,14 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/open-mmlab/mmcv/main/docs/en/mmcv-logo.png" width="300"/>
+  <img src="https://raw.githubusercontent.com/vbti-development/onedl-mmcv/main/docs/en/mmcv-logo.png" width="300"/>
   <div>&nbsp;</div>
   <div align="center">
-    <b><font size="5">OpenMMLab website</font></b>
-    <sup>
-      <a href="https://openmmlab.com">
-        <i><font size="4">HOT</font></i>
-      </a>
-    </sup>
+    <a href="https://vbti.ai">
+      <b><font size="5">VBTI Website</font></b>
+    </a>
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <b><font size="5">OpenMMLab platform</font></b>
-    <sup>
-      <a href="https://platform.openmmlab.com">
-        <i><font size="4">TRY IT OUT</font></i>
-      </a>
-    </sup>
+    <a href="https://onedl.ai">
+      <b><font size="5">OneDL platform</font></b>
+    </a>
   </div>
   <div>&nbsp;</div>
 
@@ -23,13 +17,13 @@
 [![pytorch](https://img.shields.io/badge/pytorch-1.8~2.0-orange)](https://pytorch.org/get-started/previous-versions/)
 [![cuda](https://img.shields.io/badge/cuda-10.1~11.8-green)](https://developer.nvidia.com/cuda-downloads)
 [![PyPI](https://img.shields.io/pypi/v/mmcv)](https://pypi.org/project/mmcv)
-[![badge](https://github.com/open-mmlab/mmcv/workflows/build/badge.svg)](https://github.com/open-mmlab/mmcv/actions)
-[![codecov](https://codecov.io/gh/open-mmlab/mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmcv)
-[![license](https://img.shields.io/github/license/open-mmlab/mmcv.svg)](https://github.com/open-mmlab/mmcv/blob/master/LICENSE)
+[![badge](https://github.com/vbti-development/onedl-mmcv/workflows/build/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
+[![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmcv)
+[![license](https://img.shields.io/github/license/open-mmlab/mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
 
 [📘Documentation](https://mmcv.readthedocs.io/en/latest/) |
 [🛠️Installation](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) |
-[🤔Reporting Issues](https://github.com/open-mmlab/mmcv/issues/new/choose)
+[🤔Reporting Issues](https://github.com/vbti-development/onedl-mmcv/issues/new/choose)
 
 </div>
 
@@ -45,7 +39,7 @@ The OpenMMLab team released a new generation of training engine [MMEngine](https
 
 MMCV v2.0.0 official version was released on April 6, 2023. In version 2.x, it removed components related to the training process and added a data transformation module. Also, starting from 2.x, it renamed the package names **mmcv** to **mmcv-lite** and **mmcv-full** to **mmcv**. For details, see [Compatibility Documentation](docs/en/compatibility.md).
 
-MMCV will maintain both [1.x](https://github.com/open-mmlab/mmcv/tree/1.x) (corresponding to the original [master](https://github.com/open-mmlab/mmcv/tree/master) branch) and **2.x** (corresponding to the **main** branch, now the default branch) versions simultaneously. For details, see [Branch Maintenance Plan](README.md#branch-maintenance-plan).
+MMCV will maintain both [1.x](https://github.com/vbti-development/onedl-mmcv/tree/1.x) (corresponding to the original [master](https://github.com/vbti-development/onedl-mmcv/tree/master) branch) and **2.x** (corresponding to the **main** branch, now the default branch) versions simultaneously. For details, see [Branch Maintenance Plan](README.md#branch-maintenance-plan).
 
 ## Introduction
 
@@ -84,13 +78,13 @@ The command to install mmcv:
 
 ```bash
 pip install -U openmim
-mim install mmcv
+mim install onedl-mmcv
 ```
 
 If you need to specify the version of mmcv, you can use the following command:
 
 ```bash
-mim install mmcv==2.0.0
+mim install onedl-mmcv==2.0.0
 ```
 
 If you find that the above installation command does not use a pre-built package ending with `.whl` but a source package ending with `.tar.gz`, you may not have a pre-build package corresponding to the PyTorch or CUDA or mmcv version, in which case you can [build mmcv from source](https://mmcv.readthedocs.io/en/latest/get_started/build.html).
@@ -98,16 +92,16 @@ If you find that the above installation command does not use a pre-built package
 <details>
 <summary>Installation log using pre-built packages</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv<br />
-<b>Downloading https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
+<b>Downloading https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
 
 </details>
 
 <details>
 <summary>Installation log using source packages</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv==2.0.0<br />
 <b>Downloading mmcv-2.0.0.tar.gz</b>
 
@@ -121,7 +115,7 @@ If you need to use PyTorch-related modules, make sure PyTorch has been successfu
 
 ```bash
 pip install -U openmim
-mim install mmcv-lite
+mim install onedl-mmcv-lite
 ```
 
 ## FAQ
@@ -129,7 +123,7 @@ mim install mmcv-lite
 If you face some installation issues, CUDA related issues or RuntimeErrors,
 you may first refer to this [Frequently Asked Questions](https://mmcv.readthedocs.io/en/latest/faq.html).
 
-If you face installation problems or runtime issues, you may first refer to this [Frequently Asked Questions](https://mmcv.readthedocs.io/en/latest/faq.html) to see if there is a solution. If the problem is still not solved, feel free to open an [issue](https://github.com/open-mmlab/mmcv/issues).
+If you face installation problems or runtime issues, you may first refer to this [Frequently Asked Questions](https://mmcv.readthedocs.io/en/latest/faq.html) to see if there is a solution. If the problem is still not solved, feel free to open an [issue](https://github.com/vbti-development/onedl-mmcv/issues).
 
 ## Citation
 

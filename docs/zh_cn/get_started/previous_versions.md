@@ -9,19 +9,19 @@
 #### CUDA 10.1
 
 ```bash
-pip install mmcv-full=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/cu101/torch1.4.0/index.html
+pip install mmcv-full=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu101/torch1.4.0/index.html
 ```
 
 #### CUDA 9.2
 
 ```bash
-pip install mmcv-full=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/cu101/torch1.4.0/index.html
+pip install mmcv-full=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu101/torch1.4.0/index.html
 ```
 
 #### CPU
 
 ```bash
-pip install mmcv-full=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.4.0/index.html
+pip install mmcv-full=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cpu/torch1.4.0/index.html
 ```
 
 ### PyTorch v1.3
@@ -31,17 +31,17 @@ pip install mmcv-full=={mmcv_version} -f https://download.openmmlab.com/mmcv/dis
 #### CUDA 10.1
 
 ```bash
-pip install mmcv-full=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/cu101/torch1.3.0/index.html
+pip install mmcv-full=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu101/torch1.3.0/index.html
 ```
 
 #### CUDA 9.2
 
 ```bash
-pip install mmcv-full=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/cu101/torch1.3.0/index.html
+pip install mmcv-full=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu101/torch1.3.0/index.html
 ```
 
 #### CPU
 
 ```bash
-pip install mmcv-full=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.3.0/index.html
+pip install mmcv-full=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cpu/torch1.3.0/index.html
 ```

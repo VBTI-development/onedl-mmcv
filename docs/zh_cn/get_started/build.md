@@ -83,7 +83,7 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
    如果上述命令没有报错，说明安装成功。如有报错，请查看[问题解决页面](../faq.html)是否已经有解决方案。
 
-   如果没有找到解决方案，欢迎提 [issue](https://github.com/open-mmlab/mmcv/issues)。
+   如果没有找到解决方案，欢迎提 [issue](https://github.com/vbti-development/onedl-mmcv/issues)。
 
 #### 在 macOS 上编译 mmcv
 
@@ -120,7 +120,7 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
    如果上述命令没有报错，说明安装成功。如有报错，请查看[问题解决页面](../faq.md)是否已经有解决方案。
 
-   如果没有找到解决方案，欢迎提 [issue](https://github.com/open-mmlab/mmcv/issues)。
+   如果没有找到解决方案，欢迎提 [issue](https://github.com/vbti-development/onedl-mmcv/issues)。
 
 #### 在 Windows 上编译 mmcv
 
@@ -274,7 +274,7 @@ mmcv 有两个版本：
 ```
 
 如果上述命令没有报错，说明安装成功。如有报错，请查看[问题解决页面](../faq.md)是否已经有解决方案。
-如果没有找到解决方案，欢迎提 [issue](https://github.com/open-mmlab/mmcv/issues)。
+如果没有找到解决方案，欢迎提 [issue](https://github.com/vbti-development/onedl-mmcv/issues)。
 
 ### 编译 mmcv-lite
 
@@ -384,7 +384,7 @@ MMCV_WITH_OPS=1 FORCE_NPU=1 python setup.py develop
 Ascend 编译版本的 mmcv 在 mmcv >= 1.7.0 时已经支持直接 pip 安装
 
 ```bash
-pip install mmcv -f https://download.openmmlab.com/mmcv/dist/ascend/torch1.8.0/index.html
+pip install mmcv -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/ascend/torch1.8.0/index.html
 ```
 
 #### 验证

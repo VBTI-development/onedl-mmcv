@@ -25,7 +25,7 @@ If version information is output, then PyTorch is installed.
 
 ```bash
 pip install -U openmim
-mim install mmcv
+mim install onedl-mmcv
 ```
 
 If you find that the above installation command does not use a pre-built package ending with `.whl` but a source package ending with `.tar.gz`, you may not have a pre-build package corresponding to the PyTorch or CUDA or mmcv version, in which case you can [build mmcv from source](build.md).
@@ -33,16 +33,16 @@ If you find that the above installation command does not use a pre-built package
 <details>
 <summary>Installation log using pre-built packages</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv<br />
-<b>Downloading https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
+<b>Downloading https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/mmcv-2.0.0-cp38-cp38-manylinux1_x86_64.whl</b>
 
 </details>
 
 <details>
 <summary>Installation log using source packages</summary>
 
-Looking in links: https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.0/index.html<br />
+Looking in links: https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu102/torch1.8.0/index.html<br />
 Collecting mmcv==2.0.0<br />
 <b>Downloading mmcv-2.0.0.tar.gz</b>
 
@@ -51,7 +51,7 @@ Collecting mmcv==2.0.0<br />
 To install a specific version of mmcv, for example, mmcv version 2.0.0, you can use the following command
 
 ```bash
-mim install mmcv==2.0.0
+mim install onedl-mmcv==2.0.0
 ```
 
 :::{note}
@@ -62,12 +62,12 @@ you can first install it before installing MMCV to skip the installation of `ope
 Alternatively, if it takes too long to install a dependency library, you can specify the pypi source
 
 ```bash
-mim install mmcv -i https://pypi.tuna.tsinghua.edu.cn/simple
+mim install onedl-mmcv -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 :::
 
-You can run [check_installation.py](https://github.com/open-mmlab/mmcv/blob/main/.dev_scripts/check_installation.py) to check the installation of mmcv-full after running the installation commands.
+You can run [check_installation.py](https://github.com/vbti-development/onedl-mmcv/blob/main/.dev_scripts/check_installation.py) to check the installation of mmcv-full after running the installation commands.
 
 #### Install with pip
 
@@ -202,8 +202,8 @@ Select the appropriate installation command depending on the type of system, CUD
     }
     function changeCmd() {
         const cmd = document.getElementById("select-cmd");
-        let cmdString = "pip install mmcv=={mmcv_version} -f https://download.openmmlab.com/mmcv/dist/{cu_version}/{torch_version}/index.html";
-        // e.g: pip install mmcv==2.0.0rc1 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9/index.html
+        let cmdString = "pip install onedl-mmcv=={mmcv_version} -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/{cu_version}/{torch_version}/index.html";
+        // e.g: pip install onedl-mmcv==2.0.0rc1 -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dist/cu111/torch1.9/index.html
         let cudaVersion;
         if (cudaVal === "cpu" || cudaVal === "mps") {
             cudaVersion = "cpu";
@@ -335,12 +335,12 @@ you can first install it before installing MMCV to skip the installation of `ope
 Alternatively, if it takes too long to install a dependency library, you can specify the pypi source
 
 ```bash
-mim install mmcv -i https://pypi.tuna.tsinghua.edu.cn/simple
+mim install onedl-mmcv -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 :::
 
-You can run [check_installation.py](https://github.com/open-mmlab/mmcv/blob/main/.dev_scripts/check_installation.py) to check the installation of mmcv after running the installation commands.
+You can run [check_installation.py](https://github.com/vbti-development/onedl-mmcv/blob/main/.dev_scripts/check_installation.py) to check the installation of mmcv after running the installation commands.
 
 #### Using mmcv with Docker
 
@@ -382,5 +382,5 @@ More available versions of PyTorch and CUDA can be found at [dockerhub/pytorch](
 If you need to use PyTorch-related modules, make sure PyTorch has been successfully installed in your environment by referring to the [PyTorch official installation guide](https://github.com/pytorch/pytorch#installation).
 
 ```python
-pip install mmcv-lite
+pip install onedl-mmcv-lite
 ```
