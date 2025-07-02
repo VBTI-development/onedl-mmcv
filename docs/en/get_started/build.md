@@ -30,7 +30,7 @@ We recommend using [uv](https://docs.astral.sh/uv/) to manage your virtual envir
 2. Install `ninja` and `psutil` to speed up the compilation
 
    ```bash
-   uv sync --group optional --extra torch
+   uv sync --group optional  --group build --extra torch
    ```
 
 3. Check the nvcc version (requires 9.2+. Skip if no GPU available.)

@@ -41,7 +41,7 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install build requirements
-        run: uv pip install -r pyproject.toml --group optional
+        run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
         run: uv pip install -e . -v
       - name: Install unit tests dependencies
@@ -69,7 +69,7 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install build requirements
-        run: uv pip install -r pyproject.toml --group optional
+        run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
         run: uv pip install -e . -v
       - name: Install unit tests dependencies
@@ -114,7 +114,7 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --group optional
+        run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
         run: uv pip install -e . -v
       - name: Install unit tests dependencies
@@ -142,7 +142,7 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --group optional
+        run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
         run: uv pip install -e . -v
       - name: Install unit tests dependencies
