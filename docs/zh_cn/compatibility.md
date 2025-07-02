@@ -1,3 +1,8 @@
+
+### v2.3.0
+The VBTI team removed support for the mmcv-lite package because modern build systems like uv do not support this structure anymore.
+Furthermore `MMCV_WITH_OPS` is now deprecated and not used anymore.
+
 ### v2.0.0
 
 OpenMMLab 团队于 2022 年 9 月 1 日在世界人工智能大会发布了新一代训练引擎 [MMEngine](https://github.com/open-mmlab/mmengine)，它是一个用于训练深度学习模型的基础库。相比于 MMCV，它提供了更高级且通用的训练器、接口更加统一的开放架构以及可定制化程度更高的训练流程。

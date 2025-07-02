@@ -332,14 +332,6 @@ If you would like to use `opencv-python-headless` instead of `opencv-python`,
 e.g., in a minimum container environment or servers without GUI,
 you can first install it before installing MMCV to skip the installation of `opencv-python`.
 
-Alternatively, if it takes too long to install a dependency library, you can specify the pypi source
-
-```bash
-mim install onedl-mmcv -i https://pypi.tuna.tsinghua.edu.cn/simple
-```
-
-:::
-
 You can run [check_installation.py](https://github.com/vbti-development/onedl-mmcv/blob/main/.dev_scripts/check_installation.py) to check the installation of mmcv after running the installation commands.
 
 #### Using mmcv with Docker
@@ -347,14 +339,14 @@ You can run [check_installation.py](https://github.com/vbti-development/onedl-mm
 Build with local repository
 
 ```bash
-git clone https://github.com/open-mmlab/mmcv.git && cd mmcv
+git clone https://github.com/vbti-development/onedl-mmcv.git && cd mmcv
 docker build -t mmcv -f docker/release/Dockerfile .
 ```
 
 Or build with remote repository
 
 ```bash
-docker build -t mmcv https://github.com/open-mmlab/mmcv.git#main:docker/release
+docker build -t mmcv https://github.com/vbti-development/onedl-mmcv.git#main:docker/release
 ```
 
 The [Dockerfile](release/Dockerfile) installs latest released version of mmcv-full by default, but you can specify mmcv versions to install expected versions.

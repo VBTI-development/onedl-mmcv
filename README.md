@@ -18,8 +18,8 @@
 [![cuda](https://img.shields.io/badge/cuda-10.1~11.8-green)](https://developer.nvidia.com/cuda-downloads)
 [![PyPI](https://img.shields.io/pypi/v/mmcv)](https://pypi.org/project/mmcv)
 [![badge](https://github.com/vbti-development/onedl-mmcv/workflows/build/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
-[![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmcv)
-[![license](https://img.shields.io/github/license/open-mmlab/mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/vbti-development/onedl-mmcv)
+[![license](https://img.shields.io/github/license/vbti-development/onedl-mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
 
 [📘Documentation](https://mmcv.readthedocs.io/en/latest/) |
 [🛠️Installation](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) |
@@ -133,7 +133,7 @@ If you find this project useful in your research, please consider cite:
 @misc{mmcv,
     title={{MMCV: OpenMMLab} Computer Vision Foundation},
     author={MMCV Contributors},
-    howpublished = {\url{https://github.com/open-mmlab/mmcv}},
+    howpublished = {\url{https://github.com/vbti-development/onedl-mmcv}},
     year={2018}
 }
 ```
@@ -159,7 +159,7 @@ MMCV currently has four branches, namely main, 1.x, master, and 2.x, where 2.x i
 ## Projects in OpenMMLab
 
 - [MMEngine](https://github.com/open-mmlab/mmengine): OpenMMLab foundational library for training deep learning models.
-- [MMCV](https://github.com/open-mmlab/mmcv): OpenMMLab foundational library for computer vision.
+- [MMCV](https://github.com/vbti-development/onedl-mmcv): OpenMMLab foundational library for computer vision.
 - [MIM](https://github.com/open-mmlab/mim): MIM installs OpenMMLab packages.
 - [MMClassification](https://github.com/open-mmlab/mmclassification): OpenMMLab image classification toolbox and benchmark.
 - [MMDetection](https://github.com/open-mmlab/mmdetection): OpenMMLab detection toolbox and benchmark.

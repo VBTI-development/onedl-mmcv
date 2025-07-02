@@ -1,3 +1,4 @@
+from csv import Error
 import glob
 import os
 import platform
@@ -31,9 +32,6 @@ except ModuleNotFoundError:
 
 def get_extensions():
     extensions = []
-
-    if os.getenv('MMCV_WITH_OPS', '1') == '0':
-        return extensions
 
     if EXT_TYPE == 'parrots':
         ext_name = 'mmcv._ext'
@@ -345,7 +343,7 @@ def get_extensions():
             extension = CppExtension
             include_dirs.append(os.path.abspath('./mmcv/ops/csrc/common'))
 
-        # Since the PR (https://github.com/open-mmlab/mmcv/pull/1463) uses
+        # Since the PR (https://github.com/vbti-development/onedl-mmcv/pull/1463) uses
         # c++14 features, the argument ['std=c++14'] must be added here.
         # However, in the windows environment, some standard libraries
         # will depend on c++17 or higher. In fact, for the windows
@@ -371,10 +369,7 @@ def get_extensions():
         extensions.append(ext_ops)
     return extensions
 
-
 setup(
-    name='onedl-mmcv'
-    if os.getenv('MMCV_WITH_OPS', '1') == '1' else 'onedl-mmcv-lite',
     packages=find_packages(),
     ext_modules=get_extensions(),
     cmdclass=cmd_class,

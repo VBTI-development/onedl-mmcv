@@ -28,7 +28,7 @@
 
 - "RuntimeError: CUDA error: invalid configuration argument"
 
-  这个错误可能是由于您的 GPU 性能不佳造成的。尝试降低 [THREADS_PER_BLOCK](https://github.com/open-mmlab/mmcv/blob/cac22f8cf5a904477e3b5461b1cc36856c2793da/mmcv/ops/csrc/common_cuda_helper.hpp#L10)
+  这个错误可能是由于您的 GPU 性能不佳造成的。尝试降低 [THREADS_PER_BLOCK](https://github.com/vbti-development/onedl-mmcv/blob/cac22f8cf5a904477e3b5461b1cc36856c2793da/mmcv/ops/csrc/common_cuda_helper.hpp#L10)
   的值并重新编译 mmcv。
 
 - "RuntimeError: nms is not compiled with GPU support"

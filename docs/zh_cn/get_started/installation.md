@@ -342,14 +342,14 @@ pip install mmcv -f https://pub-ed9ed750ddcc469da251e2d1a2cea382.r2.dev/mmcv/dis
 先将算法库克隆到本地再构建镜像
 
 ```bash
-git clone https://github.com/open-mmlab/mmcv.git && cd mmcv
+git clone https://github.com/vbti-development/onedl-mmcv.git && cd mmcv
 docker build -t mmcv -f docker/release/Dockerfile .
 ```
 
 也可以直接使用下面的命令构建镜像
 
 ```bash
-docker build -t mmcv https://github.com/open-mmlab/mmcv.git#main:docker/release
+docker build -t mmcv https://github.com/vbti-development/onedl-mmcv.git#main:docker/release
 ```
 
 [Dockerfile](release/Dockerfile) 默认安装最新的 mmcv，如果你想要指定版本，可以使用下面的命令

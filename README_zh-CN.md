@@ -24,8 +24,8 @@
 [![cuda](https://img.shields.io/badge/cuda-10.1~11.8-green)](https://developer.nvidia.com/cuda-downloads)
 [![PyPI](https://img.shields.io/pypi/v/mmcv)](https://pypi.org/project/mmcv)
 [![badge](https://github.com/vbti-development/onedl-mmcv/workflows/build/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
-[![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmcv)
-[![license](https://img.shields.io/github/license/open-mmlab/mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/vbti-development/onedl-mmcv)
+[![license](https://img.shields.io/github/license/vbti-development/onedl-mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
 
 [📘使用文档](https://mmcv.readthedocs.io/zh_CN/latest/) |
 [🛠️安装教程](https://mmcv.readthedocs.io/zh_CN/latest/get_started/installation.html) |
@@ -169,7 +169,7 @@ MMCV 目前有四个分支，分别是 main、1.x、master 和 2.x，其中 2.x 
 ## OpenMMLab 的其他项目
 
 - [MMEngine](https://github.com/open-mmlab/mmengine): OpenMMLab 深度学习模型训练基础库
-- [MMCV](https://github.com/open-mmlab/mmcv): OpenMMLab 计算机视觉基础库
+- [MMCV](https://github.com/vbti-development/onedl-mmcv): OpenMMLab 计算机视觉基础库
 - [MIM](https://github.com/open-mmlab/mim): MIM 是 OpenMMlab 项目、算法、模型的统一入口
 - [MMClassification](https://github.com/open-mmlab/mmclassification): OpenMMLab 图像分类工具箱
 - [MMDetection](https://github.com/open-mmlab/mmdetection): OpenMMLab 目标检测工具箱

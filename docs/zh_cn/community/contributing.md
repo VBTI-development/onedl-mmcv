@@ -42,7 +42,7 @@ git clone git@github.com:{username}/mmcv.git
 添加原代码库为上游代码库
 
 ```bash
-git remote add upstream git@github.com:open-mmlab/mmcv
+git remote add upstream git@github.com:vbti-development/onedl-mmcv
 ```
 
 检查 remote 是否添加成功，在终端输入 `git remote -v`
@@ -50,8 +50,8 @@ git remote add upstream git@github.com:open-mmlab/mmcv
 ```bash
 origin	git@github.com:{username}/mmcv.git (fetch)
 origin	git@github.com:{username}/mmcv.git (push)
-upstream	git@github.com:open-mmlab/mmcv (fetch)
-upstream	git@github.com:open-mmlab/mmcv (push)
+upstream	git@github.com:vbti-development/onedl-mmcv (fetch)
+upstream	git@github.com:vbti-development/onedl-mmcv (push)
 ```
 
 ```{note}
@@ -194,7 +194,7 @@ git merge upstream/main
 
 #### 单元测试
 
-如果你无法正常执行部分模块的单元测试，例如 [video](https://github.com/open-mmlab/mmcv/tree/main/mmcv/video) 模块，可能是你的当前环境没有安装以下依赖
+如果你无法正常执行部分模块的单元测试，例如 [video](https://github.com/vbti-development/onedl-mmcv/tree/main/mmcv/video) 模块，可能是你的当前环境没有安装以下依赖
 
 ```shell
 # Linux

@@ -40,7 +40,7 @@ git clone git@github.com:{username}/mmcv.git
 After that, you should ddd official repository as the upstream repository
 
 ```bash
-git remote add upstream git@github.com:open-mmlab/mmcv
+git remote add upstream git@github.com:vbti-development/onedl-mmcv
 ```
 
 Check whether remote repository has been added successfully by `git remote -v`
@@ -48,8 +48,8 @@ Check whether remote repository has been added successfully by `git remote -v`
 ```bash
 origin	git@github.com:{username}/mmcv.git (fetch)
 origin	git@github.com:{username}/mmcv.git (push)
-upstream	git@github.com:open-mmlab/mmcv (fetch)
-upstream	git@github.com:open-mmlab/mmcv (push)
+upstream	git@github.com:vbti-development/onedl-mmcv (fetch)
+upstream	git@github.com:vbti-development/onedl-mmcv (push)
 ```
 
 ```{note}

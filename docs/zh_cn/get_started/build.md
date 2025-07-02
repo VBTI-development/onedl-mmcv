@@ -13,7 +13,7 @@ python -c 'import torch;print(torch.__version__)'
 - 如果克隆代码仓库的速度过慢，可以使用以下命令克隆（注意：gitee 的 mmcv 不一定和 github 的保持一致，因为每天只同步一次）
 
 ```bash
-git clone https://gitee.com/open-mmlab/mmcv.git
+git clone https://gitee.com/vbti-development/onedl-mmcv.git
 ```
 
 - 如果打算使用 `opencv-python-headless` 而不是 `opencv-python`，例如在一个很小的容器环境或者没有图形用户界面的服务器中，你可以先安装 `opencv-python-headless`，这样在安装 mmcv 依赖的过程中会跳过 `opencv-python`。
@@ -33,7 +33,7 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 1. 克隆代码仓库
 
    ```bash
-   git clone https://github.com/open-mmlab/mmcv.git
+   git clone https://github.com/vbti-development/onedl-mmcv.git
    cd mmcv
    ```
 
@@ -90,13 +90,13 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 | TODO: 视频教程
 
 ```{note}
-如果你使用的是搭载 apple silicon 的 mac 设备，请安装 PyTorch 1.13+ 的版本，否则会遇到 [issues#2218](https://github.com/open-mmlab/mmcv/issues/2218) 中的问题。
+如果你使用的是搭载 apple silicon 的 mac 设备，请安装 PyTorch 1.13+ 的版本，否则会遇到 [issues#2218](https://github.com/vbti-development/onedl-mmcv/issues/2218) 中的问题。
 ```
 
 1. 克隆代码仓库
 
    ```bash
-   git clone https://github.com/open-mmlab/mmcv.git
+   git clone https://github.com/vbti-development/onedl-mmcv.git
    cd mmcv
    ```
 
@@ -167,7 +167,7 @@ pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 4. 克隆代码仓库
 
    ```powershell
-   (mmcv) PS C:\Users\xxx> git clone https://github.com/open-mmlab/mmcv.git
+   (mmcv) PS C:\Users\xxx> git clone https://github.com/vbti-development/onedl-mmcv.git
    (mmcv) PS C:\Users\xxx> cd mmcv
    ```
 
@@ -276,29 +276,6 @@ mmcv 有两个版本：
 如果上述命令没有报错，说明安装成功。如有报错，请查看[问题解决页面](../faq.md)是否已经有解决方案。
 如果没有找到解决方案，欢迎提 [issue](https://github.com/vbti-development/onedl-mmcv/issues)。
 
-### 编译 mmcv-lite
-
-如果你需要使用和 PyTorch 相关的模块，请确保 PyTorch 已经成功安装在环境中，可以参考 [PyTorch 官方安装文档](https://pytorch.org/get-started/locally/#start-locally)。
-
-1. 克隆代码仓库
-
-   ```bash
-   git clone https://github.com/open-mmlab/mmcv.git
-   cd mmcv
-   ```
-
-2. 开始编译
-
-   ```bash
-   MMCV_WITH_OPS=0 pip install -e . -v
-   ```
-
-3. 验证安装
-
-   ```bash
-   python -c 'import mmcv;print(mmcv.__version__)'
-   ```
-
 ### 在寒武纪 MLU 机器编译 mmcv-full
 
 #### 安装 torch_mlu
@@ -322,7 +299,7 @@ docker pull ${docker image}
 克隆代码仓库
 
 ```bash
-git clone https://github.com/open-mmlab/mmcv.git
+git clone https://github.com/vbti-development/onedl-mmcv.git
 ```
 
 算子库 mlu-ops 在编译 MMCV 时自动下载到默认路径(mmcv/mlu-ops)，你也可以在编译前设置环境变量 MMCV_MLU_OPS_PATH 指向已经存在的 mlu-ops 算子库路径。
@@ -335,7 +312,6 @@ export MMCV_MLU_OPS_PATH=/xxx/xxx/mlu-ops
 
 ```bash
 cd mmcv
-export MMCV_WITH_OPS=1
 export FORCE_MLU=1
 python setup.py install
 ```
@@ -361,22 +337,22 @@ output = sigmoid_focal_loss(x, y, 2.0, 0.25, w, 'none')
 
 #### 选项 1: 使用 NPU 设备源码编译安装 mmcv (推荐方式)
 
-- 拉取 [MMCV 源码](https://github.com/open-mmlab/mmcv.git)
+- 拉取 [MMCV 源码](https://github.com/vbti-development/onedl-mmcv.git)
 
 ```bash
-git pull https://github.com/open-mmlab/mmcv.git
+git pull https://github.com/vbti-development/onedl-mmcv.git
 ```
 
 - 编译
 
 ```bash
-MMCV_WITH_OPS=1 MAX_JOBS=8 FORCE_NPU=1 python setup.py build_ext
+MAX_JOBS=8 FORCE_NPU=1 python setup.py build_ext
 ```
 
 - 安装
 
 ```bash
-MMCV_WITH_OPS=1 FORCE_NPU=1 python setup.py develop
+FORCE_NPU=1 python setup.py develop
 ```
 
 #### 选项 2: 使用 pip 安装 Ascend 编译版本的 mmcv

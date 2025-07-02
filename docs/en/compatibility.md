@@ -1,3 +1,8 @@
+
+### v2.3.0
+The VBTI team removed support for the mmcv-lite package because modern build systems like uv do not support this structure anymore.
+Furthermore `MMCV_WITH_OPS` is now deprecated and not used anymore.
+
 ### v2.0.0
 
 The OpenMMLab team released a new generation of training engine [MMEngine](https://github.com/open-mmlab/mmengine) at the World Artificial Intelligence Conference on September 1, 2022. It is a foundational library for training deep learning models. Compared with MMCV, it provides a universal and powerful runner, an open architecture with a more unified interface, and a more customizable training process.
@@ -28,7 +33,7 @@ The OpenMMLab team released MMCV v2.0.0 on April 6, 2023. In the 2.x version, it
 ```bash
 # Contains ops, because the highest version of mmcv-full is less than 2.0.0, so there is no need to add version restrictions
 pip install openmim
-mim install onedl-mmcv-full
+mim install mmcv-full
 
 # do not contain ops
 pip install openmim
@@ -41,11 +46,11 @@ mim install "mmcv < 2.0.0"
 ```bash
 # Contains ops
 pip install openmim
-mim install onedl-mmcv
+mim install mmcv
 
 # Ops are not included, because the starting version of mmcv-lite is 2.0.0rc1, so there is no need to add version restrictions
 pip install openmim
-mim install onedl-mmcv-lite
+mim install mmcv-lite
 ```
 
 </td>

@@ -3,7 +3,6 @@
 name = "onedl-mmcv"
 description = "OpenMMLab Computer Vision Foundation"
 authors = [
-    { name = "MMCV Contributors", email = "openmmlab@gmail.com" },
     { name = "VBTI Contributors", email = "dev@vbti.nl" }
 ]
 license = "Apache-2.0"
@@ -26,9 +25,9 @@ dependencies = [
     "regex; sys_platform == 'win32'",
     "yapf"
 ]
-version = "2.2.1-rc0"
+version = "2.3.0-rc0"
 
-[project.optional-dependencies]
+[dependency-groups]
 docs = [
     "docutils==0.16.0",
     "markdown>=3.4.0",
@@ -52,14 +51,13 @@ test = [
     "scipy",
     "tifffile"
 ]
-build = [
-    "pytest-runner",
-    "setuptools",
-]
 optional = [
     "ninja",
     "psutil"
 ]
+
+[project.optional-dependencies]
+torch = [ "torch<2.6" ]
 
 [project.urls]
 Homepage = "https://github.com/VBTI-development/mmcv"
@@ -69,6 +67,7 @@ requires = [
     "setuptools>=78",
     "wheel",
     "packaging",
+    "pytest-runner",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -98,7 +97,7 @@ quiet-level = 3
 ignore-words-list = "inout,hist,ba,ro,inh"
 
 [tool.uv]
-no-build-isolation-package = ["onedl-mmcv"]
+no-build-isolation-package = ["torch", "onedl-mmcv"]
 
 [[tool.uv.index]]
 name = "testpypi"

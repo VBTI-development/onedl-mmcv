@@ -18,7 +18,7 @@ body:
       options:
       - label: I have searched [Issues](https://github.com/vbti-development/onedl-mmcv/issues) and [Discussions](https://github.com/vbti-development/onedl-mmcv/discussions) but cannot get the expected help.
         required: true
-      - label: The bug has not been fixed in the latest version(https://github.com/open-mmlab/mmcv).
+      - label: The bug has not been fixed in the latest version(https://github.com/vbti-development/onedl-mmcv).
         required: true
 
   - type: textarea
