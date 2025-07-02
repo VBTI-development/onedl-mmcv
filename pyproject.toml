@@ -55,6 +55,9 @@ optional = [
     "ninja",
     "psutil"
 ]
+build = [
+    "setuptools",
+]
 
 [project.optional-dependencies]
 torch = [ "torch<2.6" ]
@@ -67,7 +70,6 @@ requires = [
     "setuptools>=78",
     "wheel",
     "packaging",
-    "pytest-runner",
 ]
 build-backend = "setuptools.build_meta"
 
