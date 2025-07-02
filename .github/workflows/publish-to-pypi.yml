@@ -9,13 +9,15 @@ concurrency:
 jobs:
   build-n-publish_without_ops:
     runs-on: ubuntu-22.04
-    if: startsWith(github.event.ref, 'refs/tags')
+    # if: startsWith(github.event.ref, 'refs/tags')
     steps:
       - uses: actions/checkout@v3
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.10'
+      - name: Install ninja to speed the compilation
+        run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV
         run: |
           sed -i "s/os.getenv('MMCV_WITH_OPS', '1')/os.getenv('MMCV_WITH_OPS', '0')/g" setup.py
@@ -26,13 +28,15 @@ jobs:
 
   build-n-publish_with_ops:
     runs-on: ubuntu-22.04
-    if: startsWith(github.event.ref, 'refs/tags')
+    # if: startsWith(github.event.ref, 'refs/tags')
     steps:
       - uses: actions/checkout@v3
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.10'
+      - name: Install ninja to speed the compilation
+        run: uv pip install -r pyproject.toml --extra optional --extra build
       - name: Build MMCV
         run: |
           uv build --sdist
