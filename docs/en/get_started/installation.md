@@ -11,7 +11,10 @@ Do not install both versions in the same environment, otherwise you may encounte
 
 ### Install mmcv
 
-Before installing mmcv, make sure that PyTorch has been successfully installed following the [PyTorch official installation guide](https://pytorch.org/get-started/locally/#start-locally). This can be verified using the following command
+#### Optional: install PyTorch
+You can choose to install PyTorch separately by following the [PyTorch official installation guide](https://pytorch.org/get-started/locally/#start-locally). However, if you use [uv] you don't have to.
+
+This can be verified using the following command
 
 ```bash
 python -c 'import torch;print(torch.__version__)'
@@ -19,13 +22,18 @@ python -c 'import torch;print(torch.__version__)'
 
 If version information is output, then PyTorch is installed.
 
-#### Install with mim (recommended)
+#### Install with uv (recommended)
 
-[mim](https://github.com/open-mmlab/mim) is the package management tool for the OpenMMLab projects, which makes it easy to install mmcv
+[uv](https://docs.astral.sh/uv/) is a python installation tool which makes it easy to install and manage dependencies.
 
 ```bash
-pip install -U openmim
-mim install onedl-mmcv
+uv pip install onedl-mmcv[torch]
+```
+
+If not the correct version of torch is installed, you can try with
+```bash
+uv pip install torch --torch-backend=auto
+uv pip install onedl-mmcv
 ```
 
 If you find that the above installation command does not use a pre-built package ending with `.whl` but a source package ending with `.tar.gz`, you may not have a pre-build package corresponding to the PyTorch or CUDA or mmcv version, in which case you can [build mmcv from source](build.md).
@@ -368,11 +376,3 @@ docker build -t mmcv -f docker/release/Dockerfile \
 ```
 
 More available versions of PyTorch and CUDA can be found at [dockerhub/pytorch](https://hub.docker.com/r/pytorch/pytorch/tags).
-
-### Install mmcv-lite
-
-If you need to use PyTorch-related modules, make sure PyTorch has been successfully installed in your environment by referring to the [PyTorch official installation guide](https://github.com/pytorch/pytorch#installation).
-
-```python
-pip install onedl-mmcv-lite
-```

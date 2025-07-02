@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --extra optional --extra build
+        run: uv pip install -r pyproject.toml --group optional
       - name: Build MMCV
         run: |
           uv build --sdist
