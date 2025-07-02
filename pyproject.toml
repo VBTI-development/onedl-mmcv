@@ -26,7 +26,7 @@ dependencies = [
     "regex; sys_platform == 'win32'",
     "yapf"
 ]
-version = "2.2.0"
+version = "2.2.1-rc0"
 
 [project.optional-dependencies]
 docs = [
@@ -99,3 +99,9 @@ ignore-words-list = "inout,hist,ba,ro,inh"
 
 [tool.uv]
 no-build-isolation-package = ["onedl-mmcv"]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
