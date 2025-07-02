@@ -1,4 +1,3 @@
-from csv import Error
 import glob
 import os
 import platform
@@ -343,7 +342,7 @@ def get_extensions():
             extension = CppExtension
             include_dirs.append(os.path.abspath('./mmcv/ops/csrc/common'))
 
-        # Since the PR (https://github.com/vbti-development/onedl-mmcv/pull/1463) uses
+        # Since the PR (https://github.com/open-mmlab/mmcv/pull/1463) uses
         # c++14 features, the argument ['std=c++14'] must be added here.
         # However, in the windows environment, some standard libraries
         # will depend on c++17 or higher. In fact, for the windows
@@ -368,6 +367,7 @@ def get_extensions():
             extra_link_args=extra_link_args)
         extensions.append(ext_ops)
     return extensions
+
 
 setup(
     packages=find_packages(),

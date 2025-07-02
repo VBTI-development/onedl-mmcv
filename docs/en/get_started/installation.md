@@ -12,7 +12,8 @@ Do not install both versions in the same environment, otherwise you may encounte
 ### Install mmcv
 
 #### Optional: install PyTorch
-You can choose to install PyTorch separately by following the [PyTorch official installation guide](https://pytorch.org/get-started/locally/#start-locally). However, if you use [uv] you don't have to.
+
+You can choose to install PyTorch separately by following the [PyTorch official installation guide](https://pytorch.org/get-started/locally/#start-locally). However, if you use \[uv\] you don't have to.
 
 This can be verified using the following command
 
@@ -31,6 +32,7 @@ uv pip install onedl-mmcv[torch]
 ```
 
 If not the correct version of torch is installed, you can try with
+
 ```bash
 uv pip install torch --torch-backend=auto
 uv pip install onedl-mmcv
