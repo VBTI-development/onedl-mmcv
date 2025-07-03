@@ -1,14 +1,5 @@
 ## Installation
 
-There are two versions of MMCV:
-
-- **mmcv**: comprehensive, with full features and various CUDA ops out of box. It takes longer time to build.
-- **mmcv-lite**: lite, without CUDA ops but all other features, similar to mmcv\<1.0.0. It is useful when you do not need those CUDA ops.
-
-```{warning}
-Do not install both versions in the same environment, otherwise you may encounter errors like `ModuleNotFound`. You need to uninstall one before installing the other. `Installing the full version is highly recommended if CUDA is available`.
-```
-
 ### Install mmcv
 
 #### Optional: install PyTorch
@@ -31,7 +22,7 @@ If version information is output, then PyTorch is installed.
 uv pip install onedl-mmcv[torch]
 ```
 
-If not the correct version of torch is installed, you can try with
+If the correct version of torch is not installed, you can try with
 
 ```bash
 uv pip install torch --torch-backend=auto
