@@ -57,7 +57,7 @@ class TINShift(nn.Module):
 
     Please refer to
     `Temporal Interlacing Network <https://arxiv.org/abs/2001.06499>`_
-     for more details.
+    for more details.
 
     Code is modified from
     https://github.com/mit-han-lab/temporal-shift-module

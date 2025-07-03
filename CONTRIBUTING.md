@@ -204,7 +204,7 @@ python -m coverage html
 If the documents are modified/added, we should check the rendering result. We could install the dependencies and run the following command to render the documents and check the results:
 
 ```shell
-pip install -r requirements/docs.txt
+uv pip install -r pyproject.toml --group docs
 cd docs/zh_cn/
 # or docs/en
 make html
