@@ -64,7 +64,9 @@ build = [
 torch = [ "torch<2.6" ]
 
 [project.urls]
-Homepage = "https://github.com/VBTI-development/mmcv"
+Homepage = "https://onedl.ai"
+Repository = "https://github.com/VBTI-development/mmcv"
+Documentation = "https://mmcv.readthedocs.io/en/latest/"
 
 [build-system]
 requires = [

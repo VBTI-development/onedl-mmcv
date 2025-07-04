@@ -39,7 +39,7 @@ jobs:
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
-        run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
+        run: uv pip install git+https://github.com/VBTI-development/onedl-mmengine.git@main
       - name: Install build requirements
         run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
@@ -47,7 +47,7 @@ jobs:
       - name: Install unit tests dependencies
         run: uv pip install -r pyproject.toml --group test
       - name: Run unit tests
-        run: pytest tests
+        run: uv run pytest tests
 
   build_cpu_pt:
     runs-on: ubuntu-22.04
@@ -67,7 +67,7 @@ jobs:
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
-        run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
+        run: uv pip install git+https://github.com/VBTI-development/onedl-mmengine.git@main
       - name: Install build requirements
         run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
@@ -75,7 +75,7 @@ jobs:
       - name: Install unit tests dependencies
         run: uv pip install -r pyproject.toml --group test
       - name: Run unit tests
-        run: pytest tests
+        run: uv run pytest tests
 
   build_cu118:
     runs-on: ubuntu-22.04
@@ -112,7 +112,7 @@ jobs:
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
-        run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
+        run: uv pip install git+https://github.com/VBTI-development/onedl-mmengine.git@main
       - name: Install ninja to speed the compilation
         run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
@@ -140,7 +140,7 @@ jobs:
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
       - name: Install MMEngine from main branch
-        run: uv pip install git+https://github.com/VBTI-development/mmengine.git@main
+        run: uv pip install git+https://github.com/VBTI-development/onedl-mmengine.git@main
       - name: Install ninja to speed the compilation
         run: uv pip install -r pyproject.toml --group optional  --group build
       - name: Build MMCV from source
