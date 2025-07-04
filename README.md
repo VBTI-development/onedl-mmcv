@@ -13,12 +13,12 @@
   <div>&nbsp;</div>
 
 [![platform](https://img.shields.io/badge/platform-Linux%7CWindows%7CmacOS-blue)](https://mmcv.readthedocs.io/en/latest/get_started/installation.html)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mmcv)](https://pypi.org/project/mmcv/)
-[![pytorch](https://img.shields.io/badge/pytorch-1.8~2.0-orange)](https://pytorch.org/get-started/previous-versions/)
-[![cuda](https://img.shields.io/badge/cuda-10.1~11.8-green)](https://developer.nvidia.com/cuda-downloads)
-[![PyPI](https://img.shields.io/pypi/v/mmcv)](https://pypi.org/project/mmcv)
-[![badge](https://github.com/vbti-development/onedl-mmcv/workflows/build/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
-[![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/vbti-development/onedl-mmcv)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mmcv)](https://pypi.org/project/onedl-mmcv/)
+[![pytorch](https://img.shields.io/badge/pytorch-2.0~2.5-orange)](https://pytorch.org/get-started/previous-versions/)
+[![cuda](https://img.shields.io/badge/cuda-10.1~12.8-green)](https://developer.nvidia.com/cuda-downloads)
+[![PyPI](https://img.shields.io/pypi/v/onedl-mmcv)](https://pypi.org/project/onedl-mmcv)
+[![badge](https://github.com/vbti-development/onedl-mmcv/workflows/merge_stage_test/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
+<!-- [![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/vbti-development/onedl-mmcv) -->
 [![license](https://img.shields.io/github/license/vbti-development/onedl-mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
 
 [📘Documentation](https://mmcv.readthedocs.io/en/latest/) |
