@@ -37,6 +37,7 @@ docs = [
     "sphinx",
     "sphinx-copybutton",
     "sphinx_markdown_tables>=0.0.16",
+    "sphinxcontrib-jquery",
     "torch",
     "urllib3"
 ]

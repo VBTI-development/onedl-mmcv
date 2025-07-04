@@ -54,6 +54,7 @@ extensions = [
     'sphinx_markdown_tables',
     'myst_parser',
     'sphinx_copybutton',
+    'sphinxcontrib.jquery',
 ]  # yapf: disable
 
 myst_heading_anchors = 4
