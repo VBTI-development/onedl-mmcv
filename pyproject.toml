@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "addict",
-    "mmengine>=0.3.0",
+    "onedl-mmengine>=0.3.0",
     "numpy<2",
     "packaging",
     "Pillow",
