@@ -28,4 +28,4 @@ jobs:
           uv build --sdist
       - name: Publish distribution to PyPI
         run: |
-          uv publish --index testpypi
+          uv publish
