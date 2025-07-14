@@ -12,26 +12,22 @@
   </div>
   <div>&nbsp;</div>
 
-[![platform](https://img.shields.io/badge/platform-Linux%7CWindows%7CmacOS-blue)](https://mmcv.readthedocs.io/en/latest/get_started/installation.html)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mmcv)](https://pypi.org/project/onedl-mmcv/)
-[![pytorch](https://img.shields.io/badge/pytorch-2.0~2.5-orange)](https://pytorch.org/get-started/previous-versions/)
+[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://mmcv.readthedocs.io/en/latest/)
+[![license](https://img.shields.io/github/license/vbti-development/onedl-mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/main/LICENSE)
+
+[![pytorch](https://img.shields.io/badge/pytorch-2.0~2.5-yellow)](#installation)
 [![cuda](https://img.shields.io/badge/cuda-10.1~12.8-green)](https://developer.nvidia.com/cuda-downloads)
+[![platform](https://img.shields.io/badge/platform-Linux%7CWindows%7CmacOS-blue)](https://mmcv.readthedocs.io/en/latest/get_started/installation.html)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/onedl-mmcv)](https://pypi.org/project/onedl-mmcv/)
 [![PyPI](https://img.shields.io/pypi/v/onedl-mmcv)](https://pypi.org/project/onedl-mmcv)
-[![badge](https://github.com/vbti-development/onedl-mmcv/workflows/merge_stage_test/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
 
-<!-- [![codecov](https://codecov.io/gh/vbti-development/onedl-mmcv/branch/master/graph/badge.svg)](https://codecov.io/gh/vbti-development/onedl-mmcv) -->
-
-[![license](https://img.shields.io/github/license/vbti-development/onedl-mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/master/LICENSE)
+[![Build Status](https://github.com/vbti-development/onedl-mmcv/workflows/merge_stage_test/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
+[![open issues](https://isitmaintained.com/badge/open/VBTI-development/onedl-mmcv.svg)](https://github.com/VBTI-development/onedl-mmcv/issues)
+[![issue resolution](https://isitmaintained.com/badge/resolution/VBTI-development/onedl-mmcv.svg)](https://github.com/VBTI-development/onedl-mmcv/issues)
 
 [📘Documentation](https://mmcv.readthedocs.io/en/latest/) |
 [🛠️Installation](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) |
 [🤔Reporting Issues](https://github.com/vbti-development/onedl-mmcv/issues/new/choose)
-
-</div>
-
-<div align="center">
-
-English | [简体中文](README_zh-CN.md)
 
 </div>
 
