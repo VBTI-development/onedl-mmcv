@@ -47,6 +47,7 @@ test = [
     "onnx",
     "onnxoptimizer",
     "onnxruntime",
+    "opencv-python",
     "pytest",
     "PyTurboJPEG",
     "scipy",
