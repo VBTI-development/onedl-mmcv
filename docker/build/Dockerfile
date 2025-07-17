@@ -36,17 +36,17 @@ ENV TORCH_CUDA_ARCH_LIST=${CUDA_ARCH}
 
 # build mmcv with uv
 WORKDIR /mmcv
-# RUN uv build
-RUN uv venv --python 3.10
+RUN git clone https://github.com/vbti-development/onedl-mmcv.git /mmcv \
+    && uv venv --python 3.10
 
 # install torch
 ARG PYTORCH="2.5.1"
 ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv \
-    CUDA_SHORT=${CUDA%.*} CU_BE=$(echo $CUDA_SHORT | tr -d .) && uv pip install --torch-backend=cu${CU_BE} torch
+    CUDA_SHORT=${CUDA%.*} CU_BE=$(echo $CUDA_SHORT | tr -d .) && uv pip install --torch-backend=cu${CU_BE} torch==${PYTORCH}
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    git clone https://github.com/vbti-development/onedl-mmcv.git /mmcv  && uv pip install setuptools && uv sync --group build --group optional
+  uv pip install setuptools && uv sync --group build --group optional --no-install-project --inexact
 
 VOLUME [ "/mmcv/dist" ]
 ENTRYPOINT ["uv", "build"]
