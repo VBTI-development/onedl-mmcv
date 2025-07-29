@@ -5,7 +5,7 @@ The process is two steps:
 1. Build the docker with the correct cuda and torch versions. Base image is based on [nvidia/cuda](https://hub.docker.com/r/nvidia/cuda/tags) image.
 
    ```bash
-   docker build -t mmcv-builder:cu118-pt251 --build-arg CUDA=11.8.0 --build-arg PYTORCH=2.5.1 -f docker/build.Dockerfile .
+   docker build -t mmcv-builder:cu118-pt251 --build-arg CUDA=11.8.0 --build-arg PYTORCH=2.5.1 -f docker/build/Dockerfile .
    ```
 
    Note:
@@ -15,7 +15,7 @@ The process is two steps:
 2. Build the wheel
 
    ```bash
-   docker run --rm -v "$PWD/dist/cu121/pt251:/mmcv/dist" -e TORCH_CUDA_ARCH_LIST="7.5 8.6 8.9" mmmcv-builder:cu118-pt251
+   docker run --rm -v "$PWD/dist/cu118/pt251:/mmcv/dist" -e TORCH_CUDA_ARCH_LIST="7.5 8.6 8.9" mmcv-builder:cu118-pt251
    ```
 
    Note:
