@@ -37,5 +37,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install setuptools && uv sync --group build --group optional --no-install-project --inexact
 
-VOLUME [ "/mmcv/dist" ]
-ENTRYPOINT ["uv", "build"]
+COPY entrypoint.sh /entrypoint.sh
+
+VOLUME [ "/out" ]
+ENTRYPOINT ["/entrypoint.sh" ]
