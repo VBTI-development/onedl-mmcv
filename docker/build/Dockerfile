@@ -11,12 +11,7 @@ RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/
 
 # Install git and system dependencies for opencv-python
 RUN apt-get update && apt-get install -y git \
-    && apt-get update && apt-get install -y libgl1 libglib2.0-0
-
-# Install system dependencies for unit tests
-RUN apt-get install -y ffmpeg libturbojpeg \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get update && apt-get install -y libgl1 libglib2.0-0 patchelf
 
 # Install uv
 # The installer requires curl (and certificates) to download the release archive
@@ -46,7 +41,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     CUDA_SHORT=${CUDA%.*} CU_BE=$(echo $CUDA_SHORT | tr -d .) && uv pip install --torch-backend=cu${CU_BE} torch==${PYTORCH}
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-  uv pip install setuptools && uv sync --group build --group optional --no-install-project --inexact
+    uv pip install setuptools && uv sync --group build --group optional --no-install-project --inexact
 
 VOLUME [ "/mmcv/dist" ]
 ENTRYPOINT ["uv", "build"]
