@@ -48,7 +48,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.WHEELHOUSE_S3_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: auto
         run: |
-          CUDA_CLEAN=${CUDA//.}
+          CUDA_TRIMMED=${CUDA%.*}
+          CUDA_CLEAN=${CUDA_TRIMMED//.}
           PYTORCH_CLEAN=${PYTORCH//.}
           aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"/ \
           --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
