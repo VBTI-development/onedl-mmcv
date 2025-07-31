@@ -51,5 +51,6 @@ jobs:
           CUDA_CLEAN=${CUDA//.}
           PYTORCH_CLEAN=${PYTORCH//.}
           aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"/ \
-          --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }}
+          --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
+          --exclude '.gitignore'
           
