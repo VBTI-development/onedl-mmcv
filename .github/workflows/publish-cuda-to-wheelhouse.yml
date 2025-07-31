@@ -33,7 +33,7 @@ jobs:
         run: |
           docker run --rm \
           -e TORCH_CUDA_ARCH_LIST="${{ env.TORCH_CUDA_ARCH_LIST }}" \
-          -v ${{ github.workspace }}/mmcv/dist:/mmcv/dist \
+          -v ${{ github.workspace }}/mmcv/dist:/out \
           mmcv-builder:cu${{ env.CUDA }}-torch${{ env.PYTORCH }}
 
       - name: List generated files
