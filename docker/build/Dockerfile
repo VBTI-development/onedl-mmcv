@@ -14,13 +14,7 @@ RUN apt-get update && apt-get install -y git \
     && apt-get update && apt-get install -y libgl1 libglib2.0-0 patchelf
 
 # Install uv
-# The installer requires curl (and certificates) to download the release archive
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-# Run the installer then remove it
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-# Ensure the installed binary is on the `PATH`
-ENV PATH="/root/.local/bin/:$PATH"
+COPY --from=ghcr.io/astral-sh/uv:0.8.4 /uv /uvx /bin/
 
 # build mmcv from source with develop mode
 ARG HTTPS_PROXY=""
