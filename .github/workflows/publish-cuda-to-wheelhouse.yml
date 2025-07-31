@@ -80,7 +80,8 @@ jobs:
         run: |
           CUDA_TRIMMED=${CUDA%.*}
           CUDA_CLEAN=${CUDA_TRIMMED//.}
-          PYTORCH_CLEAN=${PYTORCH//.}
-          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"/mmcv/ \
+          PYTORCH_TRIMMED=${PYTORCH%.*}
+          PYTORCH_CLEAN=${PYTORCH_TRIMMED//.}
+          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"0/mmcv/ \
           --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
           --exclude '.gitignore'
