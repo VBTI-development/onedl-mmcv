@@ -12,5 +12,5 @@ uvx auditwheel repair dist/*.whl -w dist/wheelhouse \
     --exclude libtorch_python.so \
     --exclude libshm.so
 
-cp dist/wheelhouse/*.whl /out 
-cp dist/*.tar.gz /out 
+cp dist/wheelhouse/*.whl /out
+cp dist/*.tar.gz /out
