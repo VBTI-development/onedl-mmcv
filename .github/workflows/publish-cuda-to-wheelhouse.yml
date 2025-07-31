@@ -1,0 +1,55 @@
+name: "Publish CUDA"
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'     # Production releases
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'   # Pre-releases with suffixes
+  pull_request:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-24.04
+    env:
+      CUDA: 11.8.0
+      PYTORCH: 2.5.1
+      TORCH_CUDA_ARCH_LIST: "7.5 8.0 8.6 8.9 9.0"
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build builder
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/build/Dockerfile
+          push: false
+          tags: mmcv-builder:cu${{ env.CUDA }}-torch${{ env.PYTORCH }}
+          load: true  # Load image into local Docker daemon
+          build-args: |
+            CUDA=${{ env.CUDA }}
+            PYTORCH=${{ env.PYTORCH }}
+
+      - name: Build whl and publish
+        run: |
+          docker run --rm \
+          -e TORCH_CUDA_ARCH_LIST="${{ env.TORCH_CUDA_ARCH_LIST }}" \
+          -v ${{ github.workspace }}/mmcv/dist:/mmcv/dist \
+          mmcv-builder:cu${{ env.CUDA }}-torch${{ env.PYTORCH }}
+
+      - name: List generated files
+        run: |
+            echo "Files to be uploaded to wheelhouse:"
+            ls -la ./mmcv/dist
+
+      - name: Upload to wheelhouse bucket
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.WHEELHOUSE_S3_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.WHEELHOUSE_S3_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          CUDA_CLEAN=${CUDA//.}
+          PYTORCH_CLEAN=${PYTORCH//.}
+          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"/ \
+          --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }}
+          
