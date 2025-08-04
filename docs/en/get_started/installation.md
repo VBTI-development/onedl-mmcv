@@ -203,7 +203,7 @@ Select the appropriate installation command depending on the type of system, CUD
     }
     function changeCmd() {
         const cmd = document.getElementById("select-cmd");
-        let cmdString = "pip install onedl-mmcv=={mmcv_version} -f https://mmwheels.onedl.ai/simple/{cu_version}-{torch_version}/index.html";
+        let cmdString = "pip install onedl-mmcv=={mmcv_version} -f https://mmwheels.onedl.ai/{cu_version}-{torch_version}/index.html";
         // e.g: pip install onedl-mmcv==2.0.0rc1 -f https://mmwheels.onedl.ai/simple/cu126-torch2.4.1/index.html
         let cudaVersion;
         if (cudaVal === "cpu" || cudaVal === "mps") {
@@ -211,7 +211,7 @@ Select the appropriate installation command depending on the type of system, CUD
         } else {
             cudaVersion = `cu${cudaVal.split(".").join("")}`;
         }
-        const torchVersion = `torch${torchVal.substring(0, torchVal.length - 2)}`;
+        const torchVersion = `torch${torchVal.substring(0, torchVal.length - 2).split(".").join("")}0`;
         cmdString = cmdString.replace("{cu_version}", cudaVersion).replace("{mmcv_version}", mmcvVal).replace("{torch_version}", torchVersion);
         cmd.textContent = cmdString;
     }

@@ -8,6 +8,7 @@ on:
   pull_request:
 
 jobs:
+  # when adding/changing versions here, please modify version.json too.
   publish-cuda-to-wheelhouse:
     strategy:
       matrix:
