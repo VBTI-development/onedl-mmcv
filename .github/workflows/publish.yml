@@ -125,7 +125,7 @@ jobs:
         with:
           context: docker/build
           push: false
-          file: Dockerfile.cpu
+          file: docker/build/Dockerfile.cpu
           tags: mmcv-builder:cpu-torch${{ env.PYTORCH }}
           load: true  # Load image into local Docker daemon
           build-args: |
