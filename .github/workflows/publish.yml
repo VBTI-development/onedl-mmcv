@@ -2,9 +2,9 @@ name: publish
 
 on:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'     # Production releases
-      - 'v[0-9]+.[0-9]+.[0-9]+-*'   # Pre-releases with suffixes
+    # tags:
+    #   - 'v[0-9]+.[0-9]+.[0-9]+'     # Production releases
+    #   - 'v[0-9]+.[0-9]+.[0-9]+-*'   # Pre-releases with suffixes
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -106,7 +106,7 @@ jobs:
           CUDA_CLEAN=${CUDA_TRIMMED//.}
           PYTORCH_TRIMMED=${PYTORCH%.*}
           PYTORCH_CLEAN=${PYTORCH_TRIMMED//.}
-          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"0/mmcv/ \
+          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"0/onedl-mmcv/ \
           --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
           --exclude '.gitignore'
   # when adding/changing versions here, please modify version.json too.
@@ -150,6 +150,6 @@ jobs:
         run: |
           PYTORCH_TRIMMED=${PYTORCH%.*}
           PYTORCH_CLEAN=${PYTORCH_TRIMMED//.}
-          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cpu-torch"$PYTORCH_CLEAN"0/mmcv/ \
+          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cpu-torch"$PYTORCH_CLEAN"0/onedl-mmcv/ \
           --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
           --exclude '.gitignore'
