@@ -64,6 +64,7 @@ def lines():
     return boxes, scores
 
 
+@pytest.mark.skipif(not IS_CUDA_AVAILABLE, reason='requires CUDA support')
 @pytest.mark.parametrize('overlap_thresh,top_k,n_expected', [
     (0.5, 5, 4),
     (0, 5, 5),
