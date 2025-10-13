@@ -2,7 +2,7 @@ ARG CUDA="11.8.0"
 ARG CUDNN="8"
 
 # FROM pytorch/pytorch:${PYTORCH}-cuda${CUDA}-cudnn${CUDNN}-devel
-FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-runtime-ubuntu22.04
+FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu22.04
 ARG CUDA
 
 # To fix GPG key error when running apt-get update
@@ -27,7 +27,8 @@ ENV TORCH_CUDA_ARCH_LIST=${CUDA_ARCH}
 
 # build mmcv with uv
 WORKDIR /mmcv
-RUN git clone https://github.com/vbti-development/onedl-mmcv.git /mmcv \
+RUN git clone --single-branch https://github.com/vbti-development/onedl-mmcv.git /mmcv \
+    && rm -r /mmcv/.git \
     && uv venv --python 3.10
 
 # install torch
