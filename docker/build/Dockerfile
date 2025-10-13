@@ -2,7 +2,7 @@ ARG CUDA="11.8.0"
 ARG CUDNN="8"
 
 # FROM pytorch/pytorch:${PYTORCH}-cuda${CUDA}-cudnn${CUDNN}-devel
-FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu22.04
+FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-runtime-ubuntu22.04
 ARG CUDA
 
 # To fix GPG key error when running apt-get update
