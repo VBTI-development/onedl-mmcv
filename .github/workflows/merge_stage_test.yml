@@ -34,7 +34,6 @@ jobs:
         with:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
-          cache-local-path: /__w/_uv_cache
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y ffmpeg libturbojpeg python3-dev
       - name: Install PyTorch
@@ -64,7 +63,6 @@ jobs:
         with:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
-          cache-local-path: /__w/_uv_cache
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y ffmpeg libturbojpeg python3-dev && apt-get clean -y
       - name: Clean up apt cache and pip cache
@@ -101,6 +99,7 @@ jobs:
       FORCE_CUDA: 1
       MMCV_CUDA_ARGS: -gencode=arch=compute_61,code=sm_61
       UV_TORCH_BACKEND: cu129
+      UV_CACHE_DIR: /__w/_uv_cache # set c
     steps:
       - uses: actions/checkout@v3
       - name: Install basic tools
@@ -159,7 +158,6 @@ jobs:
         with:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
-          cache-local-path: /__w/_uv_cache
       - name: Install PyTorch
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision

@@ -27,6 +27,7 @@ jobs:
       FORCE_CUDA: 1
       MMCV_CUDA_ARGS: -gencode=arch=compute_61,code=sm_61
       UV_TORCH_BACKEND: cu129
+      UV_CACHE_DIR: /__w/_uv_cache # set cache to be on same disk to avoid hardlink copies.
     permissions:
       pull-requests: write
     strategy:
@@ -98,6 +99,7 @@ jobs:
       UV_TORCH_BACKEND: cu118
       MMCV_CUDA_ARGS: -gencode=arch=compute_61,code=sm_61
       FORCE_CUDA: 1
+      UV_CACHE_DIR: /__w/_uv_cache # set cache to be on same disk to avoid hardlink copies.
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -159,7 +161,6 @@ jobs:
         with:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
-          cache-local-path: /__w/_uv_cache
       - name: Install PyTorch
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
