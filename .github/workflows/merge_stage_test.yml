@@ -65,13 +65,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y ffmpeg libturbojpeg python3-dev && sudo apt-get clean -y
-      - name: Clean up apt cache and pip cache
-        run: |
-          sudo apt-get clean
-          rm -rf /var/lib/apt/lists/*
-          rm -rf ~/.cache/pip
-          rm -rf /root/.cache/pip
-          rm -rf /tmp/*
       - name: Install PyTorch
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
@@ -101,21 +94,6 @@ jobs:
       UV_TORCH_BACKEND: cu129
       UV_CACHE_DIR: /__w/_uv_cache # set c
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: false
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: false
-          swap-storage: true
       - uses: actions/checkout@v3
       - name: Install basic tools
         run: |
