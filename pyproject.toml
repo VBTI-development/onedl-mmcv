@@ -1,7 +1,7 @@
 
 [project]
 name = "onedl-mmcv"
-version = "2.3.0.post4"
+version = "2.3.2rc1"
 description = "OneDL Lab Computer Vision Foundation"
 authors = [
     { name = "VBTI Contributors", email = "oss-team@vbti.nl" },
@@ -48,7 +48,6 @@ test = [
     "coverage",
     "lmdb",
     "onnx",
-    "onnxoptimizer",
     "onnxruntime",
     "opencv-python",
     "pytest",
