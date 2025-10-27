@@ -961,7 +961,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "addict" },
-    { name = "numpy", specifier = "<2" },
+    { name = "numpy" },
     { name = "onedl-mmengine", specifier = ">=0.10.8rc1" },
     { name = "packaging" },
     { name = "pillow" },
