@@ -37,24 +37,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        python_version: ["3.10", "3.12"]
         cuda: [11.8.0, 12.4.1]
         pytorch: [2.4.1, 2.5.1]
         torch_cuda_arch_list: ["7.5 8.0 8.6 8.9 9.0"]
+        exclude:
+          - pytorch: 2.4.1
+            python_version: 3.12
+          - pytorch: 2.5.1
+            python_version: 3.12
         include:
+          - cuda: 12.8.1
+            pytorch: '2.8.0'
+            torch_cuda_arch_list:  "7.5 8.6 8.9"
           - cuda: 12.9.1
             pytorch: '2.8.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9"
           - cuda: 12.9.1
             pytorch: '2.9.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9"
-          - cuda: 12.8.1
-            pytorch: '2.8.0'
-            torch_cuda_arch_list:  "7.5 8.6 8.9"
+            python_version: "3.12"
     runs-on: ubuntu-24.04
     env:
       CUDA: ${{ matrix.cuda }}
       PYTORCH: ${{ matrix.pytorch }}
       TORCH_CUDA_ARCH_LIST: ${{ matrix.torch_cuda_arch_list }}
+      PYTHON_VERSION: ${{ matrix.python_version }}
 
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -114,19 +122,20 @@ jobs:
           context: docker/build
           push: false
           tags: |
-            mmcv-builder:${{ env.TAG_NAME }}-cu${{ env.CUDA }}-torch${{ env.PYTORCH }}
+            mmcv-builder:${{ env.TAG_NAME }}-cu${{ env.CUDA }}-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
           load: true  # Load image into local Docker daemon
           build-args: |
             CUDA=${{ env.CUDA }}
             PYTORCH=${{ env.PYTORCH }}
             CUDNN=${{ env.CUDNN }}
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
 
       - name: Build wheel
         run: |
           docker run --rm \
           -e TORCH_CUDA_ARCH_LIST="${{ env.TORCH_CUDA_ARCH_LIST }}" \
           -v ${{ github.workspace }}/mmcv/dist:/out \
-          mmcv-builder:${{ env.TAG_NAME }}-cu${{ env.CUDA }}-torch${{ env.PYTORCH }}
+          mmcv-builder:${{ env.TAG_NAME }}-cu${{ env.CUDA }}-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
 
       - name: List generated files
         run: |
@@ -151,9 +160,16 @@ jobs:
     strategy:
       matrix:
         pytorch: [2.4.1, 2.5.1, '2.8.0', '2.9.0']
+        python_version: ["3.10", "3.12"]
+        exclude:
+          - pytorch: 2.4.1
+            python_version: 3.12
+          - pytorch: 2.5.1
+            python_version: 3.12
     runs-on: ubuntu-22.04
     env:
       PYTORCH: ${{ matrix.pytorch }}
+      PYTHON_VERSION: ${{ matrix.python_version }}
     steps:
       - uses: actions/checkout@v3
       - name: Extract tag name
@@ -170,16 +186,17 @@ jobs:
           context: docker/build
           push: false
           file: docker/build/Dockerfile.cpu
-          tags: mmcv-builder:${{ env.TAG_NAME }}-cpu-torch${{ env.PYTORCH }}
+          tags: mmcv-builder:${{ env.TAG_NAME }}-cpu-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
           load: true  # Load image into local Docker daemon
           build-args: |
             PYTORCH=${{ env.PYTORCH }}
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
 
       - name: Build wheel
         run: |
           docker run --rm \
           -v ${{ github.workspace }}/mmcv/dist:/out \
-          mmcv-builder:${{ env.TAG_NAME }}-cpu-torch${{ env.PYTORCH }}
+          mmcv-builder:${{ env.TAG_NAME }}-cpu-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
 
       - name: List generated files
         run: |
