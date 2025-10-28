@@ -902,7 +902,7 @@ wheels = [
 
 [[package]]
 name = "onedl-mmcv"
-version = "2.3.0.post4"
+version = "2.3.1rc1"
 source = { editable = "." }
 dependencies = [
     { name = "addict" },
@@ -947,7 +947,6 @@ test = [
     { name = "coverage" },
     { name = "lmdb" },
     { name = "onnx" },
-    { name = "onnxoptimizer" },
     { name = "onnxruntime" },
     { name = "opencv-python" },
     { name = "pytest" },
@@ -961,7 +960,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "addict" },
-    { name = "numpy", specifier = "<2" },
+    { name = "numpy" },
     { name = "onedl-mmengine", specifier = ">=0.10.8rc1" },
     { name = "packaging" },
     { name = "pillow" },
@@ -996,7 +995,6 @@ test = [
     { name = "coverage" },
     { name = "lmdb" },
     { name = "onnx" },
-    { name = "onnxoptimizer" },
     { name = "onnxruntime" },
     { name = "opencv-python" },
     { name = "pytest" },
@@ -1057,25 +1055,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/b1/6fd41b026836df480a21687076e0f559bc3ceeac90f2be8c64b4a7a1f332/onnx-1.18.0-cp313-cp313-win_arm64.whl", hash = "sha256:6f91930c1a284135db0f891695a263fc876466bf2afbd2215834ac08f600cfca", size = 15823808, upload-time = "2025-05-12T22:03:00.305Z" },
     { url = "https://files.pythonhosted.org/packages/70/f3/499e53dd41fa7302f914dd18543da01e0786a58b9a9d347497231192001f/onnx-1.18.0-cp313-cp313t-macosx_12_0_universal2.whl", hash = "sha256:2f4d37b0b5c96a873887652d1cbf3f3c70821b8c66302d84b0f0d89dd6e47653", size = 18316526, upload-time = "2025-05-12T22:03:03.691Z" },
     { url = "https://files.pythonhosted.org/packages/84/dd/6abe5d7bd23f5ed3ade8352abf30dff1c7a9e97fc1b0a17b5d7c726e98a9/onnx-1.18.0-cp313-cp313t-win_amd64.whl", hash = "sha256:a69afd0baa372162948b52c13f3aa2730123381edf926d7ef3f68ca7cec6d0d0", size = 15865055, upload-time = "2025-05-12T22:03:06.663Z" },
-]
-
-[[package]]
-name = "onnxoptimizer"
-version = "0.3.13"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "onnx" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/68/bd/e8671229c2f1f99eb02961cac51e55ca64dbbe0d62791b6743cc8b9950b1/onnxoptimizer-0.3.13.tar.gz", hash = "sha256:e08b726e0d4577e51e529f36bc324bf11b7cff12852cf3eee081f05c8b8c6f33", size = 18466575, upload-time = "2023-04-19T14:51:52.511Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/3c/8a8320e295f80ae268233e72a9ae81fd35f6f7a6d00fcc02d3b1186a19aa/onnxoptimizer-0.3.13-cp310-cp310-macosx_10_15_universal2.whl", hash = "sha256:019968dc02b37ab87588b67331f15719a9fcfc5de54de866dd7b02eaad68bdd5", size = 1014952, upload-time = "2023-04-19T14:51:22.891Z" },
-    { url = "https://files.pythonhosted.org/packages/17/4d/613b5ce51cccb0bf55502810400ed0966e61bd571f81d68e2d095d69635e/onnxoptimizer-0.3.13-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:542b43b13c3b1b7b72aae2579a2d75ef68dcf0513231bb1cb2b5f3c8af838d87", size = 578199, upload-time = "2023-04-19T14:51:24.314Z" },
-    { url = "https://files.pythonhosted.org/packages/cd/0c/1769400bafbc3797fe725fa29d66256a7944101d65590ebdaf867d3b81f3/onnxoptimizer-0.3.13-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:98716324135ac5505529423dbba5479273e6f46a0f895ac611a29ed8a6f79690", size = 678124, upload-time = "2023-04-19T14:51:25.562Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/c8/3a33f3dceb754f5a83751703b524ba788642545318bb2083c49402dcede1/onnxoptimizer-0.3.13-cp310-cp310-win_amd64.whl", hash = "sha256:f34db9dc55a682d3e5e60f5e6ff62101410620d2b70bef41f6158481a9a0b5ec", size = 381710, upload-time = "2023-04-19T14:51:26.54Z" },
-    { url = "https://files.pythonhosted.org/packages/70/8f/4a9bb2ba490b7e8f9e8f5ad7a2e6f9c43bd5590f7affed4e2e9874fd2a0e/onnxoptimizer-0.3.13-cp311-cp311-macosx_10_15_universal2.whl", hash = "sha256:dcd1c529cb3d285f1bc75480ebe198a43f6bcc84ad010386f6e2d7bcd3052501", size = 1014993, upload-time = "2023-04-19T14:51:27.821Z" },
-    { url = "https://files.pythonhosted.org/packages/38/82/dd92b6515a4965bb9136775a3cae84224a258285f8d84f2f2bbfd2fdaa15/onnxoptimizer-0.3.13-cp311-cp311-macosx_10_15_x86_64.whl", hash = "sha256:a65b2ff1d480f966f906fdc3731cd6a844762e0aae1876eeafb7586048d6be96", size = 578239, upload-time = "2023-04-19T14:51:29.114Z" },
-    { url = "https://files.pythonhosted.org/packages/28/1b/6dbb0e6f62c00b3c14f027316d0e4173f4ed82068ae64b40770d60a2156f/onnxoptimizer-0.3.13-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2f985cfef0fa2b7cf9ae64a36ca8dacb3e1861e31fa41fb85645cdbd73ccab6a", size = 678146, upload-time = "2023-04-19T14:51:30.168Z" },
-    { url = "https://files.pythonhosted.org/packages/dc/0a/edd2900c20702fbd7ccce59337720ad936d55da196e248804d91128b9b5f/onnxoptimizer-0.3.13-cp311-cp311-win_amd64.whl", hash = "sha256:82e606024a6dce999a8586d1f4b6af2ec454f7c5fd69807672a79067017a4812", size = 381769, upload-time = "2023-04-19T14:51:31.56Z" },
 ]
 
 [[package]]

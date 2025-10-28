@@ -19,14 +19,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_cu129:
+  build_cu128:
     runs-on: ubuntu-22.04
     container:
-      image: nvidia/cuda:12.9.1-cudnn-devel-ubuntu22.04
+      image: nvidia/cuda:12.8.1-cudnn-devel-ubuntu22.04
     env:
       FORCE_CUDA: 1
       MMCV_CUDA_ARGS: -gencode=arch=compute_61,code=sm_61
-      UV_TORCH_BACKEND: cu129
+      UV_TORCH_BACKEND: cu128
       UV_CACHE_DIR: /__w/_uv_cache # set cache to be on same disk to avoid hardlink copies.
     permissions:
       pull-requests: write
@@ -46,7 +46,6 @@ jobs:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
           cache-local-path: /__w/_uv_cache
-      # 安装 PyTorch
       - name: Fetch GPG keys
         run: |
           apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
@@ -102,7 +101,7 @@ jobs:
       UV_CACHE_DIR: /__w/_uv_cache # set cache to be on same disk to avoid hardlink copies.
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.10", "3.12"]
         torch: ["2.3.1"]
     steps:
       - uses: actions/checkout@v3

@@ -44,6 +44,9 @@ jobs:
           - cuda: 12.9.1
             pytorch: '2.8.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9"
+          - cuda: 12.9.1
+            pytorch: '2.9.0'
+            torch_cuda_arch_list:  "7.5 8.6 8.9"
           - cuda: 12.8.1
             pytorch: '2.8.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9"
@@ -147,7 +150,7 @@ jobs:
   cpu-wheelhouse:
     strategy:
       matrix:
-        pytorch: [2.4.1, 2.5.1, '2.8.0']
+        pytorch: [2.4.1, 2.5.1, '2.8.0', '2.9.0']
     runs-on: ubuntu-22.04
     env:
       PYTORCH: ${{ matrix.pytorch }}
