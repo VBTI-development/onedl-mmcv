@@ -20,6 +20,18 @@ you can first install it before installing MMCV to skip the installation of `ope
 
 We recommend using [uv](https://docs.astral.sh/uv/) to manage your virtual environment and dependencies.
 
+0. You need to have python3-dev package installed.
+
+   ```bash
+   sudo apt-get install python3-dev
+   ```
+
+   or if you want to make sure you have a specific version
+
+   ```bash
+   sudo apt-get install python3.10-dev
+   ```
+
 1. Clone the repo
 
    ```bash
