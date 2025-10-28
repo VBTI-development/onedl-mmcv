@@ -1,0 +1,47 @@
+
+FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_BREAK_SYSTEM_PACKAGES=1
+
+# Install linux packages
+ADD https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/arm64/cuda-keyring_1.1-1_all.deb .
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked,id=apt-lib \
+    dpkg -i cuda-keyring_1.1-1_all.deb && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    git python3-pip libopenmpi-dev libopenblas-dev libomp-dev libcusparselt0 libcusparselt-dev \
+    curl libspdlog-dev vim pkg-config cmake cudss
+
+WORKDIR /workspace
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:0.8.14 /uv /uvx /bin/
+
+# build mmcv from source with develop mode
+ARG HTTPS_PROXY=""
+ENV https_proxy=${HTTPS_PROXY}
+ENV FORCE_CUDA="1"
+ENV TORCH_CUDA_ARCH_LIST="8.7"
+
+# build mmcv with uv
+WORKDIR /mmcv
+RUN git clone --single-branch https://github.com/vbti-development/onedl-mmcv.git /mmcv \
+    && rm -r /mmcv/.git \
+    && uv venv --python 3.10
+
+ENV UV_LINK_MODE=copy
+# install torch
+RUN --mount=type=cache,target=/root/.cache/pip,id=pip \
+    uv pip install --no-cache \
+    https://pypi.jetson-ai-lab.io/jp6/cu126/+f/590/92ab729aee2b8/torch-2.8.0-cp310-cp310-linux_aarch64.whl#sha256=59092ab729aee2b8937d80cc1b35d1128275bd02a7e1bc911e7efa375bd97226
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install setuptools && uv sync --group build --group optional --no-install-project --inexact
+
+COPY entrypoint.sh /entrypoint.sh
+
+VOLUME [ "/out" ]
+ENTRYPOINT ["/entrypoint.sh" ]
