@@ -55,10 +55,32 @@ jobs:
       - name: Clean up apt cache and pip cache
         run: |
           apt-get clean
+          apt-get autoclean
+          apt-get autoremove -y
           rm -rf /var/lib/apt/lists/*
+          rm -rf /var/cache/apt/*
           rm -rf ~/.cache/pip
           rm -rf /root/.cache/pip
           rm -rf /tmp/*
+          # Additional cleanup to free more space
+          rm -rf /usr/share/doc/*
+          rm -rf /usr/share/man/*
+          rm -rf /usr/share/info/*
+          rm -rf /usr/share/locale/*
+          rm -rf /var/log/*
+          # Clean up any leftover package files
+          find /var/lib/apt -type f -delete 2>/dev/null || true
+          # Remove unnecessary locale files
+          rm -rf /usr/share/locale/*
+          # Clean up any cached files
+          find /root -name "*.pyc" -delete 2>/dev/null || true
+          find /root -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+          # Clean up CUDA container bloat
+          rm -rf /opt/nvidia/nsight* 2>/dev/null || true
+          rm -rf /usr/local/cuda/doc* 2>/dev/null || true
+          rm -rf /usr/local/cuda/samples* 2>/dev/null || true
+          # Display available space
+          df -h
       - name: Install PyTorch
         run: |
           uv pip install torch==${{ matrix.torch }} torchvision
@@ -66,7 +88,9 @@ jobs:
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/onedl-mmengine.git@main
       - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --group optional  --group build
+        run: |
+          uv pip install -r pyproject.toml --group optional  --group build
+          uv cache clean
       - name: Build MMCV from source
         run: uv pip install -e . -v
       - name: Install unit tests dependencies
