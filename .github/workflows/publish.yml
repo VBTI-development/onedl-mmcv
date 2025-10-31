@@ -217,7 +217,7 @@ jobs:
 
   # JetPack 6.0 wheel build for ARM64 devices (CUDA 12.2.1, PyTorch 2.8.0)
   jetpack-wheelhouse:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     strategy:
       matrix:
         jetpack: ['60', '61']
