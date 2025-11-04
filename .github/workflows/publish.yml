@@ -159,8 +159,8 @@ jobs:
           --exclude '.gitignore'
   # when adding/changing versions here, please modify version.json too.
   cpu-wheelhouse:
-    fail-fast: false
     strategy:
+      fail-fast: false
       matrix:
         pytorch: [2.4.1, 2.5.1, '2.8.0', '2.9.0']
         python_version: ["3.10", "3.12"]
@@ -222,6 +222,7 @@ jobs:
   jetpack-wheelhouse:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     strategy:
+      fail-fast: false
       matrix:
         jetpack: ['60', '61']
     env:
