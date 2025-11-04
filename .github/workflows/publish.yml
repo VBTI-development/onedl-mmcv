@@ -50,9 +50,11 @@ jobs:
           - cuda: 12.8.1
             pytorch: '2.8.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9"
+            python_version: "3.10"
           - cuda: 12.9.1
             pytorch: '2.8.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9"
+            python_version: "3.10"
           - cuda: 12.9.1
             pytorch: '2.9.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9"
@@ -157,6 +159,7 @@ jobs:
           --exclude '.gitignore'
   # when adding/changing versions here, please modify version.json too.
   cpu-wheelhouse:
+    fail-fast: false
     strategy:
       matrix:
         pytorch: [2.4.1, 2.5.1, '2.8.0', '2.9.0']
@@ -217,6 +220,7 @@ jobs:
 
   # JetPack 6.0 wheel build for ARM64 devices (CUDA 12.2.1, PyTorch 2.8.0)
   jetpack-wheelhouse:
+    fail-fast: false
     runs-on: ubuntu-22.04
     strategy:
       matrix:
