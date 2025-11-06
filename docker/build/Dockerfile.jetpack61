@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache \
     dpkg -i cuda-keyring_1.1-1_all.deb && apt-get update \
     && apt-get install -y --no-install-recommends \
     git python3-pip libopenmpi-dev libopenblas-dev libomp-dev libcusparselt0 libcusparselt-dev \
-    curl libspdlog-dev vim pkg-config cmake cudss
+    curl libspdlog-dev vim pkg-config cmake cudss patchelf
 
 WORKDIR /workspace
 
@@ -36,7 +36,7 @@ ENV UV_LINK_MODE=copy
 # install torch
 RUN --mount=type=cache,target=/root/.cache/pip,id=pip \
     uv pip install --no-cache \
-    https://pypi.jetson-ai-lab.io/jp6/cu126/+f/590/92ab729aee2b8/torch-2.8.0-cp310-cp310-linux_aarch64.whl#sha256=59092ab729aee2b8937d80cc1b35d1128275bd02a7e1bc911e7efa375bd97226
+    https://pypi.jetson-ai-lab.io/jp6/cu126/+f/62a/1beee9f2f1470/torch-2.8.0-cp310-cp310-linux_aarch64.whl#sha256=62a1beee9f2f147076a974d2942c90060c12771c94740830327cae705b2595fc \
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install setuptools && uv sync --group build --group optional --no-install-project --inexact
