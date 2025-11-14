@@ -30,6 +30,13 @@ mim install onedl-mmcv
 
 If you find that the above installation command does not use a pre-built package ending with `.whl` but a source package ending with `.tar.gz`, you may not have a pre-build package corresponding to the PyTorch or CUDA or mmcv version, in which case you can [build mmcv from source](build.md).
 
+:::{note}
+If you get an error messages that mentions something similar to `ModuleNotFoundError: No module named 'mmcv._ext'` it means you have a version installed without compiled ops. For a full overview of the pre-build wheels and versions we support you can look [here](https://mmwheels.onedl.ai/).
+Every cuda+torch version has it's own subfolder, where the supported python versions and operating systems combinations can be found (currently only linux is supported). Make sure to clear you cache before trying to reinstall or use `mim install onedl-mmcv --only-binary=onedl-mmcv`.
+
+If your combination is not there, it means we don't have a pre-built wheel. Either change your torch+cuda and/or python version or [build mmcv from source](build.md)
+:::
+
 <details>
 <summary>Installation log using pre-built packages</summary>
 
@@ -43,12 +50,12 @@ Collecting onedl-mmcv<br />
 <summary>Installation log using source packages</summary>
 
 Looking in links: https://mmwheels.onedl.ai/simple/cu126-torch2.4.1/index.html<br />
-Collecting onedl-mmcv==2.0.0<br />
-<b>Downloading onedl-mmcv-2.0.0.tar.gz</b>
+Collecting onedl-mmcv==2.3.0<br />
+<b>Downloading onedl-mmcv-2.3.0.tar.gz</b>
 
 </details>
 
-To install a specific version of mmcv, for example, mmcv version 2.3.0, you can use the following command
+To install a specific version of onedl-mmcv, for example, onedl-mmcv version 2.3.0, you can use the following command
 
 ```bash
 mim install onedl-mmcv==2.3.0
