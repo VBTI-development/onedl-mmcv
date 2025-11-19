@@ -902,12 +902,13 @@ wheels = [
 
 [[package]]
 name = "onedl-mmcv"
-version = "2.3.1"
+version = "2.3.2"
 source = { editable = "." }
 dependencies = [
     { name = "addict" },
     { name = "numpy" },
     { name = "onedl-mmengine" },
+    { name = "opencv-python" },
     { name = "packaging" },
     { name = "pillow" },
     { name = "pyyaml" },
@@ -948,7 +949,6 @@ test = [
     { name = "lmdb" },
     { name = "onnx" },
     { name = "onnxruntime" },
-    { name = "opencv-python" },
     { name = "pytest" },
     { name = "pyturbojpeg" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -962,6 +962,7 @@ requires-dist = [
     { name = "addict" },
     { name = "numpy" },
     { name = "onedl-mmengine", specifier = ">=0.10.8rc1" },
+    { name = "opencv-python" },
     { name = "packaging" },
     { name = "pillow" },
     { name = "pyyaml" },
@@ -996,7 +997,6 @@ test = [
     { name = "lmdb" },
     { name = "onnx" },
     { name = "onnxruntime" },
-    { name = "opencv-python" },
     { name = "pytest" },
     { name = "pyturbojpeg" },
     { name = "scipy" },
