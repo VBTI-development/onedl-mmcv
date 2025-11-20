@@ -20,13 +20,14 @@
 [![Docs](https://img.shields.io/badge/docs-latest-blue)](https://onedl-mmcv.readthedocs.io/en/latest/)
 [![license](https://img.shields.io/github/license/vbti-development/onedl-mmcv.svg)](https://github.com/vbti-development/onedl-mmcv/blob/main/LICENSE)
 
-[![pytorch](https://img.shields.io/badge/pytorch-2.0~2.5-yellow)](#installation)
-[![cuda](https://img.shields.io/badge/cuda-10.1~12.8-green)](https://developer.nvidia.com/cuda-downloads)
-[![platform](https://img.shields.io/badge/platform-Linux%7CWindows%7CmacOS-blue)](https://onedl-mmcv.readthedocs.io/en/latest/get_started/installation.html)
+[![pytorch](https://img.shields.io/badge/pytorch-2.4~2.8-yellow)](#installation)
+[![cuda](https://img.shields.io/badge/cuda-11.8~12.9-green)](https://developer.nvidia.com/cuda-downloads)
+[![platform](https://img.shields.io/badge/platform-Linux-blue)](https://onedl-mmcv.readthedocs.io/en/latest/get_started/installation.html)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/onedl-mmcv)](https://pypi.org/project/onedl-mmcv/)
 [![PyPI](https://img.shields.io/pypi/v/onedl-mmcv)](https://pypi.org/project/onedl-mmcv)
 
 [![Build Status](https://github.com/vbti-development/onedl-mmcv/workflows/merge_stage_test/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
+[![Docker Image](https://github.com/vbti-development/onedl-mmcv/workflows/docker/badge.svg)](https://github.com/vbti-development/onedl-mmcv/actions)
 [![open issues](https://isitmaintained.com/badge/open/VBTI-development/onedl-mmcv.svg)](https://github.com/VBTI-development/onedl-mmcv/issues)
 [![issue resolution](https://isitmaintained.com/badge/resolution/VBTI-development/onedl-mmcv.svg)](https://github.com/VBTI-development/onedl-mmcv/issues)
 
@@ -42,13 +43,11 @@ The VBTI development team is reviving MMLabs code, making it work with
 newer pytorch versions and fixing bugs. We are only a small team, so your help
 is appreciated. We will officially drop support for the 1.x branch.
 
-The OpenMMLab team released a new generation of training engine [MMEngine](https://github.com/vbti-development/onedl-mmengine) at the World Artificial Intelligence Conference on September 1, 2022. It is a foundational library for training deep learning models. Compared with MMCV, it provides a universal and powerful runner, an open architecture with a more unified interface, and a more customizable training process.
-
-MMCV v2.0.0 official version was released on April 6, 2023. In version 2.x, it removed components related to the training process and added a data transformation module. Also, starting from 2.x, it renamed the package names **mmcv** to **mmcv-lite** and **mmcv-full** to **mmcv**. For details, see [Compatibility Documentation](docs/en/compatibility.md).
+We are publishing a number of pre-built wheels for onedl-mmcv, as well as a Docker Image.
 
 ## Introduction
 
-MMCV is a foundational library for computer vision research and it provides the following functionalities:
+OneDL-MMCV is a foundational library for computer vision research and it provides the following functionalities:
 
 - [Image/Video processing](https://onedl-mmcv.readthedocs.io/en/latest/understand_mmcv/data_process.html)
 - [Image and annotation visualization](https://onedl-mmcv.readthedocs.io/en/latest/understand_mmcv/visualization.html)
@@ -62,37 +61,38 @@ It supports the following systems:
 - Windows
 - macOS
 
+However, since VBTI took over, we only test it on Linux.
+
 See the [documentation](http://onedl-mmcv.readthedocs.io/en/latest) for more features and usage.
 
-Note: MMCV requires Python 3.7+.
+Note: OneDL-MMCV requires Python 3.10+.
 
 ## Installation
 
-There are two versions of MMCV:
-
-- **mmcv**: comprehensive, with full features and various CUDA ops out of the box. It takes longer time to build.
-- **mmcv-lite**: lite, without CUDA ops but all other features, similar to mmcv\<1.0.0. It is useful when you do not need those CUDA ops.
-
-**Note**: Do not install both versions in the same environment, otherwise you may encounter errors like `ModuleNotFound`. You need to uninstall one before installing the other. `Installing the full version is highly recommended if CUDA is available`.
+MMCV contains various CUDA ops, so it takes a longer time to build.
+We do publish a number of prebuilt wheels, such that you don't have to build it yourself.
+Make sure the python version, CUDA version and Pytorch versions you are using are supported.
+We made a [custom PyPI index](https://mmwheels.onedl.ai/) that groups CUDA-Pytorch version.
 
 ### Install mmcv
 
-Before installing mmcv, make sure that PyTorch has been successfully installed following the [PyTorch official installation guide](https://github.com/pytorch/pytorch#installation). For apple silicon users, please use PyTorch 1.13+.
+Before installing mmcv, make sure that PyTorch has been successfully installed following the [PyTorch official installation guide](https://github.com/pytorch/pytorch#installation).
+(Recommended version is 2.8.0)
 
 The command to install mmcv:
 
 ```bash
-pip install -U openmim
+pip install -U onedl-mim
 mim install onedl-mmcv
 ```
 
 If you need to specify the version of mmcv, you can use the following command:
 
 ```bash
-mim install onedl-mmcv==2.0.0
+mim install onedl-mmcv==2.3.2
 ```
 
-If you find that the above installation command does not use a pre-built package ending with `.whl` but a source package ending with `.tar.gz`, you may not have a pre-build package corresponding to the PyTorch or CUDA or mmcv version, in which case you can [build mmcv from source](https://onedl-mmcv.readthedocs.io/en/latest/get_started/build.html).
+If you find that the above installation command does not use a pre-built package ending with `.whl` but a source package ending with `.tar.gz`, you may not have a pre-build package corresponding to the PyTorch, CUDA, python or onedl-mmcv version, in which case you can [build mmcv from source](https://onedl-mmcv.readthedocs.io/en/latest/get_started/build.html).
 
 <details>
 <summary>Installation log using pre-built packages</summary>
@@ -136,19 +136,19 @@ If you find this project useful in your research, please consider cite:
 
 ## Contributing
 
-We appreciate all contributions to improve MMCV. Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for the contributing guideline.
+We appreciate all contributions to improve OneDL-MMCV. Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for the contributing guideline.
 
 ## License
 
-MMCV is released under the Apache 2.0 license, while some specific operations in this library are with other licenses. Please refer to [LICENSES.md](LICENSES.md) for the careful check, if you are using our code for commercial matters.
+OneDL-MMCV is released under the Apache 2.0 license, while some specific operations in this library are with other licenses. Please refer to [LICENSES.md](LICENSES.md) for the careful check, if you are using our code for commercial matters.
 
 ## Projects in VBTI-development
 
-- [MMEngine](https://github.com/vbti-development/onedl-mmengine): Foundational library for training deep learning models.
-- [MMCV](https://github.com/vbti-development/onedl-mmcv): Foundational library for computer vision.
-- [MMPreTrain](https://github.com/vbti-development/onedl-mmpretrain): Pre-training toolbox and benchmark.
-- [MMDetection](https://github.com/vbti-development/onedl-mmdetection): Detection toolbox and benchmark.
-- [MMRotate](https://github.com/vbti-development/onedl-mmrotate): Rotated object detection toolbox and benchmark.
-- [MMSegmentation](https://github.com/vbti-development/onedl-mmsegmentation): Semantic segmentation toolbox and benchmark.
-- [MMDeploy](https://github.com/vbti-development/onedl-mmdeploy): Model deployment framework.
-- [MIM](https://github.com/vbti-development/onedl-mim): MIM installs VBTI packages.
+- [OneDL-MMEngine](https://github.com/vbti-development/onedl-mmengine): Foundational library for training deep learning models.
+- [OneDL-MMCV](https://github.com/vbti-development/onedl-mmcv): Foundational library for computer vision.
+- [OneDL-MMPreTrain](https://github.com/vbti-development/onedl-mmpretrain): Pre-training toolbox and benchmark.
+- [OneDL-MMDetection](https://github.com/vbti-development/onedl-mmdetection): Detection toolbox and benchmark.
+- [OneDL-MMRotate](https://github.com/vbti-development/onedl-mmrotate): Rotated object detection toolbox and benchmark.
+- [OneDL-MMSegmentation](https://github.com/vbti-development/onedl-mmsegmentation): Semantic segmentation toolbox and benchmark.
+- [OneDL-MMDeploy](https://github.com/vbti-development/onedl-mmdeploy): Model deployment framework.
+- [OneDL-MIM](https://github.com/vbti-development/onedl-mim): MIM installs VBTI packages.
