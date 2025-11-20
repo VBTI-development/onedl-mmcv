@@ -43,7 +43,7 @@ The VBTI development team is reviving MMLabs code, making it work with
 newer pytorch versions and fixing bugs. We are only a small team, so your help
 is appreciated. We will officially drop support for the 1.x branch.
 
-We are publishing a number of pre-built wheels for onedl-mmcv, as well as a Docker Image.
+We are publishing a number of pre-built wheels for onedl-mmcv, as well as a [Docker Image](https://hub.docker.com/r/vbti/onedl-mmcv-cu129-torch280).
 
 ## Introduction
 
