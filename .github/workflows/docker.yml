@@ -109,9 +109,9 @@ jobs:
           context: .
           file: ./docker/release/Dockerfile
           build-args: |
-            PYTHON_VERSION="3.10"
-            PYTORCH="2.8.0"
-            CUDA="12.9.1"
+            PYTHON_VERSION=3.10
+            PYTORCH=2.8.0
+            CUDA=12.9.1
             MMCV_VERSION=${{ needs.extract_version.outputs.version }}
           platforms: linux/amd64
           push: true

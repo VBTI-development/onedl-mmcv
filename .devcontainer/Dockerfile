@@ -7,7 +7,7 @@ FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
 # FROM nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
 
 ARG PYTORCH="2.5.1"
-ARG PYTHON_VERSION="3.10"
+ARG PYTHON_VERSION="3.12"
 
 # To fix GPG key error when running apt-get update
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub \
