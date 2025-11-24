@@ -12,8 +12,21 @@ Feel free to enrich the list if you find any frequent issues and have ways to he
 
 - "No module named 'mmcv.ops'"; "No module named 'mmcv.\_ext'"
 
-  1. Uninstall existing mmcv in the environment using `pip uninstall mmcv`
-  2. Install onedl-mmcv following the [installation instruction](https://onedl-mmcv.readthedocs.io/en/latest/get_started/installation.html) or [Build MMCV from source](https://onedl-mmcv.readthedocs.io/en/latest/get_started/build.html)
+  1. Check your os, python, torch (+cuda) versions, e.g. python 3.10 and torch 2.8.0+cu128.
+     1. If you upgraded/changed your pytorch version since you installed onedl-mmcv, you need to install oneld-mmcv again.
+  2. Check if your combination has a prebuilt wheel.
+     1. Go to [our package index](https://mmwheels.onedl.ai/) and check if your cuda + torch version is in the list.
+     2. Click your version and go to the onedl-mmcv index.
+     3. Check if your python version is supported (and if your OS is supported too).
+  3. If there is a prebuilt wheel
+     1. Uninstall the existing onedl-mmcv `pip uninstall onedl-mmcv`
+     2. Install while forcing binary: `mim install onedl-mmcv  --only-binary=onedl-mmcv`.
+     3. If this fails, check the logs of running the command with the `-v` flag.
+        Is the index looking in the right place? (if not, check again your pytorch+cuda version).
+        It could be your manylinux is not the same (use `pip debug --python-version 3.10  --verbose | grep manylinux` to check).
+  4. If there is not a prebuilt wheel, you need to build from source:
+     1. Uninstall existing mmcv in the environment using `pip uninstall mmcv`
+     2. Install onedl-mmcv following the [installation instruction](https://onedl-mmcv.readthedocs.io/en/latest/get_started/installation.html) or [Build MMCV from source](https://onedl-mmcv.readthedocs.io/en/latest/get_started/build.html)
 
 - "invalid device function" or "no kernel image is available for execution"
 
