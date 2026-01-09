@@ -2,10 +2,12 @@ import glob
 import os
 import platform
 import re
-from setuptools import find_packages, setup
+from setuptools import Command, find_packages, setup
+from typing import Dict, Type
 
 from packaging.version import parse as parse_version
 
+cmd_class: Dict[str, Type[Command]]
 EXT_TYPE = ''
 try:
     import torch
@@ -372,5 +374,5 @@ def get_extensions():
 setup(
     packages=find_packages(),
     ext_modules=get_extensions(),
-    cmdclass=cmd_class,
+    cmdclass=cmd_class,  # type: ignore[arg-type]
     zip_safe=False)
