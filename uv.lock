@@ -1123,7 +1123,7 @@ test = [
 
 [[package]]
 name = "onedl-mmengine"
-version = "0.10.8rc1"
+version = "0.10.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "addict" },
@@ -1135,7 +1135,7 @@ dependencies = [
     { name = "termcolor" },
     { name = "yapf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8d/f5/49ff2f01f18cf8aa99ab041a2865b44e5b39b302d21793acd75a5a3784b2/onedl_mmengine-0.10.8rc1.tar.gz", hash = "sha256:d37e8efd7e6f9c88c15cd0be774c5ba0df9be14634e0a2acc6fb8a27b906bb62", size = 377476, upload-time = "2025-09-01T14:35:59.43Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d0/10/fe8ec5c3cfbcba3b41a0cbd294be04f015401e707ef318961da06965baca/onedl_mmengine-0.10.10.tar.gz", hash = "sha256:b569181aa1e6cce4bd1170e48cb6dc68dbb1f4679881121958416794b53b6ac4", size = 376805, upload-time = "2026-03-19T14:49:20.317Z" }
 
 [[package]]
 name = "onnx"
