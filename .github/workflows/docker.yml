@@ -44,22 +44,17 @@ jobs:
     runs-on: ubuntu-24.04
     needs: extract_version
     permissions:
-        packages: write
-        contents: read
-        attestations: write
-        id-token: write
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
     env:
-      IMAGE_NAME: onedl-mmcv-cu129-torch280
+      IMAGE_NAME: onedl-mmcv-cu129-torch2100
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
           tool-cache: false
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
           android: true
           dotnet: true
           haskell: true
@@ -109,8 +104,8 @@ jobs:
           context: .
           file: ./docker/release/Dockerfile
           build-args: |
-            PYTHON_VERSION=3.10
-            PYTORCH=2.8.0
+            PYTHON_VERSION=3.12
+            PYTORCH=2.10.0
             CUDA=12.9.1
             MMCV_VERSION=${{ needs.extract_version.outputs.version }}
           platforms: linux/amd64
