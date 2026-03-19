@@ -67,7 +67,9 @@ build = [
 [project.optional-dependencies]
 torch = [
     "torch==2.9;        python_version=='3.12'",
-    "torch>=2.4","torchvision" ]
+    "torch>=2.4; python_version!='3.12'",
+    "torchvision",
+]
 
 [project.urls]
 Homepage = "https://onedl.ai"

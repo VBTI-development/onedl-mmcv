@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 BASE_URL = 'https://mmwheels.onedl.ai/'
 VERSION_JSON_PATH = os.path.join(os.path.dirname(__file__), 'version.json')
 
-# Regex to extract cuda/torch from folder name, e.g. cuda121-torch240
-FOLDER_RE = re.compile(r'^/(cu\d+|cpu|jetpach\d+)-torch(\d+)(?=/simple$)')
+# Regex to extract cuda/torch from folder name, e.g. cu121-torch240
+FOLDER_RE = re.compile(r'^(cu\d+|cpu|jetpack\d+)-torch(\d+)$')
 # Regex to extract version (semantic/PEP440) and python tag from wheel filename
 WHEEL_RE = re.compile(
     r'onedl_mmcv-(?P<version>\d+\.\d+\.\d+(?:[a-zA-Z]+\d+)?(?:\.post\d+)?(?:\.dev\d+)?)-cp(?P<pyver>\d+)-cp\d+-.*.whl'  # noqa: E501
