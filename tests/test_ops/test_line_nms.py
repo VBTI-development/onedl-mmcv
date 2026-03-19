@@ -1,5 +1,7 @@
 # Copyright (c) VBTI. All rights reserved.
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 import torch
@@ -90,7 +92,7 @@ def test_line_nms(lines, overlap_thresh, top_k, n_expected):
             not IS_CUDA_AVAILABLE, reason='requires CUDA support'))
 ])
 def test_line_nms_real_data(device):
-    data = np.load('./tests/data/line_nms_input.npz')
+    data = np.load(Path(__file__).parent.parent / './data/line_nms_input.npz')
     np_lines = data['lines']
     np_scores = data['scores']
 

@@ -1,12 +1,7 @@
-# ARG CUDA="12.4"
-# ARG CUDNN="9"
-
-
 # FROM pytorch/pytorch:${PYTORCH}-cuda${CUDA}-cudnn${CUDNN}-devel
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
-# FROM nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
+FROM nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04
 
-ARG PYTORCH="2.5.1"
+ARG PYTORCH="2.9.1"
 ARG PYTHON_VERSION="3.12"
 
 # To fix GPG key error when running apt-get update
@@ -14,29 +9,22 @@ RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/
     && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
 
 # Install git and system dependencies for opencv-python
-RUN apt-get update && apt-get install -y git curl \
-    && apt-get update && apt-get install -y libgl1 libglib2.0-0
-
-# Install system dependencies for unit tests
-RUN apt-get install -y ffmpeg libturbojpeg \
-    && apt-get clean \
+RUN apt-get update && apt-get install -y git curl libgl1 libglib2.0-0 ffmpeg libturbojpeg && \
+    apt-get install -y wget build-essential git software-properties-common locales && \
+    apt-get install -y python${PYTHON_VERSION}-dev && \
+    apt-get update && \
+    apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    apt-get install -y wget build-essential git software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa -y && \
-    apt-get update && \
-    apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-distutils && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1 && \
-    wget https://bootstrap.pypa.io/get-pip.py && \
-    python get-pip.py
+RUN locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:${PATH}"
 
-# RUN pip install torch==${PYTORCH} torchvision --index-url https://download.pytorch.org/whl/cu121
+# RUN uv venv --python ${PYTHON_VERSION} && uv pip install torch==${PYTORCH} torchvision --index-url https://download.pytorch.org/whl/cu129
 
 # build mmcv from source with develop mode
 # ARG HTTPS_PROXY=""
@@ -49,4 +37,4 @@ ENV PATH="/root/.local/bin:${PATH}"
 # RUN git checkout 2.x && git rev-parse --short HEAD
 # RUN pip install --no-cache-dir -e .[all] -v &&
 
-RUN pip install pre-commit
+# RUN uv pip install pre-commit

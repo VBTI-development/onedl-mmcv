@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from pathlib import Path
+
 import mmengine
 import numpy as np
 import pytest
@@ -150,7 +152,8 @@ class Testnms:
 
     def test_batched_nms(self):
         from mmcv.ops import batched_nms
-        results = mmengine.load('./tests/data/batched_nms_data.pkl')
+        results = mmengine.load(
+            Path(__file__).parent.parent / './data/batched_nms_data.pkl')
 
         nms_max_num = 100
         nms_cfg = dict(

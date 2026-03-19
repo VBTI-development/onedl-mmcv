@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from pathlib import Path
+
 import pytest
 import torch
 
@@ -66,9 +68,11 @@ def test_fps_with_dist(device):
     assert torch.all(idx == expected_idx)
 
     import numpy as np
-    fps_idx = np.load('tests/data/for_3d_ops/fps_idx.npy')
+    fps_idx = np.load(
+        Path(__file__).parent.parent / 'data/for_3d_ops/fps_idx.npy')
     features_for_fps_distance = np.load(
-        'tests/data/for_3d_ops/features_for_fps_distance.npy')
+        Path(__file__).parent.parent /
+        'data/for_3d_ops/features_for_fps_distance.npy')
     expected_idx = torch.from_numpy(fps_idx).to(device)
     features_for_fps_distance = torch.from_numpy(features_for_fps_distance).to(
         device)

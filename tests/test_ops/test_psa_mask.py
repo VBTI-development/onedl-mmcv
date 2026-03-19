@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from pathlib import Path
+
 import numpy as np
 import pytest
 import torch
@@ -44,9 +46,12 @@ class TestPSAMask:
         test_loss = Loss()
 
         input = np.fromfile(
-            'tests/data/for_psa_mask/psa_input.bin', dtype=np.float32)
+            Path(__file__).parent.parent / 'data/for_psa_mask/psa_input.bin',
+            dtype=np.float32)
         output_collect = np.fromfile(
-            'tests/data/for_psa_mask/psa_output_collect.bin', dtype=np.float32)
+            Path(__file__).parent.parent /
+            'data/for_psa_mask/psa_output_collect.bin',
+            dtype=np.float32)
 
         input = input.reshape((4, 16, 8, 8))
         output_collect = output_collect.reshape((4, 64, 8, 8))
@@ -100,9 +105,11 @@ class TestPSAMask:
         test_loss = Loss()
 
         input = np.fromfile(
-            'tests/data/for_psa_mask/psa_input.bin', dtype=np.float32)
+            Path(__file__).parent.parent / 'data/for_psa_mask/psa_input.bin',
+            dtype=np.float32)
         output_distribute = np.fromfile(
-            'tests/data/for_psa_mask/psa_output_distribute.bin',
+            Path(__file__).parent.parent /
+            'data/for_psa_mask/psa_output_distribute.bin',
             dtype=np.float32)
 
         input = input.reshape((4, 16, 8, 8))

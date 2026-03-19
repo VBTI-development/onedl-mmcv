@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from pathlib import Path
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -29,10 +31,12 @@ class TestCrissCrossAttention:
         loss_func = Loss()
 
         input = np.fromfile(
-            'tests/data/for_ccattention/ccattention_input.bin',
+            Path(__file__).parent.parent /
+            'data/for_ccattention/ccattention_input.bin',
             dtype=np.float32)
         output = np.fromfile(
-            'tests/data/for_ccattention/ccattention_output.bin',
+            Path(__file__).parent.parent /
+            'data/for_ccattention/ccattention_output.bin',
             dtype=np.float32)
         input = input.reshape((1, 32, 45, 45))
         output = output.reshape((1, 32, 45, 45))
