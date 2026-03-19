@@ -1084,7 +1084,7 @@ requires-dist = [
     { name = "pyyaml" },
     { name = "regex", marker = "sys_platform == 'win32'" },
     { name = "torch", marker = "python_full_version == '3.12.*' and extra == 'torch'", specifier = "==2.9" },
-    { name = "torch", marker = "extra == 'torch'", specifier = ">=2.4" },
+    { name = "torch", marker = "python_full_version != '3.12.*' and extra == 'torch'", specifier = ">=2.4" },
     { name = "torchvision", marker = "extra == 'torch'" },
     { name = "yapf" },
 ]
