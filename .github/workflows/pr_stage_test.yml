@@ -19,12 +19,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_cu128:
+  build_cuda:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     env:
       FORCE_CUDA: 1
       MMCV_CUDA_ARGS: -gencode=arch=compute_61,code=sm_61
-      UV_TORCH_BACKEND: auto
+      CUDA_HOME: /usr/local/cuda
       UV_CACHE_DIR: /__w/_uv_cache # set cache to be on same disk to avoid hardlink copies.
     strategy:
       matrix:
@@ -32,8 +32,10 @@ jobs:
             - python-version: "3.10"
               torch: "2.8.0"
               base-image: "nvidia/cuda:12.8.1-cudnn-devel-ubuntu22.04"
+              torch-backend: cu128
             - python-version: "3.12"
               torch: "2.9.0"
+              torch-backend: cu129
               base-image: "nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04"
     container:
       image: ${{ matrix.base-image }}
@@ -86,7 +88,7 @@ jobs:
           df -h
       - name: Install PyTorch
         run: |
-          uv pip install torch==${{ matrix.torch }} torchvision
+          uv pip install --torch-backend ${{ matrix.torch-backend }} torch==${{ matrix.torch }} torchvision
           uv cache clean
       - name: Install MMEngine from main branch
         run: uv pip install git+https://github.com/VBTI-development/onedl-mmengine.git@main
