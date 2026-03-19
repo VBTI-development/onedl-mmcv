@@ -1,7 +1,7 @@
 
 [project]
 name = "onedl-mmcv"
-version = "2.3.2.post2"
+version = "2.3.3"
 description = "OneDL Lab Computer Vision Foundation"
 authors = [
     { name = "VBTI Contributors", email = "oss-team@vbti.nl" },
@@ -50,8 +50,9 @@ test = [
     "lmdb",
     "onnx",
     "onnxruntime",
+    "onnxscript",
     "pytest",
-    "PyTurboJPEG",
+    "PyTurboJPEG>=1,<2",
     "scipy",
     "tifffile"
 ]
@@ -64,7 +65,9 @@ build = [
 ]
 
 [project.optional-dependencies]
-torch = [ "torch", "torchvision" ]
+torch = [
+    "torch==2.9;        python_version=='3.12'",
+    "torch>=2.4","torchvision" ]
 
 [project.urls]
 Homepage = "https://onedl.ai"
