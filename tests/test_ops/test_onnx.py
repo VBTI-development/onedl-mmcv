@@ -1,5 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import inspect
 import os
+import warnings
 
 import numpy as np
 import onnx
@@ -10,6 +12,28 @@ import torch.nn as nn
 onnx_file = 'tmp.onnx'
 if torch.__version__ == 'parrots':
     pytest.skip('not supported in parrots now', allow_module_level=True)
+
+try:
+    _ONNX_EXPORT_SUPPORTS_DYNAMO = 'dynamo' in inspect.signature(
+        torch.onnx.export).parameters
+except (TypeError, ValueError):
+    _ONNX_EXPORT_SUPPORTS_DYNAMO = False
+
+
+def _export_to_onnx(*args, **kwargs):
+    # MMCV custom ops rely on symbolic export and may fail via torch.export.
+    if _ONNX_EXPORT_SUPPORTS_DYNAMO:
+        kwargs.setdefault('dynamo', False)
+    if kwargs.get('dynamo') is False:
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore',
+                message='You are using the legacy TorchScript-based ONNX '
+                r'export\..*',
+                category=DeprecationWarning)
+            torch.onnx.export(*args, **kwargs)
+    else:
+        torch.onnx.export(*args, **kwargs)
 
 
 @pytest.fixture(autouse=True)
@@ -73,7 +97,7 @@ def test_roialign():
         # export and load onnx model
         wrapped_model = WrapFunction(warpped_function)
         with torch.no_grad():
-            torch.onnx.export(
+            _export_to_onnx(
                 wrapped_model, (input, rois),
                 onnx_file,
                 export_params=True,
@@ -139,7 +163,7 @@ def test_roipool():
         # export and load onnx model
         wrapped_model = WrapFunction(warpped_function)
         with torch.no_grad():
-            torch.onnx.export(
+            _export_to_onnx(
                 wrapped_model, (input, rois),
                 onnx_file,
                 export_params=True,
@@ -170,7 +194,7 @@ def test_roipool():
 
 def _test_symbolic(model, inputs, symbol_name):
     with torch.no_grad():
-        torch.onnx.export(model, inputs, onnx_file, opset_version=11)
+        _export_to_onnx(model, inputs, onnx_file, opset_version=11)
 
     import onnx
     model = onnx.load(onnx_file)
