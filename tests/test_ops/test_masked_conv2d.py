@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from pathlib import Path
+
 import numpy as np
 import pytest
 import torch
@@ -29,15 +31,20 @@ class TestMaskedConv2d:
     def test_masked_conv2d_all_close(self, device):
         from mmcv.ops import MaskedConv2d
         np_input = np.load(
-            'tests/data/for_masked_conv2d/masked_conv2d_for_input.npy')
+            Path(__file__).parent.parent /
+            'data/for_masked_conv2d/masked_conv2d_for_input.npy')
         np_mask = np.load(
-            'tests/data/for_masked_conv2d/masked_conv2d_for_mask.npy')
+            Path(__file__).parent.parent /
+            'data/for_masked_conv2d/masked_conv2d_for_mask.npy')
         np_weight = np.load(
-            'tests/data/for_masked_conv2d/masked_conv2d_for_weight.npy')
+            Path(__file__).parent.parent /
+            'data/for_masked_conv2d/masked_conv2d_for_weight.npy')
         np_bias = np.load(
-            'tests/data/for_masked_conv2d/masked_conv2d_for_bias.npy')
+            Path(__file__).parent.parent /
+            'data/for_masked_conv2d/masked_conv2d_for_bias.npy')
         np_output = np.load(
-            'tests/data/for_masked_conv2d/masked_conv2d_for_output.npy')
+            Path(__file__).parent.parent /
+            'data/for_masked_conv2d/masked_conv2d_for_output.npy')
         input = torch.tensor(np_input, dtype=torch.float, device=device)
         mask = torch.tensor(np_mask, dtype=torch.float, device=device)
         weight = torch.tensor(np_weight, dtype=torch.float, device=device)

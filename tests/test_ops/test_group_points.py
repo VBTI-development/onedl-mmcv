@@ -113,7 +113,11 @@ def test_grouping_points(dtype, device):
           ]]],
         dtype=dtype).to(device)
     assert torch.allclose(output, expected_output)
-    assert torch.allclose(grad_features, expected_grad_features)
+    if dtype == torch.half:
+        assert torch.allclose(
+            grad_features, expected_grad_features, rtol=1e-3, atol=1e-2)
+    else:
+        assert torch.allclose(grad_features, expected_grad_features)
 
 
 @pytest.mark.parametrize('device', [

@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from pathlib import Path
+
 import numpy as np
 import pytest
 import torch
@@ -25,7 +27,8 @@ def test_voxelization(device_type):
     point_cloud_range = [0, -40, -3, 70.4, 40, 1]
 
     voxel_dict = np.load(
-        'tests/data/for_3d_ops/test_voxel.npy', allow_pickle=True).item()
+        Path(__file__).parent.parent / 'data/for_3d_ops/test_voxel.npy',
+        allow_pickle=True).item()
     expected_coors = voxel_dict['coors']
     expected_voxels = voxel_dict['voxels']
     expected_num_points_per_voxel = voxel_dict['num_points_per_voxel']
@@ -70,7 +73,8 @@ def test_voxelization_nondeterministic():
     point_cloud_range = [0, -40, -3, 70.4, 40, 1]
 
     voxel_dict = np.load(
-        'tests/data/for_3d_ops/test_voxel.npy', allow_pickle=True).item()
+        Path(__file__).parent.parent / 'data/for_3d_ops/test_voxel.npy',
+        allow_pickle=True).item()
     points = voxel_dict['points']
 
     points = torch.tensor(points)
@@ -159,7 +163,8 @@ def test_voxelization_mlu(device_type):
     point_cloud_range = [0, -40, -3, 70.4, 40, 1]
 
     voxel_dict = np.load(
-        'tests/data/for_3d_ops/test_voxel.npy', allow_pickle=True).item()
+        Path(__file__).parent.parent / 'data/for_3d_ops/test_voxel.npy',
+        allow_pickle=True).item()
     expected_coors = voxel_dict['coors']
     expected_voxels = voxel_dict['voxels']
     expected_num_points_per_voxel = voxel_dict['num_points_per_voxel']
@@ -194,7 +199,8 @@ def test_voxelization_npu(device_type):
     point_cloud_range = [0, -40, -3, 70.4, 40, 1]
 
     voxel_dict = np.load(
-        'tests/data/for_3d_ops/test_voxel.npy', allow_pickle=True).item()
+        Path(__file__).parent.parent / 'data/for_3d_ops/test_voxel.npy',
+        allow_pickle=True).item()
     expected_coors = voxel_dict['coors']
     expected_voxels = voxel_dict['voxels']
     expected_num_points_per_voxel = voxel_dict['num_points_per_voxel']
@@ -229,7 +235,8 @@ def test_voxelization_musa(device_type):
     point_cloud_range = [0, -40, -3, 70.4, 40, 1]
 
     voxel_dict = np.load(
-        'tests/data/for_3d_ops/test_voxel.npy', allow_pickle=True).item()
+        Path(__file__).parent.parent / 'data/for_3d_ops/test_voxel.npy',
+        allow_pickle=True).item()
     expected_coors = voxel_dict['coors']
     expected_voxels = voxel_dict['voxels']
     expected_num_points_per_voxel = voxel_dict['num_points_per_voxel']
