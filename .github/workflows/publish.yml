@@ -298,17 +298,20 @@ jobs:
     needs: public-PyPI
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Get Release Info
         id: release
         run: |
-          gh release view ${{ github.ref_name }} --json body --jq .body > release_body.txt
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}" \
+            | jq -r '.body // ""' > release_body.txt
 
       - name: Send Discord Release Message
         run: |
-          RELEASE_BODY=$(cat release_body.txt | jq -Rs .)
-          curl -H "Content-Type: application/json" \
+          RELEASE_BODY=$(cat release_body.txt)
+          CONTENT="$(printf ':tada: **OneDL-MMCV Release Announcement!**\nA new version has just been published: **${{ github.ref_name }}**\n%s\n:rocket: Happy deep learning!' "$RELEASE_BODY")"
+          curl -f -H "Content-Type: application/json" \
             -X POST \
-            -d "{\"content\":\":tada: **OneDL-MMCV Release Announcement!**\\nA new version has just been published: **${{ github.ref_name }}**\\n$RELEASE_BODY\\n:rocket: Happy deep learning!\"}" \
-            https://discord.com/api/webhooks/1459129212832186423/cn-FjSxUHW3qowU0BSIX-6sDChMWYPFPrHtKprcXKXQpZkQn0GINv2rdhVEmdU73j5Go
+            -d "$(jq -n --arg content "$CONTENT" '{"content": $content}')" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
