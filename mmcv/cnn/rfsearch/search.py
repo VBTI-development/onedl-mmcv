@@ -114,9 +114,9 @@ class RFSearchHook(Hook):
             work_dir (str): Directory to save the searching results.
         """
         self.config['search']['step'] += 1
-        if (self.config['search']['step']
-            ) % self.config['search']['search_interval'] == 0 and (self.config[
-                'search']['step']) < self.config['search']['max_step']:
+        step = self.config['search']['step']
+        if step % self.config['search']['search_interval'] == 0 and \
+                step < self.config['search']['max_step']:
             self.estimate_and_expand(model)
             for name, module in model.named_modules():
                 if isinstance(module, BaseConvRFSearchOp):
@@ -126,8 +126,7 @@ class RFSearchHook(Hook):
                 self.config,
                 os.path.join(
                     work_dir,
-                    'local_search_config_step%d.json' %
-                    self.config['search']['step'],
+                    'local_search_config_step%d.json' % step,
                 ),
             )
 
