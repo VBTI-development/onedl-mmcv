@@ -429,8 +429,7 @@ class TestPhotometric:
         actual_h = int(
             cv2.cvtColor(bgr_pixel, cv2.COLOR_BGR2HSV_FULL)[0, 0, 0])
         expected_hue = (actual_h + shift) % 256  # 10 (not 9 due to rounding)
-        result = mmcv.adjust_hue(
-            bgr_pixel, hue_factor_wrap, backend='cv2')
+        result = mmcv.adjust_hue(bgr_pixel, hue_factor_wrap, backend='cv2')
         result_hsv = cv2.cvtColor(
             result.astype(np.uint8), cv2.COLOR_BGR2HSV_FULL)
         assert result_hsv[0, 0, 0] == expected_hue, (
