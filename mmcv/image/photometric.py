@@ -543,7 +543,7 @@ def adjust_hue(img: np.ndarray,
         np_h = np.array(h, dtype=np.uint8)
         # uint8 addition take cares of rotation across boundaries
         with np.errstate(over='ignore'):
-            np_h += np.uint8(hue_factor * 255)
+            np_h += np.uint8(int(hue_factor * 255) % 256)
         h = Image.fromarray(np_h, 'L')
 
         pil_image = Image.merge('HSV', (h, s, v)).convert(input_mode)
@@ -556,6 +556,6 @@ def adjust_hue(img: np.ndarray,
         h = h.astype(np.uint8)
         # uint8 addition take cares of rotation across boundaries
         with np.errstate(over='ignore'):
-            h += np.uint8(hue_factor * 255)
+            h += np.uint8(int(hue_factor * 255) % 256)
         hsv_img = cv2.merge([h, s, v])
         return cv2.cvtColor(hsv_img, cv2.COLOR_HSV2BGR_FULL).astype(dtype)
