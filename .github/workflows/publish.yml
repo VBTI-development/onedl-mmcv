@@ -25,7 +25,7 @@ jobs:
         (needs.jetpack-wheelhouse.result == 'success' || needs.jetpack-wheelhouse.result == 'failure')
       )
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v5
         with:
@@ -91,7 +91,7 @@ jobs:
           large-packages: true
           docker-images: false
           swap-storage: true
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Set CUDNN version
         run: |
@@ -128,7 +128,7 @@ jobs:
           fi
 
       - name: Build Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker/build
           push: false
@@ -187,7 +187,7 @@ jobs:
       PYTORCH: ${{ matrix.pytorch }}
       PYTHON_VERSION: ${{ matrix.python_version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Extract tag name
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
@@ -197,7 +197,7 @@ jobs:
             echo "TAG_NAME=latest" >> $GITHUB_ENV
           fi
       - name: Build Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker/build
           push: false
@@ -241,7 +241,7 @@ jobs:
     env:
       PYTORCH: '2.8.0' # hardcoded in Dockerfiles
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Set up QEMU for ARM64 emulation
         uses: docker/setup-qemu-action@v3
@@ -261,7 +261,7 @@ jobs:
           fi
 
       - name: Build Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker/build
           push: false
@@ -299,7 +299,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Get Release Info
         id: release
         run: |
