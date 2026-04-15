@@ -415,6 +415,26 @@ class TestPhotometric:
             cv2_res = mmcv.adjust_hue(self.img, hue_factor=i)
             assert np.allclose(pil_res, cv2_res, atol=10.0)
 
+        # test uint8 wrap-around: hue near 255 with a positive shift should
+        # wrap to a small value, not saturate at 255.
+        # Note: HSV_FULL -> BGR -> HSV_FULL is lossy (±1) due to uint8
+        # rounding in cv2, so compute expected_hue from the round-tripped BGR
+        # pixel, not the original h_val.
+        h_val = 240
+        hue_factor_wrap = 0.1
+        shift = int(hue_factor_wrap * 255) % 256  # 25
+        hsv_pixel = np.array([[[h_val, 255, 200]]], dtype=np.uint8)
+        bgr_pixel = cv2.cvtColor(hsv_pixel, cv2.COLOR_HSV2BGR_FULL)
+        # recover actual hue after the lossy BGR round-trip
+        actual_h = int(
+            cv2.cvtColor(bgr_pixel, cv2.COLOR_BGR2HSV_FULL)[0, 0, 0])
+        expected_hue = (actual_h + shift) % 256  # 10 (not 9 due to rounding)
+        result = mmcv.adjust_hue(bgr_pixel, hue_factor_wrap)
+        result_hsv = cv2.cvtColor(
+            result.astype(np.uint8), cv2.COLOR_BGR2HSV_FULL)
+        assert result_hsv[0, 0, 0] == expected_hue, (
+            f'Expected wrapped hue {expected_hue}, got {result_hsv[0, 0, 0]}')
+
         # test pillow backend
         with pytest.raises(AssertionError):
             mmcv.adjust_hue(
