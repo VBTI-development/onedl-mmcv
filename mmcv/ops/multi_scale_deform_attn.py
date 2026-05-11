@@ -364,23 +364,19 @@ class MultiScaleDeformableAttention(BaseModule):
             raise ValueError(
                 f'Last dim of reference_points must be'
                 f' 2 or 4, but get {reference_points.shape[-1]} instead.')
-        if ((IS_CUDA_AVAILABLE and value.is_cuda)
-                or (IS_MLU_AVAILABLE and value.is_mlu)
-                or (IS_MUSA_AVAILABLE and value.is_musa)
-                or (IS_NPU_AVAILABLE and value.device.type == 'npu'))\
-                and value.dtype != torch.bfloat16:
+        use_custom_op = ((IS_CUDA_AVAILABLE and value.is_cuda)
+                         or (IS_MLU_AVAILABLE and value.is_mlu)
+                         or (IS_MUSA_AVAILABLE and value.is_musa)
+                         or (IS_NPU_AVAILABLE and value.device.type == 'npu'))
+        if use_custom_op and value.dtype != torch.bfloat16:
             output = MultiScaleDeformableAttnFunction.apply(
                 value, spatial_shapes, level_start_index, sampling_locations,
                 attention_weights, self.im2col_step)
         else:
-            if ((IS_CUDA_AVAILABLE and value.is_cuda)
-                or (IS_MLU_AVAILABLE and value.is_mlu)
-                or (IS_MUSA_AVAILABLE and value.is_musa)
-                or (IS_NPU_AVAILABLE and value.device.type == 'npu'))\
-                and value.dtype == torch.bfloat16:
-                warnings.warn(
-                    'MultiScaleDeformableAttnFunction does not support torch.bfloat16. '
-                    'Falling back to the PyTorch implementation.')
+            if use_custom_op and value.dtype == torch.bfloat16:
+                warnings.warn('MultiScaleDeformableAttnFunction does not '
+                              'support torch.bfloat16. '
+                              'Falling back to the PyTorch implementation.')
             output = multi_scale_deformable_attn_pytorch(
                 value, spatial_shapes, sampling_locations, attention_weights)
 
