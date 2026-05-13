@@ -318,7 +318,8 @@ def batched_nms(boxes: Tensor,
             mask = (idxs == id).nonzero(as_tuple=False).view(-1)
             dets, keep = nms_op(boxes_for_nms[mask], scores[mask], **nms_cfg_)
             total_mask[mask[keep]] = True
-            scores_after_nms[mask[keep]] = dets[:, -1]
+            scores_after_nms[mask[keep]] = dets[:,
+                                                -1].to(scores_after_nms.dtype)
         keep = total_mask.nonzero(as_tuple=False).view(-1)
 
         scores, inds = scores_after_nms[keep].sort(descending=True)
