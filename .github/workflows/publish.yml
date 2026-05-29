@@ -272,7 +272,6 @@ jobs:
       - name: Build wheel
         run: |
           docker run --rm \
-          -e SKIP_REPAIR_WHEEL=1 \
           -v ${{ github.workspace }}/mmcv/dist:/out \
           mmcv-builder:${{ env.TAG_NAME }}-jetpack${{ matrix.jetpack }}-torch${{ env.PYTORCH }}
 
