@@ -231,15 +231,15 @@ jobs:
           --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
           --exclude '.gitignore'
 
-  # JetPack 6.0 wheel build for ARM64 devices (CUDA 12.2.1, PyTorch 2.8.0)
+  # JetPack 6.1 wheel build for ARM64 devices (CUDA 12.2.1, PyTorch 2.11.0)
   jetpack-wheelhouse:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     strategy:
       fail-fast: false
       matrix:
-        jetpack: ['60', '61']
+        jetpack: ['61']
     env:
-      PYTORCH: '2.8.0' # hardcoded in Dockerfiles
+      PYTORCH: '2.11.0' # hardcoded in Dockerfiles
     steps:
       - uses: actions/checkout@v5
 

@@ -32,6 +32,7 @@ coverage.xml
 .github/
 .pre-commit-config.yaml
 .devcontainer/
+.venv/
 
 docs/
 examples/
