@@ -35,7 +35,7 @@ RUN git clone --single-branch https://github.com/vbti-development/onedl-mmcv.git
 ENV UV_LINK_MODE=copy
 # install torch
 RUN --mount=type=cache,target=/root/.cache/pip,id=pip \
-    uv pip install --no-cache \
+    uv pip install \
     https://pypi.jetson-ai-lab.io/jp6/cu126/+f/46b/b8b13f844b211/torch-2.11.0-cp310-cp310-linux_aarch64.whl#sha256=46bb8b13f844b2111f6f41abc703d01075a7185e0c587cb002e957ede2b8c8a3
 
 RUN --mount=type=cache,target=/root/.cache/uv \
