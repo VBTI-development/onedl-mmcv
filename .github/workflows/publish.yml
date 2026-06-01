@@ -48,10 +48,6 @@ jobs:
             pytorch: '2.4.1'
             torch_cuda_arch_list:  "7.5 8.0 8.6 8.9 9.0"
             python_version: "3.10"
-          - cuda: 12.4.1
-            pytorch: '2.5.1'
-            torch_cuda_arch_list:  "7.5 8.0 8.6 8.9 9.0"
-            python_version: "3.10"
           - cuda: 12.8.1
             pytorch: '2.8.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
@@ -66,6 +62,10 @@ jobs:
             python_version: "3.12"
           - cuda: 12.9.1
             pytorch: '2.10.0'
+            torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
+            python_version: "3.12"
+          - cuda: 13.0.3
+            pytorch: '2.12.0'
             torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
             python_version: "3.12"
     runs-on: ubuntu-24.04
@@ -171,7 +171,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pytorch: [2.4.1, 2.5.1, '2.8.0', '2.9.0', "2.10.0"]
+        pytorch: [2.4.1, '2.8.0', '2.9.0', "2.10.0", "2.12.0"]
         python_version: ["3.10", "3.12"]
         exclude:
           - pytorch: 2.4.1
@@ -181,6 +181,8 @@ jobs:
           - pytorch: 2.9.0
             python_version: 3.10
           - pytorch: 2.10.0
+            python_version: 3.10
+          - pytorch: 2.12.0
             python_version: 3.10
     runs-on: ubuntu-22.04
     env:

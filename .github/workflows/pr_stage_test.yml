@@ -34,9 +34,9 @@ jobs:
               base-image: "nvidia/cuda:12.8.1-cudnn-devel-ubuntu22.04"
               torch-backend: cu128
             - python-version: "3.12"
-              torch: "2.9.0"
-              torch-backend: cu129
-              base-image: "nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04"
+              torch: "2.12.0"
+              torch-backend: cu130
+              base-image: "nvidia/cuda:13.0.3-cudnn-devel-ubuntu24.04"
     container:
       image: ${{ matrix.base-image }}
     steps:
