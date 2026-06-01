@@ -33,7 +33,7 @@ jobs:
               torch: "2.8.0"
               base-image: "nvidia/cuda:12.8.1-cudnn-devel-ubuntu22.04"
               torch-backend: cu128
-              mmcv_cuda_args: :-gencode=arch=compute_61,code=sm_61"
+              mmcv_cuda_args: "-gencode=arch=compute_61,code=sm_61"
             - python-version: "3.12"
               torch: "2.12.0"
               torch-backend: cu130
