@@ -15,7 +15,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:0.8.14 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.17 /uv /uvx /bin/
 
 WORKDIR /workspace
 ARG PYTHON_VERSION="3.10"

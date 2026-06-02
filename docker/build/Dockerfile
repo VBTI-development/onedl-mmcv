@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:0.8.14 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.17 /uv /uvx /bin/
 
 # build mmcv from source with develop mode
 ARG HTTPS_PROXY=""
