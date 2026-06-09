@@ -19,6 +19,10 @@ def load_group(path: Path, group_id: str) -> dict:
     raise SystemExit(f"Unknown build group: {group_id}")
 
 
+def current_build_identifier() -> str:
+    return f"cp{sys.version_info.major}{sys.version_info.minor}-manylinux_x86_64"
+
+
 def install_args(group: dict, build_identifier: str) -> list[str]:
     try:
         spec = group["torch_by_build"][build_identifier]
@@ -43,11 +47,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--matrix", type=Path, default=DEFAULT_MATRIX)
     parser.add_argument("--group-id", required=True)
-    parser.add_argument("--build-identifier", required=True)
+    parser.add_argument("--build-identifier", default="")
     args = parser.parse_args()
 
     group = load_group(args.matrix, args.group_id)
-    subprocess.run(install_args(group, args.build_identifier), check=True)
+    build_identifier = args.build_identifier or current_build_identifier()
+    subprocess.run(install_args(group, build_identifier), check=True)
     subprocess.run([
         "uv",
         "pip",
