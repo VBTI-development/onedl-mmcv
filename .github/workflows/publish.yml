@@ -226,14 +226,14 @@ jobs:
           for group_dir in dist-artifacts/wheelhouse-*; do
             group_id="${group_dir##*/wheelhouse-}"
             for wheel in "$group_dir"/*.whl; do
-              python -m venv .verify-venv
-              . .verify-venv/bin/activate
-              python -m pip install -U pip uv
               build_id="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-(cp\d+)-[^-]+-(.+)\.whl$", name); assert m, name; py, platform=m.groups(); print(f"{py}-manylinux_x86_64" if platform.startswith("manylinux") else f"{py}-{platform}")' "$wheel")"
+              py_version="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-cp(\d)(\d+)-.+\.whl$", name); assert m, name; print(f"{m.group(1)}.{m.group(2)}")' "$wheel")"
+              uv venv --python "$py_version" .verify-venv
+              . .verify-venv/bin/activate
               python scripts/select_torch.py \
                 --group-id "$group_id" \
                 --build-identifier "$build_id"
-              python -m pip install "$wheel"
+              uv pip install "$wheel"
               python -c "import mmcv; import mmcv.ops; from mmcv.utils import ext_loader; assert ext_loader.check_ops_exist(); print(mmcv.__version__)"
               deactivate
               rm -rf .verify-venv
