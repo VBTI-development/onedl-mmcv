@@ -78,21 +78,7 @@ jobs:
         id: validate
         env:
           RELEASE_TAG: ${{ steps.ref.outputs.release_tag }}
-        run: |
-          if [ -n "$RELEASE_TAG" ]; then
-            python scripts/validate_release_tag.py "$RELEASE_TAG" --write-github-output
-          else
-            python - <<'PY'
-            import os
-            import tomllib
-            with open('pyproject.toml', 'rb') as handle:
-                version = tomllib.load(handle)['project']['version']
-            with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
-                output.write(f"version={version}\n")
-                output.write("tag=\n")
-            print(version)
-            PY
-          fi
+        run: python scripts/validate_release_tag.py "$RELEASE_TAG" --allow-missing-tag --write-github-output
 
   build-sdist:
     needs: validate-release

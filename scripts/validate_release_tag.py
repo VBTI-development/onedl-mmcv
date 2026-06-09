@@ -41,15 +41,22 @@ def main() -> int:
     parser.add_argument("tag", nargs="?", default=os.getenv("GITHUB_REF_NAME", ""))
     parser.add_argument("pyproject", nargs="?", type=Path, default=Path("pyproject.toml"))
     parser.add_argument("--write-github-output", action="store_true")
+    parser.add_argument("--allow-missing-tag", action="store_true")
     args = parser.parse_args()
 
+    expected = read_project_version(args.pyproject)
     if not args.tag:
-        raise SystemExit("release tag is required")
+        if not args.allow_missing_tag:
+            raise SystemExit("release tag is required")
+        print(expected)
+        if args.write_github_output:
+            write_github_output(expected, "")
+        return 0
+
     raw_tag = args.tag.removeprefix("refs/tags/")
     if not SAFE_TAG_RE.fullmatch(raw_tag):
         raise SystemExit(f"unsafe or invalid release tag: {args.tag!r}")
 
-    expected = read_project_version(args.pyproject)
     actual = normalize_tag(args.tag)
     if actual != expected:
         raise SystemExit(
