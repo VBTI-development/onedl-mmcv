@@ -139,9 +139,11 @@ jobs:
             cibw_build: cp312-manylinux_x86_64
             torch_cuda_arch_list: 7.5 8.6 8.9 9.0 12.0
     env:
+      SCCACHE_GHA_ENABLED: "true"
       CIBW_BUILD: ${{ matrix.cibw_build }}
       CIBW_BUILD_VERBOSITY: 1
       CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
+      CIBW_ENVIRONMENT_PASS_LINUX: ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_URL
       CIBW_ENVIRONMENT: >
         FORCE_CUDA=${{ matrix.force_cuda }}
         MMCV_REQUIRE_EXT=1
@@ -149,6 +151,9 @@ jobs:
         CUDA=${{ matrix.cuda }}
         TORCH_CUDA_ARCH_LIST='${{ matrix.torch_cuda_arch_list }}'
         UV_LINK_MODE=copy
+        SCCACHE_GHA_ENABLED=true
+        SCCACHE_IDLE_TIMEOUT=0
+        PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
     steps:
       - uses: actions/checkout@v5
         with:
@@ -160,6 +165,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.12'
+      - name: Configure sccache (GitHub Actions cache backend)
+        uses: mozilla-actions/sccache-action@v0.0.10
       - name: Build wheels with cibuildwheel
         uses: pypa/cibuildwheel@v2.23.0
         with:

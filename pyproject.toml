@@ -96,9 +96,9 @@ test-command = "python -c \"import mmcv; print(mmcv.__version__); import mmcv.op
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
-before-build = "python -m pip install uv && python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
+before-build = "bash ci/install_sccache.sh && python -m pip install uv && python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
 before-test = "python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
-repair-wheel-command = "auditwheel repair {wheel} -w {dest_dir} --exclude libc10.so --exclude libc10_cuda.so --exclude libtorch.so --exclude libtorch_cpu.so --exclude libtorch_cuda.so --exclude libtorch_python.so --exclude libshm.so"
+repair-wheel-command = "bash ci/repair_wheel.sh {wheel} {dest_dir}"
 
 [tool.setuptools.packages.find]
 where = ["."]
