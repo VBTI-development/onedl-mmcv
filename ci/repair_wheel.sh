@@ -17,3 +17,14 @@ auditwheel repair "$wheel" -w "$dest" \
   --exclude libshm.so
 
 sccache --show-stats || true
+
+if [[ -n "${SCCACHE_ERROR_LOG:-}" && -s "$SCCACHE_ERROR_LOG" ]]; then
+  printf 'sccache error log (last 80 lines, redacted):\n'
+  tail -n 80 "$SCCACHE_ERROR_LOG" | sed -E \
+    -e 's/(ACTIONS_RUNTIME_TOKEN|SCCACHE_GHA_RUNTIME_TOKEN)=([^[:space:]]+)/\1=[REDACTED]/g' \
+    -e 's/(token=)[^&[:space:]]+/\1[REDACTED]/g' \
+    -e 's/(Bearer )[A-Za-z0-9._~+\/=:-]+/\1[REDACTED]/g' \
+    || true
+else
+  printf 'sccache error log: absent or empty\n'
+fi
