@@ -61,7 +61,9 @@ optional = [
     "psutil"
 ]
 build = [
-    "setuptools",
+    "packaging>=24.2",
+    "setuptools>=80",
+    "wheel",
 ]
 
 [project.optional-dependencies]
@@ -86,6 +88,17 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
+
+[tool.cibuildwheel]
+build-frontend = { name = "build[uv]", args = ["--no-isolation"] }
+skip = "pp* *-musllinux_*"
+test-command = "python -c \"import mmcv; print(mmcv.__version__); import mmcv.ops; from mmcv.utils import ext_loader; assert ext_loader.check_ops_exist()\""
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+before-build = "python -m pip install uv && python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\" --build-identifier \"$CIBUILDWHEEL_BUILD_IDENTIFIER\""
+before-test = "python -m pip install uv && python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\" --build-identifier \"$CIBUILDWHEEL_BUILD_IDENTIFIER\""
+repair-wheel-command = "auditwheel repair {wheel} -w {dest_dir} -z 9 --exclude libc10.so --exclude libc10_cuda.so --exclude libtorch.so --exclude libtorch_cpu.so --exclude libtorch_cuda.so --exclude libtorch_python.so --exclude libshm.so"
 
 [tool.setuptools.packages.find]
 where = ["."]

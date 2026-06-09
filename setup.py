@@ -7,6 +7,8 @@ from typing import Dict, Type
 
 from packaging.version import parse as parse_version
 
+MMCV_REQUIRE_EXT = os.getenv('MMCV_REQUIRE_EXT', '0') == '1'
+
 cmd_class: Dict[str, Type[Command]]
 EXT_TYPE = ''
 try:
@@ -28,7 +30,11 @@ try:
     cmd_class = {'build_ext': BuildExtension}
 except ModuleNotFoundError:
     cmd_class = {}
-    print('Skip building ext ops due to the absence of torch.')
+    msg = 'Skip building ext ops due to the absence of torch.'
+    if MMCV_REQUIRE_EXT:
+        raise RuntimeError(
+            f'{msg} MMCV_REQUIRE_EXT=1 forbids pure-Python wheels.')
+    print(msg)
 
 
 def get_extensions():
@@ -368,6 +374,10 @@ def get_extensions():
             libraries=libraries,
             extra_link_args=extra_link_args)
         extensions.append(ext_ops)
+    if MMCV_REQUIRE_EXT and not extensions:
+        raise RuntimeError(
+            'MMCV_REQUIRE_EXT=1 requires at least one native extension to be '
+            'configured for this build.')
     return extensions
 
 

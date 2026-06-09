@@ -1,0 +1,60 @@
+{
+  "build_groups": [
+    {
+      "id": "cpu",
+      "cuda": "cpu",
+      "torch_backend": "cpu",
+      "publish_prefix_template": "cpu-torch{torch_compact}/onedl-mmcv/",
+      "torch_by_build": {
+        "cp310-manylinux_x86_64": {
+          "torch": "2.4.1",
+          "torchvision": ""
+        },
+        "cp312-manylinux_x86_64": {
+          "torch": "2.10.0",
+          "torchvision": ""
+        }
+      }
+    },
+    {
+      "id": "cu118",
+      "cuda": "11.8",
+      "torch_backend": "cu118",
+      "publish_prefix_template": "cu118-torch{torch_compact}/onedl-mmcv/",
+      "torch_by_build": {
+        "cp310-manylinux_x86_64": {
+          "torch": "2.4.1",
+          "torchvision": ""
+        }
+      }
+    },
+    {
+      "id": "cu129",
+      "cuda": "12.9",
+      "torch_backend": "cu129",
+      "publish_prefix_template": "cu129-torch{torch_compact}/onedl-mmcv/",
+      "torch_by_build": {
+        "cp310-manylinux_x86_64": {
+          "torch": "2.8.0",
+          "torchvision": ""
+        },
+        "cp312-manylinux_x86_64": {
+          "torch": "2.10.0",
+          "torchvision": ""
+        }
+      }
+    },
+    {
+      "id": "cu130",
+      "cuda": "13.0",
+      "torch_backend": "cu130",
+      "publish_prefix_template": "cu130-torch{torch_compact}/onedl-mmcv/",
+      "torch_by_build": {
+        "cp312-manylinux_x86_64": {
+          "torch": "2.12.0",
+          "torchvision": ""
+        }
+      }
+    }
+  ]
+}

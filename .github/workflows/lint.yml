@@ -43,3 +43,13 @@ jobs:
       - name: Check uv.lock file
         run: |
           uv lock --check
+
+  release-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check release torch matrix
+        run: python -m json.tool ci/build-matrix.json > /dev/null
