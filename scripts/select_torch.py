@@ -36,7 +36,7 @@ def install_args(group: dict, build_identifier: str) -> list[str]:
     torchvision = spec.get("torchvision", "")
     packages.append(f"torchvision=={torchvision}" if torchvision else "torchvision")
 
-    args = ["uv", "pip", "install"]
+    args = ["uv", "pip", "install", "--python", sys.executable, "--system"]
     backend = group.get("torch_backend", "")
     if backend:
         args.append(f"--torch-backend={backend}")
@@ -57,6 +57,9 @@ def main() -> int:
         "uv",
         "pip",
         "install",
+        "--python",
+        sys.executable,
+        "--system",
         "-r",
         "pyproject.toml",
         "--group",
