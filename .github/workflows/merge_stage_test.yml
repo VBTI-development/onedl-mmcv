@@ -1,20 +1,7 @@
 name: merge_stage_test
 
 on:
-  push:
-    paths-ignore:
-      - ".github/**.md"
-      - "docker/**"
-      - "docs/**"
-      - 'examples/**'
-      - '.dev_scripts/**'
-      - "README.md"
-      - "README_zh-CN.md"
-      - "CONTRIBUTING.md"
-      - ".pre-commit-config.yaml"
-      - ".pre-commit-config-zh-cn.yaml"
-    branches:
-      - main
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

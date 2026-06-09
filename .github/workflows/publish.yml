@@ -7,8 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build, for example v2.3.7.post1'
-        required: true
+        description: 'Release tag to publish, for example v2.3.7.post1; optional for dry runs'
+        required: false
+        type: string
+      ref:
+        description: 'Git ref to build for dry runs; defaults to the workflow branch'
+        required: false
         type: string
       dry_run:
         description: 'Build and verify artifacts without publishing them'
@@ -29,25 +33,66 @@ jobs:
     outputs:
       version: ${{ steps.validate.outputs.version }}
       release_ref: ${{ steps.ref.outputs.release_ref }}
+      release_tag: ${{ steps.ref.outputs.release_tag }}
     steps:
       - id: ref
         env:
-          RELEASE_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_REF: ${{ github.event.inputs.ref }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          python - "$RELEASE_REF" <<'PY'
+          python - <<'PY'
+          import os
           import re
-          import sys
-          tag = sys.argv[1]
-          if not re.fullmatch(r"v[0-9]+[.][0-9]+[.][0-9]+[A-Za-z0-9_.+-]*", tag):
+          tag = os.environ["INPUT_TAG"].strip()
+          ref = os.environ["INPUT_REF"].strip()
+          dry_run = os.environ["DRY_RUN"] == "true"
+          event_name = os.environ["EVENT_NAME"]
+          current_ref = os.environ["GITHUB_REF_NAME"]
+
+          if event_name == "push":
+              tag = current_ref
+              ref = f"refs/tags/{tag}"
+          elif dry_run:
+              ref = ref or current_ref
+          else:
+              if not tag:
+                  raise SystemExit("tag is required when dry_run is false")
+              ref = f"refs/tags/{tag}"
+
+          if tag and not re.fullmatch(r"v[0-9]+[.][0-9]+[.][0-9]+[A-Za-z0-9_.+-]*", tag):
               raise SystemExit(f"invalid release tag: {tag!r}")
+          if not ref:
+              raise SystemExit("release ref is required")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"release_ref={ref}\n")
+              output.write(f"release_tag={tag}\n")
           PY
-          printf 'release_ref=%s\n' "$RELEASE_REF" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v5
         with:
-          ref: refs/tags/${{ steps.ref.outputs.release_ref }}
+          ref: ${{ steps.ref.outputs.release_ref }}
       - name: Validate release tag
         id: validate
-        run: python scripts/validate_release_tag.py "${{ steps.ref.outputs.release_ref }}" --write-github-output
+        env:
+          RELEASE_TAG: ${{ steps.ref.outputs.release_tag }}
+        run: |
+          if [ -n "$RELEASE_TAG" ]; then
+            python scripts/validate_release_tag.py "$RELEASE_TAG" --write-github-output
+          else
+            python - <<'PY'
+            import os
+            import tomllib
+            with open('pyproject.toml', 'rb') as handle:
+                version = tomllib.load(handle)['project']['version']
+            with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+                output.write(f"version={version}\n")
+                output.write("tag=\n")
+            print(version)
+            PY
+          fi
 
   build-sdist:
     needs: validate-release
@@ -55,7 +100,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: refs/tags/${{ needs.validate-release.outputs.release_ref }}
+          ref: ${{ needs.validate-release.outputs.release_ref }}
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.12'
@@ -121,7 +166,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: refs/tags/${{ needs.validate-release.outputs.release_ref }}
+          ref: ${{ needs.validate-release.outputs.release_ref }}
       - name: Reclaim runner disk space
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
@@ -148,7 +193,7 @@ jobs:
             --wheel-dir "wheelhouse/${{ matrix.id }}" \
             --group-id "${{ matrix.id }}" \
             --version "${{ needs.validate-release.outputs.version }}" \
-            --tag "${{ needs.validate-release.outputs.release_ref }}" \
+            --tag "${{ needs.validate-release.outputs.release_tag }}" \
             --git-sha "$(git rev-parse HEAD)" \
             --output "wheelhouse/${{ matrix.id }}/manifest.json"
       - uses: actions/upload-artifact@v4
@@ -163,7 +208,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: refs/tags/${{ needs.validate-release.outputs.release_ref }}
+          ref: ${{ needs.validate-release.outputs.release_ref }}
       - uses: actions/download-artifact@v4
         with:
           name: sdist
@@ -220,7 +265,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: refs/tags/${{ needs.validate-release.outputs.release_ref }}
+          ref: ${{ needs.validate-release.outputs.release_ref }}
       - uses: actions/download-artifact@v4
         with:
           pattern: wheelhouse-*
@@ -274,11 +319,11 @@ jobs:
       - name: Get release info
         run: |
           curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ needs.validate-release.outputs.release_ref }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ needs.validate-release.outputs.release_tag }}" \
             | jq -r '.body // ""' > release_body.txt
       - name: Send Discord release message
         env:
-          RELEASE_REF: ${{ needs.validate-release.outputs.release_ref }}
+          RELEASE_REF: ${{ needs.validate-release.outputs.release_tag }}
         run: |
           RELEASE_BODY=$(cat release_body.txt)
           CONTENT="$(printf ':tada: **OneDL-MMCV Release Announcement!**\nA new version has just been published: **%s**\n%s\n:rocket: Happy deep learning!' "$RELEASE_REF" "$RELEASE_BODY")"
