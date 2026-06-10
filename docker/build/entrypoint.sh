@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-uv build
+# Build without isolation so setup.py can import the venv's torch and compile _ext
+uv build --no-build-isolation
 
 
 # By default, run auditwheel repair unless SKIP_REPAIR_WHEEL=1 is set
