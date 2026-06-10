@@ -28,9 +28,7 @@ ENV TORCH_CUDA_ARCH_LIST="8.7"
 
 # build mmcv with uv
 WORKDIR /mmcv
-RUN git clone --single-branch https://github.com/vbti-development/onedl-mmcv.git /mmcv \
-    && rm -r /mmcv/.git \
-    && uv venv --python 3.10
+RUN uv venv --python 3.10
 
 ENV UV_LINK_MODE=copy
 # install torch
@@ -38,10 +36,15 @@ RUN --mount=type=cache,target=/root/.cache/pip,id=pip \
     uv pip install \
     https://pypi.jetson-ai-lab.io/jp6/cu126/+f/46b/b8b13f844b211/torch-2.11.0-cp310-cp310-linux_aarch64.whl#sha256=46bb8b13f844b2111f6f41abc703d01075a7185e0c587cb002e957ede2b8c8a3
 
+# Resolve dependencies first so this layer stays cached unless deps change
+COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install setuptools && uv sync --group build --group optional --no-install-project --inexact
 
-COPY entrypoint.sh /entrypoint.sh
+# Copy the checked-out release source (build context is the repo root)
+COPY . /mmcv
+
+COPY docker/build/entrypoint.sh /entrypoint.sh
 
 VOLUME [ "/out" ]
 ENTRYPOINT ["/entrypoint.sh" ]
