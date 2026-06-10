@@ -52,4 +52,4 @@ jobs:
         with:
           python-version: '3.12'
       - name: Check release torch matrix
-        run: python -m json.tool ci/build-matrix.json > /dev/null
+        run: python scripts/release_matrix.py validate

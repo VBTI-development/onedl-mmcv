@@ -98,46 +98,28 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
-  build-linux-wheels:
+  gen-matrix:
     needs: validate-release
+    runs-on: ubuntu-24.04
+    outputs:
+      linux: ${{ steps.gen.outputs.linux }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.validate-release.outputs.release_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - id: gen
+        run: echo "linux=$(python scripts/release_matrix.py gen-matrix --kind linux)" >> "$GITHUB_OUTPUT"
+
+  build-linux-wheels:
+    needs: [validate-release, gen-matrix]
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - id: cpu
-            name: Linux CPU wheels
-            runner: ubuntu-24.04
-            force_cuda: '0'
-            cuda: cpu
-            manylinux_image: manylinux_2_28
-            cibw_build: cp310-manylinux_x86_64 cp312-manylinux_x86_64
-            torch_cuda_arch_list: ''
-          - id: cu118
-            name: Linux CUDA 11.8 wheels
-            runner: ubuntu-24.04
-            force_cuda: '1'
-            cuda: '11.8'
-            manylinux_image: sameli/manylinux2014_x86_64_cuda_11.8
-            cibw_build: cp310-manylinux_x86_64
-            torch_cuda_arch_list: 7.5 8.0 8.6 8.9 9.0
-          - id: cu129
-            name: Linux CUDA 12.9 wheels
-            runner: ubuntu-24.04
-            force_cuda: '1'
-            cuda: '12.9'
-            manylinux_image: sameli/manylinux_2_34_x86_64_cuda_12.9
-            cibw_build: cp310-manylinux_x86_64 cp312-manylinux_x86_64
-            torch_cuda_arch_list: 7.5 8.6 8.9 9.0 12.0
-          - id: cu130
-            name: Linux CUDA 13.0 wheels
-            runner: ubuntu-24.04
-            force_cuda: '1'
-            cuda: '13.0'
-            manylinux_image: sameli/manylinux_2_34_x86_64_cuda_13.0
-            cibw_build: cp312-manylinux_x86_64
-            torch_cuda_arch_list: 7.5 8.6 8.9 9.0 12.0
+      matrix: ${{ fromJSON(needs.gen-matrix.outputs.linux) }}
     env:
       SCCACHE_GHA_ENABLED: "true"
       CIBW_BUILD: ${{ matrix.cibw_build }}
