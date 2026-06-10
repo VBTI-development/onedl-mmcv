@@ -156,6 +156,7 @@ jobs:
         SCCACHE_ERROR_LOG=/tmp/sccache-error.log
         SCCACHE_LOG=warn
         PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
+        CXX=/opt/sccache-shims/c++
     steps:
       - uses: actions/checkout@v5
         with:
@@ -235,18 +236,21 @@ jobs:
       - name: Smoke install wheels
         run: |
           set -euo pipefail
+          repo_root="$(pwd)"
           for group_dir in dist-artifacts/wheelhouse-*; do
             group_id="${group_dir##*/wheelhouse-}"
             for wheel in "$group_dir"/*.whl; do
               build_id="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-(cp\d+)-[^-]+-(.+)\.whl$", name); assert m, name; py, platform=m.groups(); print(f"{py}-manylinux_x86_64" if platform.startswith("manylinux") else f"{py}-{platform}")' "$wheel")"
               py_version="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-cp(\d)(\d+)-.+\.whl$", name); assert m, name; print(f"{m.group(1)}.{m.group(2)}")' "$wheel")"
               uv venv --python "$py_version" .verify-venv
-              verify_python=".verify-venv/bin/python"
+              verify_python="$repo_root/.verify-venv/bin/python"
               "$verify_python" scripts/select_torch.py \
                 --group-id "$group_id" \
                 --build-identifier "$build_id"
               uv pip install --python "$verify_python" "$wheel"
-              "$verify_python" -c "import mmcv; import mmcv.ops; from mmcv.utils import ext_loader; assert ext_loader.check_ops_exist(); print(mmcv.__version__)"
+              # Import from outside the repo root so the installed wheel is exercised
+              # instead of the local mmcv/ source tree (which ships no compiled _ext).
+              ( cd "$repo_root/.verify-venv" && "$verify_python" -c "import mmcv; import mmcv.ops; from mmcv.utils import ext_loader; assert ext_loader.check_ops_exist(); print(mmcv.__version__)" )
               rm -rf .verify-venv
             done
           done

@@ -36,3 +36,28 @@ tar -xzf "$tmp/sccache.tar.gz" -C "$tmp"
 install -m 0755 "$tmp/${asset}/sccache" /usr/local/bin/sccache
 
 sccache --version
+
+# Wrap the host C++ compiler so the ~200 .cpp objects are cached too (nvcc is
+# wrapped separately via PYTORCH_NVCC). torch's ninja build reads $CXX for the
+# host compile rule; we point it at an absolute single-token shim to avoid the
+# setuptools>=60 space-prefix link regression that CXX="sccache c++" triggers.
+shim_dir=/opt/sccache-shims
+real_cxx="$(command -v c++ || command -v g++ || true)"
+if [[ -z "$real_cxx" ]]; then
+  printf '::error::no host C++ compiler (c++/g++) found for the sccache shim\n'
+  exit 1
+fi
+mkdir -p "$shim_dir"
+cat >"$shim_dir/c++" <<EOF
+#!/bin/sh
+# Route only real compiles (-c) through sccache; pass links and everything else
+# straight to the compiler so sccache never handles a non-cacheable command.
+for arg in "\$@"; do
+  if [ "\$arg" = "-c" ]; then
+    exec sccache "$real_cxx" "\$@"
+  fi
+done
+exec "$real_cxx" "\$@"
+EOF
+chmod 0755 "$shim_dir/c++"
+printf 'sccache host C++ shim: %s -> sccache %s\n' "$shim_dir/c++" "$real_cxx"
