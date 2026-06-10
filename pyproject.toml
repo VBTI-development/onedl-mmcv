@@ -96,7 +96,7 @@ test-command = "python -c \"import mmcv; print(mmcv.__version__); import mmcv.op
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
-before-build = "bash ci/install_sccache.sh && python -m pip install uv && python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
+before-build = "bash ci/free_disk.sh && bash ci/install_sccache.sh && python -m pip install uv && python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
 before-test = "python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
 repair-wheel-command = "bash ci/repair_wheel.sh {wheel} {dest_dir}"
 
