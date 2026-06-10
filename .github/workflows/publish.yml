@@ -143,7 +143,7 @@ jobs:
       CIBW_BUILD: ${{ matrix.cibw_build }}
       CIBW_BUILD_VERBOSITY: 1
       CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
-      CIBW_ENVIRONMENT_PASS_LINUX: ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_URL
+      CIBW_ENVIRONMENT_PASS_LINUX: ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_SERVICE_V2 ACTIONS_CACHE_URL
       CIBW_ENVIRONMENT: >
         FORCE_CUDA=${{ matrix.force_cuda }}
         MMCV_REQUIRE_EXT=1
@@ -161,9 +161,12 @@ jobs:
         with:
           ref: ${{ needs.validate-release.outputs.release_ref }}
       - name: Reclaim runner disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
-          df -h
+        uses: endersonmenezes/free-disk-space@v3
+        with:
+          remove_android: true
+          remove_dotnet: true
+          remove_haskell: true
+          remove_tool_cache: true
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.12'

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 missing=()
-for name in SCCACHE_GHA_ENABLED ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN; do
+for name in SCCACHE_GHA_ENABLED ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_SERVICE_V2; do
   if [[ -z "${!name:-}" ]]; then
     missing+=("$name")
   fi
@@ -15,8 +15,8 @@ if (( ${#missing[@]} )); then
   exit 1
 fi
 
-printf 'sccache GHA environment: SCCACHE_GHA_ENABLED=%s, ACTIONS_RESULTS_URL=present(%d bytes), ACTIONS_RUNTIME_TOKEN=present(%d bytes)\n' \
-  "$SCCACHE_GHA_ENABLED" "${#ACTIONS_RESULTS_URL}" "${#ACTIONS_RUNTIME_TOKEN}"
+printf 'sccache GHA environment: SCCACHE_GHA_ENABLED=%s, ACTIONS_CACHE_SERVICE_V2=%s, ACTIONS_RESULTS_URL=present(%d bytes), ACTIONS_RUNTIME_TOKEN=present(%d bytes)\n' \
+  "$SCCACHE_GHA_ENABLED" "$ACTIONS_CACHE_SERVICE_V2" "${#ACTIONS_RESULTS_URL}" "${#ACTIONS_RUNTIME_TOKEN}"
 if [[ -n "${ACTIONS_CACHE_URL:-}" ]]; then
   printf 'sccache GHA environment: ACTIONS_CACHE_URL=present(%d bytes, legacy fallback)\n' "${#ACTIONS_CACHE_URL}"
 else
