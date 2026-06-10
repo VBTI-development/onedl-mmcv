@@ -55,6 +55,18 @@
           "torchvision": ""
         }
       }
+    },
+    {
+      "id": "jetpack61",
+      "cuda": "12.6",
+      "torch_backend": "",
+      "publish_prefix_template": "jetpack61-torch{torch_compact}/onedl-mmcv/",
+      "torch_by_build": {
+        "cp310-manylinux_aarch64": {
+          "torch": "2.11.0",
+          "torchvision": ""
+        }
+      }
     }
   ]
 }

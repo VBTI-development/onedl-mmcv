@@ -244,28 +244,39 @@ jobs:
             mmcv-builder:jetpack${{ matrix.jetpack }}-torch${{ matrix.pytorch }}
       - name: List generated files
         run: ls -la dist
+      - name: Stage wheel into group directory
+        run: |
+          mkdir -p "wheelhouse/jetpack${{ matrix.jetpack }}"
+          cp dist/*.whl "wheelhouse/jetpack${{ matrix.jetpack }}/"
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: '3.12'
+      - name: Validate wheel metadata
+        run: |
+          uv run --with auditwheel python scripts/check_wheel_metadata.py \
+            --wheel-dir "wheelhouse/jetpack${{ matrix.jetpack }}" \
+            --group-id "jetpack${{ matrix.jetpack }}" \
+            --version "${{ needs.validate-release.outputs.version }}" \
+            --require-ext \
+            --auditwheel \
+            --output "wheelhouse/jetpack${{ matrix.jetpack }}/metadata.json"
+      - name: Write build manifest
+        run: |
+          python scripts/write_build_manifest.py \
+            --wheel-dir "wheelhouse/jetpack${{ matrix.jetpack }}" \
+            --group-id "jetpack${{ matrix.jetpack }}" \
+            --version "${{ needs.validate-release.outputs.version }}" \
+            --tag "${{ needs.validate-release.outputs.release_tag }}" \
+            --git-sha "$(git rev-parse HEAD)" \
+            --output "wheelhouse/jetpack${{ matrix.jetpack }}/manifest.json"
       - uses: actions/upload-artifact@v7
         with:
-          name: jetpack-wheels-${{ matrix.jetpack }}
-          path: dist/*
+          name: wheelhouse-jetpack${{ matrix.jetpack }}
+          path: wheelhouse/jetpack${{ matrix.jetpack }}/*
           if-no-files-found: error
-      - name: Publish wheels to wheelhouse bucket
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
-        env:
-          PYTORCH: ${{ matrix.pytorch }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.WHEELHOUSE_S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.WHEELHOUSE_S3_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-        run: |
-          PYTORCH_TRIMMED="${PYTORCH%.*}"
-          PYTORCH_CLEAN="${PYTORCH_TRIMMED//.}"
-          aws s3 sync dist/ \
-            "s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/jetpack${{ matrix.jetpack }}-torch${PYTORCH_CLEAN}0/onedl-mmcv/" \
-            --endpoint-url "${{ secrets.WHEELHOUSE_S3_ENDPOINT }}" \
-            --exclude '.gitignore'
 
   verify-wheelhouse:
-    needs: [validate-release, build-sdist, build-linux-wheels]
+    needs: [validate-release, build-sdist, build-linux-wheels, build-jetpack-wheels]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
@@ -303,6 +314,10 @@ jobs:
           for group_dir in dist-artifacts/wheelhouse-*; do
             group_id="${group_dir##*/wheelhouse-}"
             for wheel in "$group_dir"/*.whl; do
+              case "$wheel" in
+                *x86_64*.whl) ;;
+                *) echo "Skipping non-x86_64 wheel on x86 runner: $wheel"; continue ;;
+              esac
               build_id="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-(cp\d+)-[^-]+-(.+)\.whl$", name); assert m, name; py, platform=m.groups(); print(f"{py}-manylinux_x86_64" if platform.startswith("manylinux") else f"{py}-{platform}")' "$wheel")"
               py_version="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-cp(\d)(\d+)-.+\.whl$", name); assert m, name; print(f"{m.group(1)}.{m.group(2)}")' "$wheel")"
               uv venv --python "$py_version" .verify-venv

@@ -48,11 +48,20 @@ def parse_wheel_name(path: Path) -> dict[str, str]:
     return match.groupdict()
 
 
+def _platform_arch(platform: str) -> str:
+    if "x86_64" in platform:
+        return "x86_64"
+    if "aarch64" in platform:
+        return "aarch64"
+    return platform
+
+
 def build_identifier(path: Path) -> str:
     parts = parse_wheel_name(path)
-    if parts["plat"].startswith("manylinux"):
-        return f"{parts['py']}-manylinux_x86_64"
-    return f"{parts['py']}-{parts['plat']}"
+    platform = parts["plat"]
+    if platform.startswith("manylinux"):
+        return f"{parts['py']}-manylinux_{_platform_arch(platform)}"
+    return f"{parts['py']}-{platform}"
 
 
 def has_native_ext(path: Path) -> bool:

@@ -36,10 +36,18 @@ def parse_wheel_name(path: Path) -> dict[str, str]:
     return match.groupdict()
 
 
+def _platform_arch(platform: str) -> str:
+    if "x86_64" in platform:
+        return "x86_64"
+    if "aarch64" in platform:
+        return "aarch64"
+    return platform
+
+
 def build_identifier(parts: dict[str, str]) -> str:
     platform = parts["plat"]
     if platform.startswith("manylinux"):
-        return f"{parts['py']}-manylinux_x86_64"
+        return f"{parts['py']}-manylinux_{_platform_arch(platform)}"
     return f"{parts['py']}-{platform}"
 
 
@@ -103,8 +111,6 @@ def validate_wheel(
         raise SystemExit(
             f"{path.name}: filename version {parts['version']!r} != {version!r}"
         )
-    if "x86_64" not in parts["plat"]:
-        raise SystemExit(f"{path.name}: expected x86_64 platform tag")
 
     identifier = build_identifier(parts)
     torch_by_build = group["torch_by_build"]
