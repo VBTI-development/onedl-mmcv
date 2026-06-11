@@ -21,7 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "addict",
-    "onedl-mmengine>=0.10.8rc1",
+    "onedl-mmengine>=0.10.8rc1,<0.10.11",
     "opencv-python",
     "numpy",
     "packaging",
