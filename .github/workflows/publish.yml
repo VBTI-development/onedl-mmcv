@@ -136,8 +136,12 @@ jobs:
         UV_LINK_MODE=copy
         SCCACHE_GHA_ENABLED=true
         SCCACHE_IDLE_TIMEOUT=0
+        SCCACHE_BASEDIR=/project
         SCCACHE_ERROR_LOG=/tmp/sccache-debug.log
         SCCACHE_LOG=debug
+        SCCACHE_DIAGNOSTIC_DIR=/project/sccache-logs/${{ matrix.id }}
+        SCCACHE_PREPROCESSOR_PROBE=1
+        SCCACHE_PROBE_TARGETS=sparse_pool_ops.cpp,spconv_ops.cpp,voxelization.cpp
         PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
         TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES=1
         CXX=/opt/sccache-shims/c++
@@ -180,6 +184,13 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.0
         with:
           output-dir: wheelhouse/${{ matrix.id }}
+      - name: Upload sccache diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: sccache-${{ matrix.id }}
+          path: sccache-logs/${{ matrix.id }}/*
+          if-no-files-found: ignore
       - name: Validate wheel metadata
         run: |
           uv run --with auditwheel python scripts/check_wheel_metadata.py \
