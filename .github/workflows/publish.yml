@@ -122,11 +122,9 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.gen-matrix.outputs.linux) }}
     env:
-      SCCACHE_GHA_ENABLED: "true"
       CIBW_BUILD: ${{ matrix.cibw_build }}
       CIBW_BUILD_VERBOSITY: 3
       CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
-      CIBW_ENVIRONMENT_PASS_LINUX: ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_SERVICE_V2 ACTIONS_CACHE_URL
       CIBW_ENVIRONMENT: >
         FORCE_CUDA=${{ matrix.force_cuda }}
         MMCV_REQUIRE_EXT=1
@@ -134,7 +132,8 @@ jobs:
         CUDA=${{ matrix.cuda }}
         TORCH_CUDA_ARCH_LIST='${{ matrix.torch_cuda_arch_list }}'
         UV_LINK_MODE=copy
-        SCCACHE_GHA_ENABLED=true
+        SCCACHE_DIR=/project/.sccache/${{ matrix.id }}
+        SCCACHE_CACHE_SIZE=10G
         SCCACHE_IDLE_TIMEOUT=0
         SCCACHE_BASEDIR=/project
         SCCACHE_ERROR_LOG=/tmp/sccache-debug.log
@@ -167,22 +166,25 @@ jobs:
       - uses: astral-sh/setup-uv@v8.2.0
         with:
           python-version: '3.12'
-      - name: Export GHA cache v2 backend env for in-container sccache
-        # The runner injects ACTIONS_RESULTS_URL / ACTIONS_RUNTIME_TOKEN only into
-        # JS actions, not run: steps. Re-export them (plus the v2 opt-in flag) to
-        # $GITHUB_ENV so CIBW_ENVIRONMENT_PASS_LINUX can forward them into the
-        # container, where sccache actually compiles. ci/install_sccache.sh installs
-        # the binary in-container, so the host sccache-action is not needed here.
-        uses: actions/github-script@v9
+      - name: Prepare sccache archive directory
+        run: mkdir -p ".sccache/${{ matrix.id }}"
+      - name: Restore sccache archive
+        uses: actions/cache/restore@v4
         with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
-            core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+          path: .sccache/${{ matrix.id }}
+          key: sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            sccache-${{ matrix.id }}-
       - name: Build wheels with cibuildwheel
         uses: pypa/cibuildwheel@v2.23.0
         with:
           output-dir: wheelhouse/${{ matrix.id }}
+      - name: Save sccache archive
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .sccache/${{ matrix.id }}
+          key: sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload sccache diagnostics
         if: always()
         uses: actions/upload-artifact@v7

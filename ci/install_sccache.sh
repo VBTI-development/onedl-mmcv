@@ -4,23 +4,27 @@
 # (manylinux2014) and glibc 2.34 (manylinux_2_34) images.
 set -euo pipefail
 
-missing=()
-for name in SCCACHE_GHA_ENABLED ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_SERVICE_V2; do
-  if [[ -z "${!name:-}" ]]; then
-    missing+=("$name")
+if [[ "${SCCACHE_GHA_ENABLED:-}" = true ]]; then
+  missing=()
+  for name in ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_SERVICE_V2; do
+    if [[ -z "${!name:-}" ]]; then
+      missing+=("$name")
+    fi
+  done
+  if (( ${#missing[@]} )); then
+    printf '::error::Missing required sccache GHA environment variable(s) in the cibuildwheel container: %s\n' "${missing[*]}"
+    exit 1
   fi
-done
-if (( ${#missing[@]} )); then
-  printf '::error::Missing required sccache GHA environment variable(s) in the cibuildwheel container: %s\n' "${missing[*]}"
-  exit 1
-fi
 
-printf 'sccache GHA environment: SCCACHE_GHA_ENABLED=%s, ACTIONS_CACHE_SERVICE_V2=%s, ACTIONS_RESULTS_URL=present(%d bytes), ACTIONS_RUNTIME_TOKEN=present(%d bytes)\n' \
-  "$SCCACHE_GHA_ENABLED" "$ACTIONS_CACHE_SERVICE_V2" "${#ACTIONS_RESULTS_URL}" "${#ACTIONS_RUNTIME_TOKEN}"
-if [[ -n "${ACTIONS_CACHE_URL:-}" ]]; then
-  printf 'sccache GHA environment: ACTIONS_CACHE_URL=present(%d bytes, legacy fallback)\n' "${#ACTIONS_CACHE_URL}"
+  printf 'sccache GHA environment: SCCACHE_GHA_ENABLED=%s, ACTIONS_CACHE_SERVICE_V2=%s, ACTIONS_RESULTS_URL=present(%d bytes), ACTIONS_RUNTIME_TOKEN=present(%d bytes)\n' \
+    "$SCCACHE_GHA_ENABLED" "$ACTIONS_CACHE_SERVICE_V2" "${#ACTIONS_RESULTS_URL}" "${#ACTIONS_RUNTIME_TOKEN}"
+  if [[ -n "${ACTIONS_CACHE_URL:-}" ]]; then
+    printf 'sccache GHA environment: ACTIONS_CACHE_URL=present(%d bytes, legacy fallback)\n' "${#ACTIONS_CACHE_URL}"
+  else
+    printf 'sccache GHA environment: ACTIONS_CACHE_URL=absent (expected for GHA v2)\n'
+  fi
 else
-  printf 'sccache GHA environment: ACTIONS_CACHE_URL=absent (expected for GHA v2)\n'
+  printf 'sccache storage: local disk backend (SCCACHE_DIR=%s)\n' "${SCCACHE_DIR:-default}"
 fi
 
 # Project-owned builder images preinstall sccache and the compiler shim. Reuse
