@@ -139,7 +139,6 @@ jobs:
         SCCACHE_BASEDIR=/project
         SCCACHE_ERROR_LOG=/tmp/sccache-debug.log
         SCCACHE_LOG=debug
-        SCCACHE_DIAGNOSTIC_DIR=/project/sccache-logs/${{ matrix.id }}
         SCCACHE_PREPROCESSOR_PROBE=1
         SCCACHE_PROBE_TARGETS=sparse_pool_ops.cpp,spconv_ops.cpp,voxelization.cpp
         PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
@@ -189,7 +188,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: sccache-${{ matrix.id }}
-          path: sccache-logs/${{ matrix.id }}/*
+          path: wheelhouse/${{ matrix.id }}/sccache-logs/${{ matrix.id }}/*
           if-no-files-found: ignore
       - name: Validate wheel metadata
         run: |
@@ -212,7 +211,9 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: wheelhouse-${{ matrix.id }}
-          path: wheelhouse/${{ matrix.id }}/*
+          path: |
+            wheelhouse/${{ matrix.id }}/*.whl
+            wheelhouse/${{ matrix.id }}/*.json
           if-no-files-found: error
 
   build-jetpack-wheels:

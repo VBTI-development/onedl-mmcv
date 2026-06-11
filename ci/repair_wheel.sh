@@ -58,7 +58,7 @@ match = re.search(r'-(cp\d+)-cp\d+-', name)
 print(match.group(1) if match else 'unknown')
 PY
 )"
-log_dir="${SCCACHE_DIAGNOSTIC_DIR:-/project/sccache-logs/${MMCV_BUILD_GROUP:-unknown}}"
+log_dir="${SCCACHE_DIAGNOSTIC_DIR:-$dest/sccache-logs/${MMCV_BUILD_GROUP:-unknown}}"
 mkdir -p "$log_dir"
 compiler_diag="$log_dir/compiler-${wheel_tag}.txt"
 write_compiler_diag "$compiler_diag"
