@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import ast
+import gzip
 import hashlib
 import json
 import os
@@ -75,7 +76,14 @@ def preprocessor_args(args: list[str]) -> list[str]:
     return result
 
 
-def probe(cxx: str, source: str, output: str, args: list[str]) -> dict[str, object]:
+def probe(
+    cxx: str,
+    python_tag: str,
+    source: str,
+    output: str,
+    args: list[str],
+    preprocessed_dir: Path,
+) -> dict[str, object]:
     pp_args = preprocessor_args(args)
     result = subprocess.run(
         [cxx, *pp_args],
@@ -92,8 +100,13 @@ def probe(cxx: str, source: str, output: str, args: list[str]) -> dict[str, obje
         'stderr_tail': result.stderr.decode('utf-8', errors='replace')[-4000:],
     }
     if result.returncode == 0:
+        filename = f'{python_tag}-{Path(source).stem}.ii.gz'
+        preprocessed_dir.mkdir(parents=True, exist_ok=True)
+        with gzip.open(preprocessed_dir / filename, 'wb') as handle:
+            handle.write(result.stdout)
         record['preprocessed_sha256'] = sha256(result.stdout)
         record['preprocessed_size'] = len(result.stdout)
+        record['preprocessed_file'] = f'preprocessed/{filename}'
     return record
 
 
@@ -113,6 +126,7 @@ def main() -> int:
 
     records = []
     seen = set()
+    preprocessed_dir = args.output.parent / 'preprocessed'
     for source, output, compile_args in iter_compile_args(
         args.log, python_tag, targets
     ):
@@ -120,7 +134,16 @@ def main() -> int:
         if name in seen:
             continue
         seen.add(name)
-        records.append(probe(cxx, source, output, compile_args))
+        records.append(
+            probe(
+                cxx,
+                python_tag,
+                source,
+                output,
+                compile_args,
+                preprocessed_dir,
+            )
+        )
 
     payload = {
         'wheel': args.wheel.name,
