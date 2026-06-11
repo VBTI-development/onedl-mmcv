@@ -140,6 +140,9 @@ jobs:
         PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
         TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES=1
         CXX=/opt/sccache-shims/c++
+        GCC_TOOLSET=${{ matrix.gcc_toolset }}
+        PATH=${{ matrix.cc_path_prefix }}$PATH
+        LD_LIBRARY_PATH=${{ matrix.cc_ld_prefix }}$LD_LIBRARY_PATH
     steps:
       - uses: actions/checkout@v5
         with:

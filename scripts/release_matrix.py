@@ -138,6 +138,11 @@ def gen_linux_matrix(matrix: dict) -> dict:
                               for py in node['torch'][torch]['python'])
         name = (f"Linux CPU wheels (torch {torch})" if cuda == 'cpu' else
                 f"Linux CUDA {cuda} wheels (torch {torch})")
+        gcc_toolset = node.get('gcc_toolset', '')
+        cc_bin = (f"/opt/rh/gcc-toolset-{gcc_toolset}/root/usr/bin:"
+                  if gcc_toolset else '')
+        cc_lib = (f"/opt/rh/gcc-toolset-{gcc_toolset}/root/usr/lib64:"
+                  if gcc_toolset else '')
         include.append({
             'id':
             f"{prefix}-torch{compact_torch(torch)}",
@@ -155,6 +160,12 @@ def gen_linux_matrix(matrix: dict) -> dict:
             cibw_build,
             'torch_cuda_arch_list':
             node.get('torch_cuda_arch_list', ''),
+            'gcc_toolset':
+            gcc_toolset,
+            'cc_path_prefix':
+            cc_bin,
+            'cc_ld_prefix':
+            cc_lib,
         })
     return {'include': include}
 
