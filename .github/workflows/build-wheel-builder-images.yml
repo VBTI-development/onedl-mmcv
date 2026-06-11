@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       image_id:
-        description: 'Optional builder image id, for example ml234-cu126-gcc13 or jetpack61-torch2110'
+        description: 'Optional builder image id, for example ml228-cpu, ml234-cu126-gcc13, or jetpack61-torch2110'
         required: false
         type: string
   push:

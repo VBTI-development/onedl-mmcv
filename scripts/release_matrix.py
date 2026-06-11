@@ -10,7 +10,7 @@ from pathlib import Path
 DEFAULT_MATRIX = Path('ci/build-matrix.json')
 GROUP_ID_RE = re.compile(r'^(?P<prefix>.+)-torch(?P<compact>\d+)$')
 CUDA_PKG_RE = re.compile(r'^\d+-\d+$')
-BUILDER_KINDS = {'manylinux-cuda', 'jetpack'}
+BUILDER_KINDS = {'manylinux-cpu', 'manylinux-cuda', 'jetpack'}
 
 
 def load_matrix(path: Path) -> dict:
@@ -89,7 +89,7 @@ def _file_sha256(path: Path) -> str:
 def _builder_hash_files(spec: dict) -> list[str]:
     files = [spec['dockerfile'], spec['smoke_script']]
     kind = spec['kind']
-    if kind == 'manylinux-cuda':
+    if kind in {'manylinux-cpu', 'manylinux-cuda'}:
         files.append('docker/build/manylinux-cuda/install_sccache.sh')
     elif kind == 'jetpack':
         files.append('docker/build/common/entrypoint.sh')
@@ -140,8 +140,23 @@ def _validate_common_builder_spec(key: str, spec: dict) -> None:
         raise SystemExit(f"{key}: image must be a GHCR image path")
     if image != image.lower():
         raise SystemExit(f"{key}: image must be lowercase for Docker")
-    if 'sameli/' in image:
-        raise SystemExit(f"{key}: sameli images are forbidden")
+
+
+def _validate_manylinux_cpu_builder_spec(key: str, spec: dict) -> None:
+    if not spec.get('auditwheel_plat'):
+        raise SystemExit(f"{key}: auditwheel_plat is required")
+
+    base_image = spec['base_image']
+    if not base_image.startswith('quay.io/pypa/'):
+        raise SystemExit(f"{key}: base_image must be a PyPA manylinux image")
+    if 'manylinux_2_28' not in spec['dockerfile']:
+        raise SystemExit(
+            f"{key}: CPU builder must use a manylinux_2_28 Dockerfile")
+    if 'manylinux_2_28' not in base_image:
+        raise SystemExit(f"{key}: CPU builder must use a manylinux_2_28 base")
+    if spec['auditwheel_plat'] != 'manylinux_2_28_x86_64':
+        raise SystemExit(
+            f"{key}: auditwheel_plat must be manylinux_2_28_x86_64")
 
 
 def _validate_manylinux_builder_spec(key: str, spec: dict) -> None:
@@ -152,8 +167,6 @@ def _validate_manylinux_builder_spec(key: str, spec: dict) -> None:
     base_image = spec['base_image']
     if not base_image.startswith('quay.io/pypa/'):
         raise SystemExit(f"{key}: base_image must be a PyPA manylinux image")
-    if 'sameli/' in base_image:
-        raise SystemExit(f"{key}: sameli base images are forbidden")
 
     cuda_pkg = spec['cuda_pkg_version']
     if not CUDA_PKG_RE.fullmatch(cuda_pkg):
@@ -207,7 +220,9 @@ def validate_builder_specs(matrix: dict) -> None:
     for key, spec in specs.items():
         _validate_common_builder_spec(key, spec)
         kind = spec['kind']
-        if kind == 'manylinux-cuda':
+        if kind == 'manylinux-cpu':
+            _validate_manylinux_cpu_builder_spec(key, spec)
+        elif kind == 'manylinux-cuda':
             _validate_manylinux_builder_spec(key, spec)
         elif kind == 'jetpack':
             _validate_jetpack_builder_spec(key, spec)
@@ -263,6 +278,17 @@ def validate_special_builder_refs(matrix: dict) -> None:
         if key not in specs:
             raise SystemExit(f"{prefix}: unknown builder_image {key!r}")
         spec = specs[key]
+        if node['platform'].endswith('x86_64') and node['cuda'] == 'cpu':
+            if spec['kind'] != 'manylinux-cpu':
+                raise SystemExit(
+                    f"{prefix}: CPU builder_image must be manylinux-cpu")
+            expected_image = f"{spec['image']}:latest"
+            actual_image = node.get('manylinux_image', '')
+            if actual_image != expected_image:
+                raise SystemExit(
+                    f"{prefix}: manylinux_image {actual_image!r} != expected {expected_image!r}"  # noqa: E501
+                )
+            continue
         if node['platform'].endswith('aarch64') and spec['kind'] != 'jetpack':
             raise SystemExit(
                 f"{prefix}: aarch64 builder_image must be jetpack")
@@ -432,7 +458,7 @@ def main() -> int:
             f"ok: {sum(1 for _ in iter_build_units(matrix))} build groups valid"  # noqa: E501
         )
     elif args.command == 'gen-matrix':
-        validate(matrix, include_builders=False)
+        validate(matrix)
         print(json.dumps(gen_linux_matrix(matrix), separators=(',', ':')))
     else:
         validate(matrix)

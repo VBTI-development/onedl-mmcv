@@ -23,6 +23,15 @@ else
   printf 'sccache GHA environment: ACTIONS_CACHE_URL=absent (expected for GHA v2)\n'
 fi
 
+# Project-owned builder images preinstall sccache and the compiler shim. Reuse
+# them instead of rewriting the shim and risking wrapper recursion.
+shim_dir=/opt/sccache-shims
+if [[ -x /usr/local/bin/sccache && -x "$shim_dir/c++" ]]; then
+  sccache --version
+  printf 'using preinstalled sccache host C++ shim: %s\n' "$shim_dir/c++"
+  exit 0
+fi
+
 SCCACHE_VERSION="${SCCACHE_VERSION:-v0.15.0}"  # >= 0.11.0 fixes GHA cache (ghac) writes; pin matches sccache-action
 arch="x86_64-unknown-linux-musl"
 asset="sccache-${SCCACHE_VERSION}-${arch}"
@@ -41,10 +50,10 @@ sccache --version
 # wrapped separately via PYTORCH_NVCC). torch's ninja build reads $CXX for the
 # host compile rule; we point it at an absolute single-token shim to avoid the
 # setuptools>=60 space-prefix link regression that CXX="sccache c++" triggers.
-shim_dir=/opt/sccache-shims
-real_cxx="$(command -v c++ || command -v g++ || true)"
-if [[ -z "$real_cxx" ]]; then
-  printf '::error::no host C++ compiler (c++/g++) found for the sccache shim\n'
+path_without_shim="$(printf '%s' "$PATH" | tr ':' '\n' | grep -vx "$shim_dir" | paste -sd: -)"
+real_cxx="$(PATH="$path_without_shim" command -v c++ || PATH="$path_without_shim" command -v g++ || true)"
+if [[ -z "$real_cxx" || "$real_cxx" = "$shim_dir/c++" ]]; then
+  printf '::error::no real host C++ compiler (c++/g++) found for the sccache shim\n'
   exit 1
 fi
 mkdir -p "$shim_dir"

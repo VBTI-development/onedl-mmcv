@@ -11,6 +11,7 @@ docker/
 `-- build/               # Images used to build release wheels
     |-- common/          # Shared wheel-builder entrypoint
     |-- jetpack/         # Jetson/JetPack aarch64 wheel builders
+    |-- manylinux-cpu/   # x86_64 PyPA manylinux CPU builder images
     |-- manylinux-cuda/  # x86_64 PyPA manylinux + CUDA builder images
     `-- legacy/          # Older single-image wheel builders kept for reference
 ```
@@ -40,6 +41,7 @@ docker run --gpus all --shm-size=8g -it mmcv
 Wheel builders live under `docker/build/` and are driven by CI:
 
 - `docker/build/jetpack/` defines Jetson/JetPack aarch64 wheel builder images.
+- `docker/build/manylinux-cpu/` defines x86_64 PyPA manylinux CPU builder images.
 - `docker/build/manylinux-cuda/` defines x86_64 PyPA manylinux + CUDA builder images.
-- `.github/workflows/build-wheel-builder-images.yml` publishes builder images from both directories to GHCR.
+- `.github/workflows/build-wheel-builder-images.yml` publishes builder images from these directories to GHCR.
 - `docker/build/legacy/` preserves the older ad-hoc wheel builder Dockerfiles.
