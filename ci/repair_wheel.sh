@@ -19,8 +19,8 @@ auditwheel repair "$wheel" -w "$dest" \
 sccache --show-stats || true
 
 if [[ -n "${SCCACHE_ERROR_LOG:-}" && -s "$SCCACHE_ERROR_LOG" ]]; then
-  printf 'sccache error log (last 80 lines, redacted):\n'
-  tail -n 80 "$SCCACHE_ERROR_LOG" | sed -E \
+  printf 'sccache log (last 200 lines, redacted):\n'
+  tail -n 200 "$SCCACHE_ERROR_LOG" | sed -E \
     -e 's/(ACTIONS_RUNTIME_TOKEN|SCCACHE_GHA_RUNTIME_TOKEN)=([^[:space:]]+)/\1=[REDACTED]/g' \
     -e 's/(token=)[^&[:space:]]+/\1[REDACTED]/g' \
     -e 's/(Bearer )[A-Za-z0-9._~+\/=:-]+/\1[REDACTED]/g' \

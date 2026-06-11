@@ -124,7 +124,7 @@ jobs:
     env:
       SCCACHE_GHA_ENABLED: "true"
       CIBW_BUILD: ${{ matrix.cibw_build }}
-      CIBW_BUILD_VERBOSITY: 1
+      CIBW_BUILD_VERBOSITY: 3
       CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
       CIBW_ENVIRONMENT_PASS_LINUX: ACTIONS_RESULTS_URL ACTIONS_RUNTIME_TOKEN ACTIONS_CACHE_SERVICE_V2 ACTIONS_CACHE_URL
       CIBW_ENVIRONMENT: >
@@ -136,8 +136,8 @@ jobs:
         UV_LINK_MODE=copy
         SCCACHE_GHA_ENABLED=true
         SCCACHE_IDLE_TIMEOUT=0
-        SCCACHE_ERROR_LOG=/tmp/sccache-error.log
-        SCCACHE_LOG=warn
+        SCCACHE_ERROR_LOG=/tmp/sccache-debug.log
+        SCCACHE_LOG=debug
         PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
         TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES=1
         CXX=/opt/sccache-shims/c++
