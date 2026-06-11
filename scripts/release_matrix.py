@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -8,6 +9,8 @@ from pathlib import Path
 
 DEFAULT_MATRIX = Path('ci/build-matrix.json')
 GROUP_ID_RE = re.compile(r'^(?P<prefix>.+)-torch(?P<compact>\d+)$')
+CUDA_PKG_RE = re.compile(r'^\d+-\d+$')
+BUILDER_KINDS = {'manylinux-cuda', 'jetpack'}
 
 
 def load_matrix(path: Path) -> dict:
@@ -75,6 +78,141 @@ def resolve_group(matrix: dict, group_id: str) -> dict:
     }
 
 
+def builder_specs(matrix: dict) -> dict:
+    return matrix.get('builder_images', {})
+
+
+def _file_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _builder_hash_files(spec: dict) -> list[str]:
+    files = [spec['dockerfile'], spec['smoke_script']]
+    kind = spec['kind']
+    if kind == 'manylinux-cuda':
+        files.append('docker/build/manylinux-cuda/install_sccache.sh')
+    elif kind == 'jetpack':
+        files.append('docker/build/common/entrypoint.sh')
+    files.extend(spec.get('hash_files', []))
+    return sorted(set(files))
+
+
+def _builder_spec_hash(key: str, spec: dict, repo_root: Path) -> str:
+    payload = {
+        'id': key,
+        'kind': spec.get('kind', ''),
+        'runner': spec.get('runner', ''),
+        'platforms': spec.get('platforms', ''),
+        'dockerfile': spec.get('dockerfile', ''),
+        'smoke_script': spec.get('smoke_script', ''),
+        'base_image': spec.get('base_image', ''),
+        'auditwheel_plat': spec.get('auditwheel_plat', ''),
+        'cuda_pkg_version': spec.get('cuda_pkg_version', ''),
+        'gcc_toolset': spec.get('gcc_toolset', ''),
+        'jetpack': spec.get('jetpack', ''),
+        'pytorch': spec.get('pytorch', ''),
+    }
+    for path in _builder_hash_files(spec):
+        payload[f'{path}_sha256'] = _file_sha256(repo_root / path)
+    raw = json.dumps(payload, sort_keys=True, separators=(',', ':'))
+    return hashlib.sha256(raw.encode('utf-8')).hexdigest()[:12]
+
+
+def _validate_common_builder_spec(key: str, spec: dict) -> None:
+    for field in (
+            'kind',
+            'runner',
+            'platforms',
+            'dockerfile',
+            'smoke_script',
+            'base_image',
+            'image',
+    ):
+        if not spec.get(field):
+            raise SystemExit(f"{key}: {field} is required")
+
+    kind = spec['kind']
+    if kind not in BUILDER_KINDS:
+        raise SystemExit(f"{key}: unknown builder image kind {kind!r}")
+
+    image = spec['image']
+    if not image.startswith('ghcr.io/'):
+        raise SystemExit(f"{key}: image must be a GHCR image path")
+    if image != image.lower():
+        raise SystemExit(f"{key}: image must be lowercase for Docker")
+    if 'sameli/' in image:
+        raise SystemExit(f"{key}: sameli images are forbidden")
+
+
+def _validate_manylinux_builder_spec(key: str, spec: dict) -> None:
+    for field in ('auditwheel_plat', 'cuda_pkg_version'):
+        if not spec.get(field):
+            raise SystemExit(f"{key}: {field} is required")
+
+    base_image = spec['base_image']
+    if not base_image.startswith('quay.io/pypa/'):
+        raise SystemExit(f"{key}: base_image must be a PyPA manylinux image")
+    if 'sameli/' in base_image:
+        raise SystemExit(f"{key}: sameli base images are forbidden")
+
+    cuda_pkg = spec['cuda_pkg_version']
+    if not CUDA_PKG_RE.fullmatch(cuda_pkg):
+        raise SystemExit(f"{key}: cuda_pkg_version must look like '12-8'")
+
+    dockerfile = spec['dockerfile']
+    auditwheel_plat = spec['auditwheel_plat']
+    if 'manylinux2014' in dockerfile:
+        if 'manylinux2014' not in base_image:
+            raise SystemExit(
+                f"{key}: manylinux2014 Dockerfile must use manylinux2014 base"  # noqa: E501
+            )
+        if auditwheel_plat != 'manylinux2014_x86_64':
+            raise SystemExit(
+                f"{key}: auditwheel_plat must be manylinux2014_x86_64"  # noqa: E501
+            )
+    elif 'manylinux_2_34' in dockerfile:
+        if 'manylinux_2_34' not in base_image:
+            raise SystemExit(
+                f"{key}: manylinux_2_34 Dockerfile must use manylinux_2_34 base"  # noqa: E501
+            )
+        if auditwheel_plat != 'manylinux_2_34_x86_64':
+            raise SystemExit(
+                f"{key}: auditwheel_plat must be manylinux_2_34_x86_64"  # noqa: E501
+            )
+    else:
+        raise SystemExit(f"{key}: unknown manylinux Dockerfile family")
+
+
+def _validate_jetpack_builder_spec(key: str, spec: dict) -> None:
+    for field in ('jetpack', 'pytorch'):
+        if not spec.get(field):
+            raise SystemExit(f"{key}: {field} is required")
+    if spec['runner'] != 'ubuntu-24.04-arm':
+        raise SystemExit(f"{key}: JetPack builders must use arm runners")
+    if spec['platforms'] != 'linux/arm64':
+        raise SystemExit(f"{key}: JetPack builders must target linux/arm64")
+    if 'Dockerfile.jetpack' not in spec['dockerfile']:
+        raise SystemExit(
+            f"{key}: JetPack builder must use a JetPack Dockerfile")
+    if not spec['base_image'].startswith('nvcr.io/nvidia/l4t-jetpack:'):
+        raise SystemExit(
+            f"{key}: JetPack base_image must be an NVIDIA L4T image")
+
+
+def validate_builder_specs(matrix: dict) -> None:
+    specs = builder_specs(matrix)
+    if matrix.get('cuda_targets') and not specs:
+        raise SystemExit('builder_images section is required')
+
+    for key, spec in specs.items():
+        _validate_common_builder_spec(key, spec)
+        kind = spec['kind']
+        if kind == 'manylinux-cuda':
+            _validate_manylinux_builder_spec(key, spec)
+        elif kind == 'jetpack':
+            _validate_jetpack_builder_spec(key, spec)
+
+
 def iter_build_units(matrix: dict):
     sections = (matrix.get('special_targets',
                            {}), matrix.get('cuda_targets', {}))
@@ -84,7 +222,55 @@ def iter_build_units(matrix: dict):
                 yield prefix, torch, node
 
 
-def validate(matrix: dict) -> None:
+def validate_cuda_builder_refs(matrix: dict) -> None:
+    specs = builder_specs(matrix)
+    enforce_owned = bool(matrix.get('enforce_owned_builder_images', False))
+    for prefix, node in matrix.get('cuda_targets', {}).items():
+        key = node.get('builder_image', '')
+        if not key:
+            raise SystemExit(f"{prefix}: builder_image is required")
+        if key not in specs:
+            raise SystemExit(f"{prefix}: unknown builder_image {key!r}")
+
+        spec = specs[key]
+        if spec['kind'] != 'manylinux-cuda':
+            raise SystemExit(f"{prefix}: builder_image must be manylinux-cuda")
+        expected_cuda_pkg = node['cuda'].replace('.', '-')
+        if spec['cuda_pkg_version'] != expected_cuda_pkg:
+            raise SystemExit(
+                f"{prefix}: builder image CUDA package {spec['cuda_pkg_version']!r} != {expected_cuda_pkg!r}"  # noqa: E501
+            )
+
+        target_toolset = node.get('gcc_toolset', '')
+        spec_toolset = spec.get('gcc_toolset', '')
+        if spec_toolset != target_toolset:
+            raise SystemExit(
+                f"{prefix}: builder image gcc_toolset {spec_toolset!r} != target {target_toolset!r}"  # noqa: E501
+            )
+        if enforce_owned and 'sameli/' in node.get('manylinux_image', ''):
+            raise SystemExit(f"{prefix}: sameli images are forbidden")
+
+
+def validate_special_builder_refs(matrix: dict) -> None:
+    specs = builder_specs(matrix)
+    for prefix, node in matrix.get('special_targets', {}).items():
+        key = node.get('builder_image', '')
+        if not key:
+            continue
+        if key not in specs:
+            raise SystemExit(f"{prefix}: unknown builder_image {key!r}")
+        spec = specs[key]
+        if node['platform'].endswith('aarch64') and spec['kind'] != 'jetpack':
+            raise SystemExit(
+                f"{prefix}: aarch64 builder_image must be jetpack")
+        versions = list(node['torch'])
+        if len(versions) == 1 and spec.get('pytorch', '') != versions[0]:
+            raise SystemExit(
+                f"{prefix}: builder image PyTorch {spec.get('pytorch', '')!r} != target {versions[0]!r}"  # noqa: E501
+            )
+
+
+def validate(matrix: dict, include_builders: bool = True) -> None:
     compat = matrix.get('pytorch_compatibility', {})
     if not compat:
         raise SystemExit('pytorch_compatibility section is required')
@@ -97,6 +283,10 @@ def validate(matrix: dict) -> None:
         if not node.get('manylinux_image'):
             raise SystemExit(
                 f"cuda target {prefix!r} is missing manylinux_image")
+    if include_builders:
+        validate_builder_specs(matrix)
+        validate_cuda_builder_refs(matrix)
+        validate_special_builder_refs(matrix)
     for prefix, node in _targets(matrix).items():
         compacts = [compact_torch(torch) for torch in node['torch']]
         if len(compacts) != len(set(compacts)):
@@ -170,6 +360,48 @@ def gen_linux_matrix(matrix: dict) -> dict:
     return {'include': include}
 
 
+def gen_builder_matrix(matrix: dict,
+                       image_id: str = '',
+                       repo_root: Path = Path('.')) -> dict:
+    specs = builder_specs(matrix)
+    if image_id:
+        if image_id not in specs:
+            raise SystemExit(f"unknown builder image: {image_id}")
+        items = [(image_id, specs[image_id])]
+    else:
+        items = sorted(specs.items())
+
+    include = []
+    for key, spec in items:
+        include.append({
+            'id':
+            key,
+            'kind':
+            spec['kind'],
+            'runner':
+            spec['runner'],
+            'platforms':
+            spec['platforms'],
+            'dockerfile':
+            spec['dockerfile'],
+            'smoke_script':
+            spec['smoke_script'],
+            'base_image':
+            spec['base_image'],
+            'auditwheel_plat':
+            spec.get('auditwheel_plat', ''),
+            'cuda_pkg_version':
+            spec.get('cuda_pkg_version', ''),
+            'gcc_toolset':
+            spec.get('gcc_toolset', ''),
+            'image':
+            spec['image'],
+            'spec_tag':
+            f"spec-{_builder_spec_hash(key, spec, repo_root)}",
+        })
+    return {'include': include}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description='Release build matrix source of truth')
@@ -181,17 +413,30 @@ def main() -> int:
     gen = commands.add_parser(
         'gen-matrix', help='emit the cibuildwheel matrix as compact JSON')
     gen.add_argument('--kind', choices=['linux'], default='linux')
+    builders = commands.add_parser(
+        'gen-builder-matrix', help='emit the wheel builder image matrix')
+    builders.add_argument('--image-id', default='')
+    wheel_builders = commands.add_parser(
+        'gen-wheel-builder-matrix', help='emit the wheel builder image matrix')
+    wheel_builders.add_argument('--image-id', default='')
     args = parser.parse_args()
 
     matrix = load_matrix(args.matrix)
+    repo_root = args.matrix.resolve().parent.parent
     if args.command == 'validate':
         validate(matrix)
         print(
             f"ok: {sum(1 for _ in iter_build_units(matrix))} build groups valid"  # noqa: E501
         )
+    elif args.command == 'gen-matrix':
+        validate(matrix, include_builders=False)
+        print(json.dumps(gen_linux_matrix(matrix), separators=(',', ':')))
     else:
         validate(matrix)
-        print(json.dumps(gen_linux_matrix(matrix), separators=(',', ':')))
+        print(
+            json.dumps(
+                gen_builder_matrix(matrix, args.image_id, repo_root),
+                separators=(',', ':')))
     return 0
 
 

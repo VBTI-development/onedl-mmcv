@@ -44,7 +44,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Copy the checked-out release source (build context is the repo root)
 COPY . /mmcv
 
-COPY docker/build/entrypoint.sh /entrypoint.sh
+COPY docker/build/common/entrypoint.sh /entrypoint.sh
 
 VOLUME [ "/out" ]
 ENTRYPOINT ["/entrypoint.sh" ]

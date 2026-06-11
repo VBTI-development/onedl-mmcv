@@ -1,0 +1,70 @@
+# syntax=docker/dockerfile:1
+ARG BASE_IMAGE=quay.io/pypa/manylinux_2_34_x86_64
+FROM ${BASE_IMAGE}
+
+ARG AUDITWHEEL_PLAT=manylinux_2_34_x86_64
+ARG CUDA_PKG_VERSION
+ARG GCC_TOOLSET=
+ARG SCCACHE_VERSION=v0.15.0
+ARG RPM_ARCH=x86_64
+
+LABEL org.opencontainers.image.title="onedl-mmcv manylinux_2_34 CUDA builder"
+LABEL org.opencontainers.image.description="PyPA manylinux_2_34 with CUDA toolchain, uv, and sccache"
+
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
+
+RUN test -n "${CUDA_PKG_VERSION}" && \
+    dnf install -y dnf-plugins-core curl tar gzip ca-certificates && \
+    dnf config-manager --add-repo \
+      https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo && \
+    packages=( \
+      "cuda-compiler-${CUDA_PKG_VERSION}.${RPM_ARCH}" \
+      "cuda-libraries-${CUDA_PKG_VERSION}.${RPM_ARCH}" \
+      "cuda-libraries-devel-${CUDA_PKG_VERSION}.${RPM_ARCH}" \
+    ) && \
+    if [[ -n "${GCC_TOOLSET}" ]]; then \
+      packages+=( \
+        "gcc-toolset-${GCC_TOOLSET}-gcc" \
+        "gcc-toolset-${GCC_TOOLSET}-gcc-c++" \
+      ); \
+    fi && \
+    dnf install -y "${packages[@]}" && \
+    cuda_dotted="${CUDA_PKG_VERSION/-/.}" && \
+    ln -sfn "/usr/local/cuda-${cuda_dotted}" /usr/local/cuda && \
+    mkdir -p /opt/cuda-host-compiler/bin && \
+    if [[ -n "${GCC_TOOLSET}" ]]; then \
+      toolset="/opt/rh/gcc-toolset-${GCC_TOOLSET}/root/usr"; \
+      test -x "${toolset}/bin/gcc"; \
+      test -x "${toolset}/bin/g++"; \
+      ln -sfn "${toolset}/bin/gcc" /opt/cuda-host-compiler/bin/gcc; \
+      ln -sfn "${toolset}/bin/g++" /opt/cuda-host-compiler/bin/g++; \
+      ln -sfn "${toolset}/bin/c++" /opt/cuda-host-compiler/bin/c++; \
+      ln -sfn "${toolset}/lib64" /opt/cuda-host-compiler/lib64; \
+    fi && \
+    echo "/usr/local/cuda/lib64" > /etc/ld.so.conf.d/999_nvidia_cuda.conf && \
+    ldconfig && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf/*
+
+COPY --from=ghcr.io/astral-sh/uv:0.8.14 /uv /uvx /usr/local/bin/
+COPY docker/build/manylinux-cuda/install_sccache.sh /usr/local/bin/install_sccache.sh
+RUN chmod 0755 /usr/local/bin/install_sccache.sh && \
+    /usr/local/bin/install_sccache.sh
+
+ENV CUDA_HOME=/usr/local/cuda \
+    CUDA_ROOT=/usr/local/cuda \
+    CUDA_PATH=/usr/local/cuda \
+    CUDADIR=/usr/local/cuda \
+    AUDITWHEEL_PLAT=${AUDITWHEEL_PLAT} \
+    PATH="/opt/cuda-host-compiler/bin:/usr/local/cuda/bin:/opt/sccache-shims:${PATH}" \
+    LD_LIBRARY_PATH="/opt/cuda-host-compiler/lib64:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+
+RUN test -d /opt/python && \
+    test -x /usr/local/cuda/bin/nvcc && \
+    auditwheel --version && \
+    uv --version && \
+    sccache --version && \
+    nvcc --version && \
+    test -n "${AUDITWHEEL_PLAT}"
+
+CMD ["/bin/bash"]
