@@ -224,7 +224,6 @@ def iter_build_units(matrix: dict):
 
 def validate_cuda_builder_refs(matrix: dict) -> None:
     specs = builder_specs(matrix)
-    enforce_owned = bool(matrix.get('enforce_owned_builder_images', False))
     for prefix, node in matrix.get('cuda_targets', {}).items():
         key = node.get('builder_image', '')
         if not key:
@@ -247,8 +246,12 @@ def validate_cuda_builder_refs(matrix: dict) -> None:
             raise SystemExit(
                 f"{prefix}: builder image gcc_toolset {spec_toolset!r} != target {target_toolset!r}"  # noqa: E501
             )
-        if enforce_owned and 'sameli/' in node.get('manylinux_image', ''):
-            raise SystemExit(f"{prefix}: sameli images are forbidden")
+        expected_image = f"{spec['image']}:latest"
+        actual_image = node.get('manylinux_image', '')
+        if actual_image != expected_image:
+            raise SystemExit(
+                f"{prefix}: manylinux_image {actual_image!r} != expected {expected_image!r}"  # noqa: E501
+            )
 
 
 def validate_special_builder_refs(matrix: dict) -> None:
