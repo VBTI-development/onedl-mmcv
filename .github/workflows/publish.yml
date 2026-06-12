@@ -131,7 +131,7 @@ jobs:
         CUDA=${{ matrix.cuda }}
         TORCH_CUDA_ARCH_LIST='${{ matrix.torch_cuda_arch_list }}'
         UV_LINK_MODE=copy
-        SCCACHE_DIR=/output/.sccache/${{ matrix.id }}
+        SCCACHE_DIR=/host${{ github.workspace }}/wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}
         SCCACHE_CACHE_SIZE=10G
         SCCACHE_IDLE_TIMEOUT=0
         SCCACHE_BASEDIR=/project
