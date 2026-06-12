@@ -132,7 +132,7 @@ jobs:
         CUDA=${{ matrix.cuda }}
         TORCH_CUDA_ARCH_LIST='${{ matrix.torch_cuda_arch_list }}'
         UV_LINK_MODE=copy
-        SCCACHE_DIR=/project/.sccache/${{ matrix.id }}
+        SCCACHE_DIR=/output/.sccache/${{ matrix.id }}
         SCCACHE_CACHE_SIZE=10G
         SCCACHE_IDLE_TIMEOUT=0
         SCCACHE_BASEDIR=/project
@@ -167,11 +167,11 @@ jobs:
         with:
           python-version: '3.12'
       - name: Prepare sccache archive directory
-        run: mkdir -p ".sccache/${{ matrix.id }}"
+        run: mkdir -p "wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}"
       - name: Restore sccache archive
         uses: actions/cache/restore@v4
         with:
-          path: .sccache/${{ matrix.id }}
+          path: wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}
           key: sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             sccache-${{ matrix.id }}-
@@ -183,7 +183,7 @@ jobs:
         if: always()
         uses: actions/cache/save@v4
         with:
-          path: .sccache/${{ matrix.id }}
+          path: wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}
           key: sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload sccache diagnostics
         if: always()
