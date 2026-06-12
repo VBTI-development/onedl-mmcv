@@ -61,6 +61,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure registry cache
+        id: cache
+        env:
+          CACHE_REF: ${{ matrix.image }}:buildcache
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "cache-from=type=registry,ref=${CACHE_REF}" >> "$GITHUB_OUTPUT"
+            echo "cache-to=type=registry,ref=${CACHE_REF},mode=max" >> "$GITHUB_OUTPUT"
+          fi
       - name: Build image
         uses: docker/build-push-action@v7
         with:
@@ -84,6 +93,8 @@ jobs:
             AUDITWHEEL_PLAT=${{ matrix.auditwheel_plat }}
             GCC_TOOLSET=${{ matrix.gcc_toolset }}
             RPM_ARCH=x86_64
+          cache-from: ${{ steps.cache.outputs.cache-from }}
+          cache-to: ${{ steps.cache.outputs.cache-to }}
       - name: Smoke test image
         run: |
           bash "${{ matrix.smoke_script }}" \
