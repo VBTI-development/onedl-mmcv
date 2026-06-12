@@ -71,7 +71,7 @@ if [[ -n "${SCCACHE_ERROR_LOG:-}" && -s "$SCCACHE_ERROR_LOG" ]]; then
   printf 'sccache log (last 200 lines, redacted):\n'
   tail -n 200 "$redacted_log" || true
 
-  if [[ "${SCCACHE_PREPROCESSOR_PROBE:-0}" != 0 && "${CUDA:-}" = cpu ]]; then
+  if [[ "${SCCACHE_PREPROCESSOR_PROBE:-0}" != 0 ]]; then
     python /project/ci/sccache_probe.py \
       --wheel "$wheel" \
       --log "$SCCACHE_ERROR_LOG" \

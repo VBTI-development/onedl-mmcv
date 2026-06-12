@@ -7,13 +7,14 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
 from pathlib import Path
 
 DEFAULT_TARGETS = ('sparse_pool_ops.cpp', 'spconv_ops.cpp', 'voxelization.cpp')
 PARSE_ARGS_RE = re.compile(r'parse_arguments: Ok: (\[.*\])')
 WHEEL_PY_RE = re.compile(r'-(cp\d+)-cp\d+-')
-SOURCE_SUFFIXES = ('.c', '.cc', '.cpp', '.cxx')
+SOURCE_SUFFIXES = ('.c', '.cc', '.cpp', '.cxx', '.cu')
 
 
 def sha256(data: bytes) -> str:
@@ -76,17 +77,39 @@ def preprocessor_args(args: list[str]) -> list[str]:
     return result
 
 
+def split_command(value: str, default: str) -> list[str]:
+    return shlex.split(value or default)
+
+
+def uncached_command(command: list[str]) -> list[str]:
+    if command and Path(command[0]).name == 'sccache':
+        return command[1:]
+    return command
+
+
+def compiler_command(source: str) -> list[str]:
+    if source.endswith('.cu'):
+        command = split_command(
+            os.getenv('SCCACHE_PROBE_CUDA_COMPILER', '')
+            or os.getenv('PYTORCH_NVCC', ''),
+            '/usr/local/cuda/bin/nvcc')
+    else:
+        command = split_command(os.getenv('SCCACHE_PROBE_CXX', '')
+                                or os.getenv('CXX', ''), 'c++')
+    return uncached_command(command)
+
+
 def probe(
-    cxx: str,
     python_tag: str,
     source: str,
     output: str,
     args: list[str],
     preprocessed_dir: Path,
 ) -> dict[str, object]:
+    compiler = compiler_command(source)
     pp_args = preprocessor_args(args)
     result = subprocess.run(
-        [cxx, *pp_args],
+        [*compiler, *pp_args],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
@@ -94,6 +117,9 @@ def probe(
     record: dict[str, object] = {
         'source': source,
         'object': output,
+        'compiler': compiler,
+        'args': args,
+        'preprocessor_args': pp_args,
         'args_sha256': sha256('\0'.join(args).encode()),
         'preprocessor_args_sha256': sha256('\0'.join(pp_args).encode()),
         'returncode': result.returncode,
@@ -121,7 +147,6 @@ def main() -> int:
     targets = {
         item.strip() for item in args.targets.split(',') if item.strip()
     } or set(DEFAULT_TARGETS)
-    cxx = os.getenv('CXX', 'c++')
     python_tag = wheel_python_tag(args.wheel)
 
     records = []
@@ -136,7 +161,6 @@ def main() -> int:
         seen.add(name)
         records.append(
             probe(
-                cxx,
                 python_tag,
                 source,
                 output,
@@ -150,7 +174,8 @@ def main() -> int:
         'python_tag': python_tag,
         'group': os.getenv('MMCV_BUILD_GROUP', ''),
         'cuda': os.getenv('CUDA', ''),
-        'cxx': cxx,
+        'cxx': os.getenv('CXX', ''),
+        'pytorch_nvcc': os.getenv('PYTORCH_NVCC', ''),
         'targets': sorted(targets),
         'records': records,
     }
