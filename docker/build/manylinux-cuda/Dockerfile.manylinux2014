@@ -4,11 +4,11 @@ FROM ${BASE_IMAGE}
 
 ARG AUDITWHEEL_PLAT=manylinux2014_x86_64
 ARG CUDA_PKG_VERSION=11-8
-ARG SCCACHE_VERSION=v0.15.0
+ARG CCACHE_VERSION=v4.13.6
 ARG RPM_ARCH=x86_64
 
 LABEL org.opencontainers.image.title="onedl-mmcv manylinux2014 CUDA builder"
-LABEL org.opencontainers.image.description="PyPA manylinux2014 with CUDA toolchain, uv, and sccache"
+LABEL org.opencontainers.image.description="PyPA manylinux2014 with CUDA toolchain, uv, and ccache"
 
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
@@ -38,23 +38,23 @@ RUN retry_yum_install() { \
     rm -rf /var/cache/yum/*
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.14 /uv /uvx /usr/local/bin/
-COPY docker/build/manylinux-cuda/install_sccache.sh /usr/local/bin/install_sccache.sh
-RUN chmod 0755 /usr/local/bin/install_sccache.sh && \
-    /usr/local/bin/install_sccache.sh
+COPY docker/build/manylinux-cuda/install_ccache.sh /usr/local/bin/install_ccache.sh
+RUN chmod 0755 /usr/local/bin/install_ccache.sh && \
+    /usr/local/bin/install_ccache.sh
 
 ENV CUDA_HOME=/usr/local/cuda \
     CUDA_ROOT=/usr/local/cuda \
     CUDA_PATH=/usr/local/cuda \
     CUDADIR=/usr/local/cuda \
     AUDITWHEEL_PLAT=${AUDITWHEEL_PLAT} \
-    PATH="/usr/local/cuda/bin:/opt/sccache-shims:${PATH}" \
+    PATH="/usr/local/cuda/bin:/opt/ccache-shims:${PATH}" \
     LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 
 RUN test -d /opt/python && \
     test -x /usr/local/cuda/bin/nvcc && \
     auditwheel --version && \
     uv --version && \
-    sccache --version && \
+    ccache --version && \
     nvcc --version && \
     test -n "${AUDITWHEEL_PLAT}"
 

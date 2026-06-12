@@ -12,9 +12,9 @@ docker run --rm "$image" bash -euxo pipefail -c '
   test "${AUDITWHEEL_PLAT}" = "manylinux_2_28_x86_64"
   auditwheel --version
   uv --version
-  sccache --version
-  test -x /opt/sccache-shims/c++
-  /opt/sccache-shims/c++ --version
+  ccache --version
+  test -x /opt/ccache-shims/c++
+  /opt/ccache-shims/c++ --version
 '
 
 case "$id" in

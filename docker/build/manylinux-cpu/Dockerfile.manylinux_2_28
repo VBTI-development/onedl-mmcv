@@ -3,26 +3,26 @@ ARG BASE_IMAGE=quay.io/pypa/manylinux_2_28_x86_64
 FROM ${BASE_IMAGE}
 
 ARG AUDITWHEEL_PLAT=manylinux_2_28_x86_64
-ARG SCCACHE_VERSION=v0.15.0
+ARG CCACHE_VERSION=v4.13.6
 
 LABEL org.opencontainers.image.title="onedl-mmcv manylinux_2_28 CPU builder"
-LABEL org.opencontainers.image.description="PyPA manylinux_2_28 with uv and sccache"
+LABEL org.opencontainers.image.description="PyPA manylinux_2_28 with uv and ccache"
 
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.14 /uv /uvx /usr/local/bin/
-COPY docker/build/manylinux-cuda/install_sccache.sh /usr/local/bin/install_sccache.sh
-RUN chmod 0755 /usr/local/bin/install_sccache.sh && \
-    /usr/local/bin/install_sccache.sh
+COPY docker/build/manylinux-cuda/install_ccache.sh /usr/local/bin/install_ccache.sh
+RUN chmod 0755 /usr/local/bin/install_ccache.sh && \
+    /usr/local/bin/install_ccache.sh
 
 ENV AUDITWHEEL_PLAT=${AUDITWHEEL_PLAT} \
-    PATH="/opt/sccache-shims:${PATH}"
+    PATH="/opt/ccache-shims:${PATH}"
 
 RUN test -d /opt/python && \
     auditwheel --version && \
     uv --version && \
-    sccache --version && \
-    /opt/sccache-shims/c++ --version && \
+    ccache --version && \
+    /opt/ccache-shims/c++ --version && \
     test -n "${AUDITWHEEL_PLAT}"
 
 CMD ["/bin/bash"]

@@ -128,6 +128,7 @@ jobs:
     env:
       CIBW_BUILD: ${{ matrix.cibw_build }}
       CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
+      CIBW_BEFORE_BUILD: bash ci/setup_compiler.sh && ccache --zero-stats && bash ci/free_disk.sh && python -m pip install uv && python scripts/select_torch.py --group-id "$MMCV_BUILD_GROUP"
       CIBW_ENVIRONMENT: >
         FORCE_CUDA=${{ matrix.force_cuda }}
         MMCV_REQUIRE_EXT=1
@@ -135,14 +136,17 @@ jobs:
         CUDA=${{ matrix.cuda }}
         TORCH_CUDA_ARCH_LIST='${{ matrix.torch_cuda_arch_list }}'
         UV_LINK_MODE=copy
-        SCCACHE_DIR=/host${{ github.workspace }}/wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}
-        SCCACHE_CACHE_SIZE=10G
-        SCCACHE_IDLE_TIMEOUT=0
-        SCCACHE_BASEDIR=/project
-        SCCACHE_DIRECT=true
-        PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
+        CCACHE_DIR=/host${{ github.workspace }}/wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}
+        CCACHE_MAXSIZE=10G
+        CCACHE_TEMPDIR=/tmp/ccache
+        CCACHE_BASEDIR=/project
+        CCACHE_NOHASHDIR=1
+        CCACHE_COMPILERCHECK=content
+        CCACHE_LOGFILE=/tmp/ccache.log
+        MMCV_CACHE_TOOL=ccache
+        PYTORCH_NVCC='ccache /usr/local/cuda/bin/nvcc'
         TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES=1
-        CXX=/opt/sccache-shims/c++
+        CXX=/opt/ccache-shims/c++
         GCC_TOOLSET=${{ matrix.gcc_toolset }}
         PATH=${{ matrix.cc_path_prefix }}$PATH
         LD_LIBRARY_PATH=${{ matrix.cc_ld_prefix }}$LD_LIBRARY_PATH
@@ -166,39 +170,39 @@ jobs:
       - uses: astral-sh/setup-uv@v8.2.0
         with:
           python-version: '3.12'
-      - name: Prepare sccache archive directory
-        run: mkdir -p "wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}"
-      - name: Restore sccache archive
+      - name: Prepare ccache archive directory
+        run: mkdir -p "wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}"
+      - name: Restore ccache archive
         uses: actions/cache/restore@v5
         with:
-          path: wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}
-          key: sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}
+          key: ccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            sccache-${{ matrix.id }}-
+            ccache-${{ matrix.id }}-
       - name: Build wheels with cibuildwheel
         uses: pypa/cibuildwheel@v2.23.0
         with:
           output-dir: wheelhouse/${{ matrix.id }}
-      - name: Make sccache archive readable
-        run: sudo chmod -R a+rX "wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}"
-      - name: Save sccache archive
+      - name: Make ccache archive readable
+        run: sudo chmod -R a+rX "wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}"
+      - name: Save ccache archive
         uses: actions/cache/save@v5
         with:
-          path: wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}
-          key: sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: Prune old sccache archives
+          path: wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}
+          key: ccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Prune old ccache archives
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           python ci/prune_github_cache.py \
-            --prefix "sccache-${{ matrix.id }}-" \
-            --current-key "sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}"
-      - name: Upload sccache diagnostics
+            --prefix "ccache-${{ matrix.id }}-" \
+            --current-key "ccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}"
+      - name: Upload ccache diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: sccache-${{ matrix.id }}
-          path: wheelhouse/${{ matrix.id }}/sccache-logs/${{ matrix.id }}/**
+          name: ccache-${{ matrix.id }}
+          path: wheelhouse/${{ matrix.id }}/ccache-logs/${{ matrix.id }}/**
           if-no-files-found: ignore
       - name: Validate wheel metadata
         run: |

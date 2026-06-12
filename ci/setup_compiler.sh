@@ -6,7 +6,7 @@
 # _check_cuda_version aborts the wheel build before any file is compiled. When a
 # target sets gcc_toolset=<N> in ci/build-matrix.json, install that toolset here.
 # publish.yml prepends /opt/rh/gcc-toolset-<N>/root/usr/{bin,lib64} to PATH and
-# LD_LIBRARY_PATH so the sccache shim, torch's version check, and nvcc's host
+# LD_LIBRARY_PATH so the ccache shim, torch's version check, and nvcc's host
 # compiler all resolve to the compatible GCC. Targets without gcc_toolset (the
 # common case) skip this entirely.
 set -euo pipefail

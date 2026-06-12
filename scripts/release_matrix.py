@@ -90,7 +90,7 @@ def _builder_hash_files(spec: dict) -> list[str]:
     files = [spec['dockerfile'], spec['smoke_script']]
     kind = spec['kind']
     if kind in {'manylinux-cpu', 'manylinux-cuda'}:
-        files.append('docker/build/manylinux-cuda/install_sccache.sh')
+        files.append('docker/build/manylinux-cuda/install_ccache.sh')
     elif kind == 'jetpack':
         files.append('docker/build/common/entrypoint.sh')
     files.extend(spec.get('hash_files', []))

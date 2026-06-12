@@ -18,7 +18,7 @@ fi
 if [[ -n "${GCC_TOOLSET:-}" ]]; then
   real_cxx="/opt/rh/gcc-toolset-${GCC_TOOLSET}/root/usr/bin/c++"
 else
-  path_without_shims="$(printf '%s' "$PATH" | tr ':' '\n' | grep -vx "$shim_dir" | grep -vx /opt/sccache-shims | paste -sd: -)"
+  path_without_shims="$(printf '%s' "$PATH" | tr ':' '\n' | grep -vx "$shim_dir" | paste -sd: -)"
   real_cxx="$(PATH="$path_without_shims" command -v c++ || PATH="$path_without_shims" command -v g++ || true)"
 fi
 

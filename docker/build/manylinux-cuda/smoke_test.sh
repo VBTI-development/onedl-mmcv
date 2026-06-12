@@ -26,9 +26,9 @@ docker run --rm \
   esac
 
   uv --version
-  sccache --version
-  test -x /opt/sccache-shims/c++
-  /opt/sccache-shims/c++ --version
+  ccache --version
+  test -x /opt/ccache-shims/c++
+  /opt/ccache-shims/c++ --version
 
   nvcc --version
   printf "%s\n" "__global__ void k(){}" >/tmp/smoke.cu
