@@ -12,10 +12,21 @@ LABEL org.opencontainers.image.description="PyPA manylinux2014 with CUDA toolcha
 
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
-RUN yum install -y yum-utils curl tar gzip ca-certificates && \
+RUN retry_yum_install() { \
+      local attempt; \
+      for attempt in 1 2 3; do \
+        yum clean expire-cache; \
+        yum install -y "$@" && return 0; \
+        yum clean all; \
+        sleep 10; \
+      done; \
+      return 1; \
+    } && \
+    retry_yum_install yum-utils curl tar gzip ca-certificates && \
     yum-config-manager --add-repo \
       https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo && \
-    yum install -y \
+    yum clean all && \
+    retry_yum_install \
       cuda-compiler-${CUDA_PKG_VERSION}.${RPM_ARCH} \
       cuda-libraries-${CUDA_PKG_VERSION}.${RPM_ARCH} \
       cuda-libraries-devel-${CUDA_PKG_VERSION}.${RPM_ARCH} && \

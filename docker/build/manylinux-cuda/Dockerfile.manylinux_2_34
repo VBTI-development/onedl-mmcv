@@ -13,10 +13,21 @@ LABEL org.opencontainers.image.description="PyPA manylinux_2_34 with CUDA toolch
 
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
-RUN test -n "${CUDA_PKG_VERSION}" && \
-    dnf install -y dnf-plugins-core curl tar gzip ca-certificates && \
+RUN retry_dnf_install() { \
+      local attempt; \
+      for attempt in 1 2 3; do \
+        dnf clean expire-cache; \
+        dnf --refresh install -y "$@" && return 0; \
+        dnf clean all; \
+        sleep 10; \
+      done; \
+      return 1; \
+    } && \
+    test -n "${CUDA_PKG_VERSION}" && \
+    retry_dnf_install dnf-plugins-core curl tar gzip ca-certificates && \
     dnf config-manager --add-repo \
       https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo && \
+    dnf clean all && \
     packages=( \
       "cuda-compiler-${CUDA_PKG_VERSION}.${RPM_ARCH}" \
       "cuda-libraries-${CUDA_PKG_VERSION}.${RPM_ARCH}" \
@@ -28,7 +39,7 @@ RUN test -n "${CUDA_PKG_VERSION}" && \
         "gcc-toolset-${GCC_TOOLSET}-gcc-c++" \
       ); \
     fi && \
-    dnf install -y "${packages[@]}" && \
+    retry_dnf_install "${packages[@]}" && \
     cuda_dotted="${CUDA_PKG_VERSION/-/.}" && \
     ln -sfn "/usr/local/cuda-${cuda_dotted}" /usr/local/cuda && \
     mkdir -p /opt/cuda-host-compiler/bin && \
