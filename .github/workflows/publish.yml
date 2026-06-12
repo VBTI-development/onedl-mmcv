@@ -117,6 +117,10 @@ jobs:
   build-linux-wheels:
     needs: [validate-release, gen-matrix]
     name: ${{ matrix.name }}
+    permissions:
+      contents: read
+      packages: read
+      actions: write
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -135,10 +139,7 @@ jobs:
         SCCACHE_CACHE_SIZE=10G
         SCCACHE_IDLE_TIMEOUT=0
         SCCACHE_BASEDIR=/project
-        SCCACHE_ERROR_LOG=/tmp/sccache-debug.log
-        SCCACHE_LOG=debug
-        SCCACHE_PREPROCESSOR_PROBE=1
-        SCCACHE_PROBE_TARGETS=sparse_pool_ops.cpp,spconv_ops.cpp,voxelization.cpp
+        SCCACHE_DIRECT=true
         PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'
         TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES=1
         CXX=/opt/sccache-shims/c++
@@ -179,11 +180,17 @@ jobs:
         with:
           output-dir: wheelhouse/${{ matrix.id }}
       - name: Save sccache archive
-        if: always()
         uses: actions/cache/save@v5
         with:
           path: wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}
           key: sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Prune old sccache archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python ci/prune_github_cache.py \
+            --prefix "sccache-${{ matrix.id }}-" \
+            --current-key "sccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}"
       - name: Upload sccache diagnostics
         if: always()
         uses: actions/upload-artifact@v7
