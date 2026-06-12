@@ -179,6 +179,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.0
         with:
           output-dir: wheelhouse/${{ matrix.id }}
+      - name: Make sccache archive readable
+        run: sudo chmod -R a+rX "wheelhouse/${{ matrix.id }}/.sccache/${{ matrix.id }}"
       - name: Save sccache archive
         uses: actions/cache/save@v5
         with:
