@@ -244,8 +244,11 @@ jobs:
         run: docker pull "${{ matrix.builder_image }}"
       - name: Build wheel
         run: |
+          mkdir -p dist
           docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
             -v "${{ github.workspace }}/dist:/out" \
+            -w /workspace \
             "${{ matrix.builder_image }}"
       - name: List generated files
         run: ls -la dist

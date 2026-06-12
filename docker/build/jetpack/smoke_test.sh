@@ -4,12 +4,16 @@ set -euo pipefail
 image="$1"
 id="$2"
 
-docker run --rm --entrypoint bash "$image" -euxo pipefail -c '
+docker run --rm \
+  -v "$(pwd):/workspace:ro" \
+  --entrypoint bash \
+  "$image" -euxo pipefail -c '
   test -x /entrypoint.sh
-  test -d /mmcv
-  test -x /mmcv/.venv/bin/python
-  /mmcv/.venv/bin/python --version
-  /mmcv/.venv/bin/python -c "import torch; print(torch.__version__)"
+  test -x /opt/mmcv-venv/bin/python
+  /opt/mmcv-venv/bin/python --version
+  /opt/mmcv-venv/bin/python -c "import torch; print(torch.__version__)"
+  test -f /workspace/pyproject.toml
+  test ! -e /mmcv/pyproject.toml
   uv --version
 '
 
