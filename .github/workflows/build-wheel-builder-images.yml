@@ -84,8 +84,6 @@ jobs:
             AUDITWHEEL_PLAT=${{ matrix.auditwheel_plat }}
             GCC_TOOLSET=${{ matrix.gcc_toolset }}
             RPM_ARCH=x86_64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Smoke test image
         run: |
           bash "${{ matrix.smoke_script }}" \
