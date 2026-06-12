@@ -1,4 +1,4 @@
-name: debug_sccache_cuda
+name: debug_ccache_cuda
 
 on:
   workflow_dispatch:
@@ -40,7 +40,7 @@ permissions:
   actions: write
 
 jobs:
-  debug-cuda-sccache:
+  debug-cuda-ccache:
     runs-on: ubuntu-24.04
     env:
       GROUP_ID: ${{ inputs.group_id }}
@@ -87,7 +87,7 @@ jobs:
               raise SystemExit(f'unknown group_id: {group_id}')
           target = matches[0]
           if target['cuda'] == 'cpu':
-              raise SystemExit('debug_sccache_cuda only supports CUDA groups')
+              raise SystemExit('debug_ccache_cuda only supports CUDA groups')
           if build_id not in target['cibw_build'].split():
               raise SystemExit(
                   f'{build_id} is not configured for {group_id}; valid: {target["cibw_build"]}'
@@ -95,8 +95,8 @@ jobs:
 
           workspace = os.environ['GITHUB_WORKSPACE']
           debug_wheelhouse = f'debug-wheelhouse/{group_id}'
-          sccache_host_dir = f'{debug_wheelhouse}/.sccache/{group_id}'
-          sccache_container_dir = f'/host{workspace}/{sccache_host_dir}'
+          ccache_host_dir = f'{debug_wheelhouse}/.ccache/{group_id}'
+          ccache_container_dir = f'/host{workspace}/{ccache_host_dir}'
           cibw_environment = [
               f'FORCE_CUDA={target["force_cuda"]}',
               'MMCV_REQUIRE_EXT=1',
@@ -104,19 +104,18 @@ jobs:
               f'CUDA={target["cuda"]}',
               f'TORCH_CUDA_ARCH_LIST={target["torch_cuda_arch_list"]!r}',
               'UV_LINK_MODE=copy',
-              f'SCCACHE_DIR={sccache_container_dir}',
-              'SCCACHE_CACHE_SIZE=10G',
-              'SCCACHE_IDLE_TIMEOUT=0',
-              'SCCACHE_BASEDIR=/project',
-              'SCCACHE_DIRECT=true',
-              'SCCACHE_ERROR_LOG=/tmp/sccache-debug.log',
-              'SCCACHE_LOG=debug',
-              'SCCACHE_PREPROCESSOR_PROBE=1',
-              'SCCACHE_PROBE_TARGETS=active_rotated_filter_cuda.cu,ball_query_cuda.cu,bbox_overlaps_cuda.cu',
-              f'SCCACHE_DIAGNOSTIC_DIR=/output/sccache-logs/{group_id}',
-              "PYTORCH_NVCC='sccache /usr/local/cuda/bin/nvcc'",
+              f'CCACHE_DIR={ccache_container_dir}',
+              'CCACHE_MAXSIZE=10G',
+              'CCACHE_TEMPDIR=/tmp/ccache',
+              'CCACHE_BASEDIR=/project',
+              'CCACHE_NOHASHDIR=1',
+              'CCACHE_COMPILERCHECK=content',
+              'CCACHE_LOGFILE=/tmp/ccache-debug.log',
+              'MMCV_CACHE_TOOL=ccache',
+              "PYTORCH_NVCC='ccache /usr/local/cuda/bin/nvcc'",
+              f'CCACHE_DIAGNOSTIC_DIR=/output/ccache-logs/{group_id}',
               'TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES=1',
-              'CXX=/opt/sccache-shims/c++',
+              'CXX=/opt/ccache-shims/c++',
               f'GCC_TOOLSET={target["gcc_toolset"]}',
               f'PATH={target["cc_path_prefix"]}$PATH',
               f'LD_LIBRARY_PATH={target["cc_ld_prefix"]}$LD_LIBRARY_PATH',
@@ -126,38 +125,39 @@ jobs:
               env.write(f'CIBW_BUILD={build_id}\n')
               env.write(f'CIBW_MANYLINUX_X86_64_IMAGE={target["manylinux_image"]}\n')
               env.write(f'DEBUG_WHEELHOUSE={debug_wheelhouse}\n')
-              env.write(f'SCCACHE_HOST_DIR={sccache_host_dir}\n')
+              env.write(f'CCACHE_HOST_DIR={ccache_host_dir}\n')
               env.write('CIBW_TEST_SKIP=*\n')
+              env.write('CIBW_BEFORE_BUILD=bash ci/setup_compiler.sh && bash ci/install_ccache.sh && bash ci/free_disk.sh && python -m pip install uv && python scripts/select_torch.py --group-id "$MMCV_BUILD_GROUP"\n')
               env.write('CIBW_ENVIRONMENT<<EOF\n')
               env.write(' '.join(cibw_environment))
               env.write('\nEOF\n')
           PY
-      - name: Prepare debug sccache directory
-        run: mkdir -p "$SCCACHE_HOST_DIR"
-      - name: Restore debug sccache archive
+      - name: Prepare debug ccache directory
+        run: mkdir -p "$CCACHE_HOST_DIR"
+      - name: Restore debug ccache archive
         uses: actions/cache/restore@v5
         with:
-          path: debug-wheelhouse/${{ inputs.group_id }}/.sccache/${{ inputs.group_id }}
-          key: debug-sccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ inputs.cache_scope }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: debug-wheelhouse/${{ inputs.group_id }}/.ccache/${{ inputs.group_id }}
+          key: debug-ccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ inputs.cache_scope }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            debug-sccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ inputs.cache_scope }}-
+            debug-ccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ inputs.cache_scope }}-
       - name: Build debug wheel with cibuildwheel
         uses: pypa/cibuildwheel@v2.23.0
         with:
           output-dir: debug-wheelhouse/${{ inputs.group_id }}
-      - name: Make debug sccache archive readable
-        run: sudo chmod -R a+rX "$SCCACHE_HOST_DIR"
-      - name: Save debug sccache archive
+      - name: Make debug ccache archive readable
+        run: sudo chmod -R a+rX "$CCACHE_HOST_DIR"
+      - name: Save debug ccache archive
         uses: actions/cache/save@v5
         with:
-          path: debug-wheelhouse/${{ inputs.group_id }}/.sccache/${{ inputs.group_id }}
-          key: debug-sccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ inputs.cache_scope }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: debug-wheelhouse/${{ inputs.group_id }}/.ccache/${{ inputs.group_id }}
+          key: debug-ccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ inputs.cache_scope }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload debug diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: debug-sccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ github.run_id }}
-          path: debug-wheelhouse/${{ inputs.group_id }}/sccache-logs/${{ inputs.group_id }}/**
+          name: debug-ccache-${{ inputs.group_id }}-${{ inputs.python_tag }}-${{ github.run_id }}
+          path: debug-wheelhouse/${{ inputs.group_id }}/ccache-logs/${{ inputs.group_id }}/**
           if-no-files-found: error
       - name: Upload debug wheel
         uses: actions/upload-artifact@v7

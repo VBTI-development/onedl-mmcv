@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # cibuildwheel repair-wheel-command wrapper: repair the wheel, then surface
-# sccache statistics so cache hit rates are visible in the build log. This is
-# the only post-compile hook that runs in the same container as the build.
+# compiler cache statistics so cache hit rates are visible in the build log.
 set -euo pipefail
 
 wheel="$1"
@@ -16,9 +15,15 @@ auditwheel repair "$wheel" -w "$dest" \
   --exclude libtorch_python.so \
   --exclude libshm.so
 
-sccache --show-stats || true
+cache_tool="${MMCV_CACHE_TOOL:-sccache}"
 
-redact_sccache_log() {
+if [[ "$cache_tool" = ccache ]]; then
+  ccache --show-stats || ccache -s || true
+else
+  sccache --show-stats || true
+fi
+
+redact_cache_log() {
   sed -E \
     -e 's/(ACTIONS_RUNTIME_TOKEN|SCCACHE_GHA_RUNTIME_TOKEN)=([^[:space:]]+)/\1=[REDACTED]/g' \
     -e 's/(token=)[^&[:space:]]+/\1[REDACTED]/g' \
@@ -35,9 +40,9 @@ write_compiler_diag() {
       printf 'CXX resolved=%s\n' "$(readlink -f "$CXX" 2>/dev/null || true)"
       "$CXX" --version 2>&1 | head -n 1 || true
       sha256sum "$CXX" 2>/dev/null || true
-      real_cxx="$(awk '$1 == "exec" && $2 == "sccache" {gsub(/"/, "", $3); print $3; exit}' "$CXX" 2>/dev/null || true)"
+      real_cxx="$(awk '$1 == "exec" && ($2 == "sccache" || $2 == "ccache") {gsub(/"/, "", $3); print $3; exit}' "$CXX" 2>/dev/null || true)"
       if [[ -z "$real_cxx" ]]; then
-        real_cxx="$(awk '$1 == "exec" && $2 != "sccache" {gsub(/"/, "", $2); print $2; exit}' "$CXX" 2>/dev/null || true)"
+        real_cxx="$(awk '$1 == "exec" && $2 != "sccache" && $2 != "ccache" {gsub(/"/, "", $2); print $2; exit}' "$CXX" 2>/dev/null || true)"
       fi
       if [[ -n "$real_cxx" && "$real_cxx" != '$real_cxx' ]]; then
         printf 'real CXX=%s\n' "$real_cxx"
@@ -58,15 +63,29 @@ match = re.search(r'-(cp\d+)-cp\d+-', name)
 print(match.group(1) if match else 'unknown')
 PY
 )"
-log_dir="${SCCACHE_DIAGNOSTIC_DIR:-/output/sccache-logs/${MMCV_BUILD_GROUP:-unknown}}"
+if [[ "$cache_tool" = ccache ]]; then
+  log_dir="${CCACHE_DIAGNOSTIC_DIR:-/output/ccache-logs/${MMCV_BUILD_GROUP:-unknown}}"
+else
+  log_dir="${SCCACHE_DIAGNOSTIC_DIR:-/output/sccache-logs/${MMCV_BUILD_GROUP:-unknown}}"
+fi
 mkdir -p "$log_dir"
 compiler_diag="$log_dir/compiler-${wheel_tag}.txt"
 write_compiler_diag "$compiler_diag"
 printf 'compiler diagnostics: %s\n' "$compiler_diag"
 
-if [[ -n "${SCCACHE_ERROR_LOG:-}" && -s "$SCCACHE_ERROR_LOG" ]]; then
+if [[ "$cache_tool" = ccache ]]; then
+  if [[ -n "${CCACHE_LOGFILE:-}" && -s "$CCACHE_LOGFILE" ]]; then
+    redacted_log="$log_dir/ccache-${wheel_tag}.log"
+    redact_cache_log "$CCACHE_LOGFILE" >"$redacted_log" || true
+    printf 'ccache full redacted log: %s\n' "$redacted_log"
+    printf 'ccache log (last 200 lines, redacted):\n'
+    tail -n 200 "$redacted_log" || true
+  else
+    printf 'ccache log: absent or empty\n'
+  fi
+elif [[ -n "${SCCACHE_ERROR_LOG:-}" && -s "$SCCACHE_ERROR_LOG" ]]; then
   redacted_log="$log_dir/sccache-${wheel_tag}.log"
-  redact_sccache_log "$SCCACHE_ERROR_LOG" >"$redacted_log" || true
+  redact_cache_log "$SCCACHE_ERROR_LOG" >"$redacted_log" || true
   printf 'sccache full redacted log: %s\n' "$redacted_log"
   printf 'sccache log (last 200 lines, redacted):\n'
   tail -n 200 "$redacted_log" || true
