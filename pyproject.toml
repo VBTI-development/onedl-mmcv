@@ -91,7 +91,7 @@ include-package-data = true
 
 [tool.cibuildwheel]
 build-frontend = { name = "build[uv]", args = ["--no-isolation"] }
-skip = "pp* *-musllinux_*"
+skip = "*-musllinux_*"
 test-command = "python -c \"import mmcv; print(mmcv.__version__); import mmcv.ops; from mmcv.utils import ext_loader; assert ext_loader.check_ops_exist()\""
 
 [tool.cibuildwheel.linux]
