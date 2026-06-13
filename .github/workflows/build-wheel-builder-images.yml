@@ -89,7 +89,6 @@ jobs:
           tags: |
             ${{ matrix.image }}:${{ matrix.spec_tag }}
             ${{ matrix.image }}:sha-${{ github.sha }}
-            ${{ matrix.image }}:latest
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -125,7 +124,6 @@ jobs:
             exit 1
           fi
           docker push "${IMAGE}:${SHA_TAG}"
-          docker push "${IMAGE}:latest"
           echo "digest=${digest}" >> "$GITHUB_OUTPUT"
       - uses: actions/attest-build-provenance@v3
         if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}

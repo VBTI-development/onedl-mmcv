@@ -11,6 +11,8 @@ DEFAULT_MATRIX = Path('ci/build-matrix.json')
 GROUP_ID_RE = re.compile(r'^(?P<prefix>.+)-torch(?P<compact>\d+)$')
 CUDA_PKG_RE = re.compile(r'^\d+-\d+$')
 BUILDER_KINDS = {'manylinux-cpu', 'manylinux-cuda', 'jetpack'}
+DIGEST_PINNED_GHCR_IMAGE_RE = re.compile(
+    r'^(?P<repository>ghcr[.]io/.+)@sha256:[0-9a-f]{64}$')
 
 
 def load_matrix(path: Path) -> dict:
@@ -142,6 +144,22 @@ def _validate_common_builder_spec(key: str, spec: dict) -> None:
         raise SystemExit(f"{key}: image must be lowercase for Docker")
 
 
+def _validate_digest_pinned_manylinux_image(prefix: str, spec: dict,
+                                            actual_image: str) -> None:
+    match = DIGEST_PINNED_GHCR_IMAGE_RE.fullmatch(actual_image)
+    if match is None:
+        raise SystemExit(
+            f"{prefix}: manylinux_image must be a digest-pinned GHCR image, "
+            f"got {actual_image!r}")
+
+    expected_repository = spec['image']
+    actual_repository = match.group('repository')
+    if actual_repository != expected_repository:
+        raise SystemExit(
+            f"{prefix}: manylinux_image repository {actual_repository!r} != "
+            f"expected {expected_repository!r}")
+
+
 def _validate_manylinux_cpu_builder_spec(key: str, spec: dict) -> None:
     if not spec.get('auditwheel_plat'):
         raise SystemExit(f"{key}: auditwheel_plat is required")
@@ -261,12 +279,8 @@ def validate_cuda_builder_refs(matrix: dict) -> None:
             raise SystemExit(
                 f"{prefix}: builder image gcc_toolset {spec_toolset!r} != target {target_toolset!r}"  # noqa: E501
             )
-        expected_image = f"{spec['image']}:latest"
         actual_image = node.get('manylinux_image', '')
-        if actual_image != expected_image:
-            raise SystemExit(
-                f"{prefix}: manylinux_image {actual_image!r} != expected {expected_image!r}"  # noqa: E501
-            )
+        _validate_digest_pinned_manylinux_image(prefix, spec, actual_image)
 
 
 def validate_special_builder_refs(matrix: dict) -> None:
@@ -282,12 +296,8 @@ def validate_special_builder_refs(matrix: dict) -> None:
             if spec['kind'] != 'manylinux-cpu':
                 raise SystemExit(
                     f"{prefix}: CPU builder_image must be manylinux-cpu")
-            expected_image = f"{spec['image']}:latest"
             actual_image = node.get('manylinux_image', '')
-            if actual_image != expected_image:
-                raise SystemExit(
-                    f"{prefix}: manylinux_image {actual_image!r} != expected {expected_image!r}"  # noqa: E501
-                )
+            _validate_digest_pinned_manylinux_image(prefix, spec, actual_image)
             continue
         if node['platform'].endswith('aarch64') and spec['kind'] != 'jetpack':
             raise SystemExit(

@@ -13,10 +13,10 @@ docker/build/
 
 ## JetPack builders
 
-JetPack builders are pre-built by `.github/workflows/build-wheel-builder-images.yml` and consumed by `publish.yml` via GHCR, for example:
+JetPack builders are pre-built by `.github/workflows/build-wheel-builder-images.yml` and consumed by `publish.yml` via digest-pinned GHCR references, for example:
 
 ```text
-ghcr.io/4o3f/onedl-mmcv-builders/jetpack61-torch2110:latest
+ghcr.io/4o3f/onedl-mmcv-builders/jetpack61-torch2110@sha256:<digest>
 ```
 
 ## manylinux CPU and CUDA builders
