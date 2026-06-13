@@ -180,7 +180,7 @@ jobs:
           restore-keys: |
             ccache-${{ matrix.id }}-
       - name: Build wheels with cibuildwheel
-        uses: pypa/cibuildwheel@v2.23.0
+        uses: pypa/cibuildwheel@v4.1.0
         with:
           output-dir: wheelhouse/${{ matrix.id }}
       - name: Make ccache archive readable
