@@ -8,6 +8,14 @@ on:
         required: false
         type: string
   push:
+    branches:
+      - main
+    paths:
+      - 'docker/build/**'
+      - 'ci/build-matrix.json'
+      - 'scripts/release_matrix.py'
+      - '.github/workflows/build-wheel-builder-images.yml'
+  pull_request:
     paths:
       - 'docker/build/**'
       - 'ci/build-matrix.json'
