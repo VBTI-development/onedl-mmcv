@@ -197,13 +197,6 @@ jobs:
           python ci/prune_github_cache.py \
             --prefix "ccache-${{ matrix.id }}-" \
             --current-key "ccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}"
-      - name: Upload ccache diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ccache-${{ matrix.id }}
-          path: wheelhouse/${{ matrix.id }}/ccache-logs/${{ matrix.id }}/**
-          if-no-files-found: ignore
       - name: Validate wheel metadata
         run: |
           uv run --no-project --with auditwheel python scripts/check_wheel_metadata.py \
