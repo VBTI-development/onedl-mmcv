@@ -1,25 +1,30 @@
-This dockerfile is to make it easy to build multiple versions of mmcv with different torch and cuda versions.
+# Wheel builder images
 
-The process is two steps:
+This directory contains Docker images used to build release wheels.
 
-1. Build the docker with the correct cuda and torch versions. Base image is based on [nvidia/cuda](https://hub.docker.com/r/nvidia/cuda/tags) image.
+```text
+docker/build/
+|-- common/          # Shared wheel-builder entrypoint
+|-- jetpack/         # Jetson/JetPack aarch64 wheel builders used by publish.yml
+|-- manylinux-cpu/   # x86_64 PyPA manylinux CPU builder image definitions
+|-- manylinux-cuda/  # x86_64 PyPA manylinux + CUDA builder image definitions
+`-- legacy/          # Older single-image builders kept for manual/reference use
+```
 
-   ```bash
-   docker build -t mmcv-builder:cu118-torch251 --build-arg CUDA=11.8.0 --build-arg PYTORCH=2.5.1 docker/build .
-   ```
+## JetPack builders
 
-   Note:
+JetPack builders are pre-built by `.github/workflows/build-wheel-builder-images.yml` and consumed by `publish.yml` via digest-pinned GHCR references, for example:
 
-   In for some cuda versions you cannot pick the CUDNN version, in that case add `--build-arg CUDNN=""` to the build command in step 1.
+```text
+ghcr.io/4o3f/onedl-mmcv-builders/jetpack61-torch2110@sha256:<digest>
+```
 
-2. Build the wheel
+## manylinux CPU and CUDA builders
 
-   ```bash
-   docker run --rm -v "$PWD/dist:/out" -e TORCH_CUDA_ARCH_LIST="7.5 8.6 8.9" mmcv-builder:cu118-torch251
-   ```
+The wheel builder images are produced by the same workflow from the matrix in `ci/build-matrix.json`:
 
-   Note:
+```bash
+python scripts/release_matrix.py gen-builder-matrix
+```
 
-   Adjust the TORCH_CUDA_ARG_LIST to all current GPU's.
-
-By modifying the CUDA and PYTORCH arguments different versions will be built and outputted in the `$PWD/dist` subfolder that is mounted.
+Use `workflow_dispatch` with `image_id` for a single-image canary, for example `ml228-cpu`, `ml234-cu128`, or `jetpack61-torch2110`.

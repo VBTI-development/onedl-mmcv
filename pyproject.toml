@@ -7,7 +7,7 @@ authors = [
     { name = "VBTI Contributors", email = "oss-team@vbti.nl" },
     { name = "OneDL MMCV Contributors" }
 ]
-license = "LicenseRef-Apache-2.0"
+license = "Apache-2.0"
 requires-python = ">=3.10"
 keywords = ["computer vision"]
 classifiers = [
@@ -61,7 +61,9 @@ optional = [
     "psutil"
 ]
 build = [
-    "setuptools",
+    "packaging>=24.2",
+    "setuptools>=80",
+    "wheel",
 ]
 
 [project.optional-dependencies]
@@ -87,6 +89,17 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 include-package-data = true
 
+[tool.cibuildwheel]
+build-frontend = { name = "build[uv]", args = ["--no-isolation"] }
+skip = "*-musllinux_*"
+test-command = "python -c \"import mmcv; print(mmcv.__version__); import mmcv.ops; from mmcv.utils import ext_loader; assert ext_loader.check_ops_exist()\""
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+before-build = "bash ci/setup_compiler.sh && bash ci/free_disk.sh && python -m pip install uv && python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
+before-test = "python scripts/select_torch.py --group-id \"$MMCV_BUILD_GROUP\""
+repair-wheel-command = "bash ci/repair_wheel.sh {wheel} {dest_dir}"
+
 [tool.setuptools.packages.find]
 where = ["."]
 exclude = ["tests*"]
@@ -110,7 +123,7 @@ quiet-level = 3
 ignore-words-list = "inout,hist,ba,ro,inh"
 
 [tool.uv]
-no-build-isolation-package = ["torch", "onedl-mmcv"]
+no-build-isolation-package = ["torch"]
 
 [[tool.uv.index]]
 name = "testpypi"

@@ -48,7 +48,7 @@ jobs:
           apt-get update
           apt-get install -y wget build-essential git software-properties-common && apt-get clean -y
       - name: Install uv and set the python version
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
@@ -136,7 +136,7 @@ jobs:
           apt-get install -y wget build-essential git software-properties-common
 
       - name: Install uv and set the python version
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           activate-environment: true
           python-version: ${{ matrix.python-version }}
@@ -203,7 +203,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Install uv and set the python version
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           activate-environment: true
           python-version: ${{ matrix.python-version }}

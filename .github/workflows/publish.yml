@@ -3,315 +3,422 @@ name: publish
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'     # Production releases
-      - 'v[0-9]+.[0-9]+.[0-9]+*'   # Pre-releases with suffixes
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish, for example v2.3.7.post1; optional for dry runs'
+        required: false
+        type: string
+      ref:
+        description: 'Git ref to build for dry runs; defaults to the workflow branch'
+        required: false
+        type: string
+      dry_run:
+        description: 'Build and verify artifacts without publishing them'
+        required: true
+        default: true
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
-  public-PyPI:
-    # without torch
-    needs: [cpu-wheelhouse, cuda-wheelhouse, jetpack-wheelhouse]
-    runs-on: ubuntu-22.04
-    permissions:
-      id-token: write
-    if: >-
-      startsWith(github.event.ref, 'refs/tags') &&
-      (
-        (needs.cpu-wheelhouse.result == 'success' || needs.cpu-wheelhouse.result == 'failure') &&
-        (needs.cuda-wheelhouse.result == 'success' || needs.cuda-wheelhouse.result == 'failure') &&
-        (needs.jetpack-wheelhouse.result == 'success' || needs.jetpack-wheelhouse.result == 'failure')
-      )
+  validate-release:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+      release_ref: ${{ steps.ref.outputs.release_ref }}
+      release_tag: ${{ steps.ref.outputs.release_tag }}
+    steps:
+      - id: ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_REF: ${{ github.event.inputs.ref }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          tag = os.environ["INPUT_TAG"].strip()
+          ref = os.environ["INPUT_REF"].strip()
+          dry_run = os.environ["DRY_RUN"] == "true"
+          event_name = os.environ["EVENT_NAME"]
+          current_ref = os.environ["GITHUB_REF_NAME"]
+
+          if event_name == "push":
+              tag = current_ref
+              ref = f"refs/tags/{tag}"
+          elif dry_run:
+              ref = ref or current_ref
+          else:
+              if not tag:
+                  raise SystemExit("tag is required when dry_run is false")
+              ref = f"refs/tags/{tag}"
+
+          if tag and not re.fullmatch(r"v[0-9]+[.][0-9]+[.][0-9]+[A-Za-z0-9_.+-]*", tag):
+              raise SystemExit(f"invalid release tag: {tag!r}")
+          if not ref:
+              raise SystemExit("release ref is required")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"release_ref={ref}\n")
+              output.write(f"release_tag={tag}\n")
+          PY
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.ref.outputs.release_ref }}
+      - name: Validate release tag
+        id: validate
+        env:
+          RELEASE_TAG: ${{ steps.ref.outputs.release_tag }}
+        run: python scripts/validate_release_tag.py "$RELEASE_TAG" --allow-missing-tag --write-github-output
+
+  build-sdist:
+    needs: validate-release
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
-      - name: Install uv and set the python version
-        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.10'
-      - name: Install ninja to speed the compilation
-        run: uv pip install -r pyproject.toml --group optional  --group build
-      - name: Build MMCV
+          ref: ${{ needs.validate-release.outputs.release_ref }}
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: '3.12'
+      - name: Build sdist
+        run: uv build --sdist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  gen-matrix:
+    needs: validate-release
+    runs-on: ubuntu-24.04
+    outputs:
+      linux: ${{ steps.gen.outputs.linux }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.validate-release.outputs.release_ref }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - id: gen
+        run: echo "linux=$(python scripts/release_matrix.py gen-matrix --kind linux)" >> "$GITHUB_OUTPUT"
+
+  build-linux-wheels:
+    needs: [validate-release, gen-matrix]
+    name: ${{ matrix.name }}
+    permissions:
+      contents: read
+      packages: read
+      actions: write
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.gen-matrix.outputs.linux) }}
+    env:
+      CIBW_BUILD: ${{ matrix.cibw_build }}
+      CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
+      CIBW_BEFORE_BUILD: bash ci/setup_compiler.sh && ccache --zero-stats && bash ci/free_disk.sh && python -m pip install uv && python scripts/select_torch.py --group-id "$MMCV_BUILD_GROUP"
+      CIBW_ENVIRONMENT: >
+        FORCE_CUDA=${{ matrix.force_cuda }}
+        MMCV_REQUIRE_EXT=1
+        MMCV_BUILD_GROUP=${{ matrix.id }}
+        CUDA=${{ matrix.cuda }}
+        TORCH_CUDA_ARCH_LIST='${{ matrix.torch_cuda_arch_list }}'
+        UV_LINK_MODE=copy
+        CCACHE_DIR=/host${{ github.workspace }}/wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}
+        CCACHE_MAXSIZE=10G
+        CCACHE_TEMPDIR=/tmp/ccache
+        CCACHE_BASEDIR=/project
+        CCACHE_NOHASHDIR=1
+        CCACHE_COMPILERCHECK=content
+        CCACHE_LOGFILE=/tmp/ccache.log
+        MMCV_CACHE_TOOL=ccache
+        PYTORCH_NVCC='ccache /usr/local/cuda/bin/nvcc'
+        TORCH_EXTENSION_SKIP_NVCC_GEN_DEPENDENCIES=1
+        CXX=/opt/ccache-shims/c++
+        GCC_TOOLSET=${{ matrix.gcc_toolset }}
+        PATH=${{ matrix.cc_path_prefix }}$PATH
+        LD_LIBRARY_PATH=${{ matrix.cc_ld_prefix }}$LD_LIBRARY_PATH
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.validate-release.outputs.release_ref }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Reclaim runner disk space
+        uses: endersonmenezes/free-disk-space@v3
+        with:
+          remove_android: true
+          remove_dotnet: true
+          remove_haskell: true
+          remove_tool_cache: true
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: '3.12'
+      - name: Prepare ccache archive directory
+        run: mkdir -p "wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}"
+      - name: Restore ccache archive
+        uses: actions/cache/restore@v5
+        with:
+          path: wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}
+          key: ccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ccache-${{ matrix.id }}-
+      - name: Build wheels with cibuildwheel
+        uses: pypa/cibuildwheel@v4.1.0
+        with:
+          output-dir: wheelhouse/${{ matrix.id }}
+      - name: Make ccache archive readable
+        run: sudo chmod -R a+rX "wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}"
+      - name: Save ccache archive
+        uses: actions/cache/save@v5
+        with:
+          path: wheelhouse/${{ matrix.id }}/.ccache/${{ matrix.id }}
+          key: ccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Prune old ccache archives
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          uv build --sdist
-      - name: Publish distribution to PyPI
+          python ci/prune_github_cache.py \
+            --prefix "ccache-${{ matrix.id }}-" \
+            --current-key "ccache-${{ matrix.id }}-${{ github.run_id }}-${{ github.run_attempt }}"
+      - name: Validate wheel metadata
         run: |
-          uv publish
-  # when adding/changing versions here, please modify version.json too.
-  cuda-wheelhouse:
+          uv run --no-project --with auditwheel python scripts/check_wheel_metadata.py \
+            --wheel-dir "wheelhouse/${{ matrix.id }}" \
+            --group-id "${{ matrix.id }}" \
+            --version "${{ needs.validate-release.outputs.version }}" \
+            --require-ext \
+            --auditwheel \
+            --output "wheelhouse/${{ matrix.id }}/metadata.json"
+      - name: Write build manifest
+        run: |
+          python scripts/write_build_manifest.py \
+            --wheel-dir "wheelhouse/${{ matrix.id }}" \
+            --group-id "${{ matrix.id }}" \
+            --version "${{ needs.validate-release.outputs.version }}" \
+            --tag "${{ needs.validate-release.outputs.release_tag }}" \
+            --git-sha "$(git rev-parse HEAD)" \
+            --output "wheelhouse/${{ matrix.id }}/manifest.json"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wheelhouse-${{ matrix.id }}
+          path: |
+            wheelhouse/${{ matrix.id }}/*.whl
+            wheelhouse/${{ matrix.id }}/*.json
+          if-no-files-found: error
+
+  build-jetpack-wheels:
+    needs: validate-release
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
       matrix:
         include:
-          - cuda: 11.8.0
-            pytorch: '2.4.1'
-            torch_cuda_arch_list:  "7.5 8.0 8.6 8.9 9.0"
-            python_version: "3.10"
-          - cuda: 12.8.1
-            pytorch: '2.8.0'
-            torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
-            python_version: "3.10"
-          - cuda: 12.9.1
-            pytorch: '2.8.0'
-            torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
-            python_version: "3.10"
-          - cuda: 12.9.1
-            pytorch: '2.9.0'
-            torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
-            python_version: "3.12"
-          - cuda: 12.9.1
-            pytorch: '2.10.0'
-            torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
-            python_version: "3.12"
-          - cuda: 13.0.3
-            pytorch: '2.12.0'
-            torch_cuda_arch_list:  "7.5 8.6 8.9 9.0"
-            python_version: "3.12"
+          - jetpack: '61'
+            name: Jetson JetPack 6.1 wheels
+            pytorch: '2.11.0'
+            builder_image: ghcr.io/4o3f/onedl-mmcv-builders/jetpack61-torch2110@sha256:7124d0de8a4d773fab375026fb613a8179d9d5a52c3f6289617f5a5915edafdc
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.validate-release.outputs.release_ref }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull JetPack builder image
+        run: docker pull "${{ matrix.builder_image }}"
+      - name: Build wheel
+        run: |
+          mkdir -p dist
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "${{ github.workspace }}/dist:/out" \
+            -w /workspace \
+            "${{ matrix.builder_image }}"
+      - name: List generated files
+        run: ls -la dist
+      - name: Stage wheel into group directory
+        run: |
+          mkdir -p "wheelhouse/jetpack${{ matrix.jetpack }}"
+          cp dist/*.whl "wheelhouse/jetpack${{ matrix.jetpack }}/"
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: '3.12'
+      - name: Validate wheel metadata
+        run: |
+          uv run --no-project --with auditwheel python scripts/check_wheel_metadata.py \
+            --wheel-dir "wheelhouse/jetpack${{ matrix.jetpack }}" \
+            --group-id "jetpack${{ matrix.jetpack }}" \
+            --version "${{ needs.validate-release.outputs.version }}" \
+            --require-ext \
+            --auditwheel \
+            --output "wheelhouse/jetpack${{ matrix.jetpack }}/metadata.json"
+      - name: Write build manifest
+        run: |
+          python scripts/write_build_manifest.py \
+            --wheel-dir "wheelhouse/jetpack${{ matrix.jetpack }}" \
+            --group-id "jetpack${{ matrix.jetpack }}" \
+            --version "${{ needs.validate-release.outputs.version }}" \
+            --tag "${{ needs.validate-release.outputs.release_tag }}" \
+            --git-sha "$(git rev-parse HEAD)" \
+            --output "wheelhouse/jetpack${{ matrix.jetpack }}/manifest.json"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wheelhouse-jetpack${{ matrix.jetpack }}
+          path: wheelhouse/jetpack${{ matrix.jetpack }}/*
+          if-no-files-found: error
+
+  verify-wheelhouse:
+    needs: [validate-release, build-sdist, build-linux-wheels, build-jetpack-wheels]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.validate-release.outputs.release_ref }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: sdist
+          path: dist
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: wheelhouse-*
+          path: dist-artifacts
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: '3.12'
+      - name: Check sdist metadata
+        run: uv run --no-project --with twine twine check dist/*.tar.gz
+      - name: Verify wheel metadata
+        run: |
+          set -euo pipefail
+          for group_dir in dist-artifacts/wheelhouse-*; do
+            group_id="${group_dir##*/wheelhouse-}"
+            uv run --no-project --with auditwheel python scripts/check_wheel_metadata.py \
+              --wheel-dir "$group_dir" \
+              --group-id "$group_id" \
+              --version "${{ needs.validate-release.outputs.version }}" \
+              --require-ext \
+              --auditwheel
+          done
+      - name: Smoke install wheels
+        run: |
+          set -euo pipefail
+          repo_root="$(pwd)"
+          for group_dir in dist-artifacts/wheelhouse-*; do
+            group_id="${group_dir##*/wheelhouse-}"
+            for wheel in "$group_dir"/*.whl; do
+              case "$wheel" in
+                *x86_64*.whl) ;;
+                *) echo "Skipping non-x86_64 wheel on x86 runner: $wheel"; continue ;;
+              esac
+              build_id="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-(cp\d+)-[^-]+-(.+)\.whl$", name); assert m, name; py, platform=m.groups(); print(f"{py}-manylinux_x86_64" if platform.startswith("manylinux") else f"{py}-{platform}")' "$wheel")"
+              py_version="$(python -c 'import pathlib,re,sys; name=pathlib.Path(sys.argv[1]).name; m=re.match(r".+-.+-cp(\d)(\d+)-.+\.whl$", name); assert m, name; print(f"{m.group(1)}.{m.group(2)}")' "$wheel")"
+              uv venv --python "$py_version" .verify-venv
+              verify_python="$repo_root/.verify-venv/bin/python"
+              "$verify_python" scripts/select_torch.py \
+                --group-id "$group_id" \
+                --build-identifier "$build_id"
+              uv pip install --python "$verify_python" "$wheel"
+              # Import from outside the repo root so the installed wheel is exercised
+              # instead of the local mmcv/ source tree (which ships no compiled _ext).
+              ( cd "$repo_root/.verify-venv" && "$verify_python" -c "import mmcv; import mmcv.ops; from mmcv.utils import ext_loader; assert ext_loader.check_ops_exist(); print(mmcv.__version__)" )
+              rm -rf .verify-venv
+            done
+          done
+
+  publish-wheelhouse:
+    needs: [validate-release, verify-wheelhouse]
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
     runs-on: ubuntu-24.04
     env:
-      CUDA: ${{ matrix.cuda }}
-      PYTORCH: ${{ matrix.pytorch }}
-      TORCH_CUDA_ARCH_LIST: ${{ matrix.torch_cuda_arch_list }}
-      PYTHON_VERSION: ${{ matrix.python_version }}
-
-    steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: false
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: false
-          swap-storage: true
-      - uses: actions/checkout@v5
-
-      - name: Set CUDNN version
-        run: |
-          MAJOR=$(echo "${{ matrix.cuda }}" | cut -d. -f1)
-          MINOR=$(echo "${{ matrix.cuda }}" | cut -d. -f2)
-
-          if [ $MAJOR -gt 12 ] && [ $MINOR -eq 3]; then
-              echo "CUDNN=9" >> $GITHUB_ENV
-          elif [ $MAJOR -lt 12 ] || \
-            ([ $MAJOR -eq 12 ] && [ $MINOR -lt 3 ]); then
-              echo "CUDNN=8" >> $GITHUB_ENV
-          else
-              echo "CUDNN=" >> $GITHUB_ENV
-          fi
-
-      - name: Update TORCH_CUDA_ARCH_LIST for CUDA >= 12.8
-        run: |
-          MAJOR=$(echo "${{ matrix.cuda }}" | cut -d. -f1)
-          MINOR=$(echo "${{ matrix.cuda }}" | cut -d. -f2)
-
-          if [ $MAJOR -gt 12 ] || \
-            ([ $MAJOR -eq 12 ] && [ $MINOR -gt 8 ]) || \
-            ([ $MAJOR -eq 12 ] && [ $MINOR -eq 8 ]); then
-              echo "TORCH_CUDA_ARCH_LIST=${{ env.TORCH_CUDA_ARCH_LIST }} 12.0" >> $GITHUB_ENV
-          fi
-
-      - name: Extract tag name
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG_NAME=${GITHUB_REF#refs/tags/}
-            echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
-          else
-            echo "TAG_NAME=latest" >> $GITHUB_ENV
-          fi
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v7
-        with:
-          context: docker/build
-          push: false
-          tags: |
-            mmcv-builder:${{ env.TAG_NAME }}-cu${{ env.CUDA }}-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
-          load: true  # Load image into local Docker daemon
-          build-args: |
-            CUDA=${{ env.CUDA }}
-            PYTORCH=${{ env.PYTORCH }}
-            CUDNN=${{ env.CUDNN }}
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
-
-      - name: Build wheel
-        run: |
-          docker run --rm \
-          -e TORCH_CUDA_ARCH_LIST="${{ env.TORCH_CUDA_ARCH_LIST }}" \
-          -v ${{ github.workspace }}/mmcv/dist:/out \
-          mmcv-builder:${{ env.TAG_NAME }}-cu${{ env.CUDA }}-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
-
-      - name: List generated files
-        run: |
-            echo "Files to be uploaded to wheelhouse:"
-            ls -la ./mmcv/dist
-
-      - name: Upload to wheelhouse bucket
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.WHEELHOUSE_S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.WHEELHOUSE_S3_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-        run: |
-          CUDA_TRIMMED=${CUDA%.*}
-          CUDA_CLEAN=${CUDA_TRIMMED//.}
-          PYTORCH_TRIMMED=${PYTORCH%.*}
-          PYTORCH_CLEAN=${PYTORCH_TRIMMED//.}
-          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cu"$CUDA_CLEAN"-torch"$PYTORCH_CLEAN"0/onedl-mmcv/ \
-          --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
-          --exclude '.gitignore'
-  # when adding/changing versions here, please modify version.json too.
-  cpu-wheelhouse:
-    strategy:
-      fail-fast: false
-      matrix:
-        pytorch: [2.4.1, '2.8.0', '2.9.0', "2.10.0", "2.12.0"]
-        python_version: ["3.10", "3.12"]
-        exclude:
-          - pytorch: 2.4.1
-            python_version: 3.12
-          - pytorch: 2.5.1
-            python_version: 3.12
-          - pytorch: 2.9.0
-            python_version: 3.10
-          - pytorch: 2.10.0
-            python_version: 3.10
-          - pytorch: 2.12.0
-            python_version: 3.10
-    runs-on: ubuntu-22.04
-    env:
-      PYTORCH: ${{ matrix.pytorch }}
-      PYTHON_VERSION: ${{ matrix.python_version }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.WHEELHOUSE_S3_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.WHEELHOUSE_S3_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
     steps:
       - uses: actions/checkout@v5
-      - name: Extract tag name
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG_NAME=${GITHUB_REF#refs/tags/}
-            echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
-          else
-            echo "TAG_NAME=latest" >> $GITHUB_ENV
-          fi
-      - name: Build Docker image
-        uses: docker/build-push-action@v7
         with:
-          context: docker/build
-          push: false
-          file: docker/build/Dockerfile.cpu
-          tags: mmcv-builder:${{ env.TAG_NAME }}-cpu-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
-          load: true  # Load image into local Docker daemon
-          build-args: |
-            PYTORCH=${{ env.PYTORCH }}
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
-
-      - name: Build wheel
+          ref: ${{ needs.validate-release.outputs.release_ref }}
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: wheelhouse-*
+          path: dist-artifacts
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: '3.12'
+      - name: Verify artifacts before S3 publish
         run: |
-          docker run --rm \
-          -v ${{ github.workspace }}/mmcv/dist:/out \
-          mmcv-builder:${{ env.TAG_NAME }}-cpu-torch${{ env.PYTORCH }}-py${{ env.PYTHON_VERSION }}
-
-      - name: List generated files
+          set -euo pipefail
+          for group_dir in dist-artifacts/wheelhouse-*; do
+            group_id="${group_dir##*/wheelhouse-}"
+            uv run --no-project --with auditwheel python scripts/check_wheel_metadata.py \
+              --wheel-dir "$group_dir" \
+              --group-id "$group_id" \
+              --version "${{ needs.validate-release.outputs.version }}" \
+              --require-ext \
+              --auditwheel
+          done
+      - name: Publish wheels to wheelhouse bucket
         run: |
-            echo "Files to be uploaded to wheelhouse:"
-            ls -la ./mmcv/dist
+          python scripts/publish_wheelhouse.py \
+            --artifact-root dist-artifacts \
+            --bucket "${{ secrets.WHEELHOUSE_S3_BUCKET }}" \
+            --endpoint-url "${{ secrets.WHEELHOUSE_S3_ENDPOINT }}"
 
-      - name: Upload to wheelhouse bucket
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.WHEELHOUSE_S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.WHEELHOUSE_S3_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-        run: |
-          PYTORCH_TRIMMED=${PYTORCH%.*}
-          PYTORCH_CLEAN=${PYTORCH_TRIMMED//.}
-          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/cpu-torch"$PYTORCH_CLEAN"0/onedl-mmcv/ \
-          --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
-          --exclude '.gitignore'
-
-  # JetPack 6.1 wheel build for ARM64 devices (CUDA 12.2.1, PyTorch 2.11.0)
-  jetpack-wheelhouse:
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    strategy:
-      fail-fast: false
-      matrix:
-        jetpack: ['61']
-    env:
-      PYTORCH: '2.11.0' # hardcoded in Dockerfiles
+  publish-pypi:
+    needs: [validate-release, build-sdist, publish-wheelhouse]
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v5
-
-      - name: Set up QEMU for ARM64 emulation
-        uses: docker/setup-qemu-action@v3
+      - uses: actions/download-artifact@v8
         with:
-          platforms: arm64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Extract tag name
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG_NAME=${GITHUB_REF#refs/tags/}
-            echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
-          else
-            echo "TAG_NAME=latest" >> $GITHUB_ENV
-          fi
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v7
+          name: sdist
+          path: dist
+      - uses: astral-sh/setup-uv@v8.2.0
         with:
-          context: docker/build
-          push: false
-          file: docker/build/Dockerfile.jetpack${{ matrix.jetpack }}
-          tags: mmcv-builder:${{ env.TAG_NAME }}-jetpack${{ matrix.jetpack }}-torch${{ env.PYTORCH }}
-          load: true  # Load image into local Docker daemon
-
-      - name: Build wheel
-        run: |
-          docker run --rm \
-          -v ${{ github.workspace }}/mmcv/dist:/out \
-          mmcv-builder:${{ env.TAG_NAME }}-jetpack${{ matrix.jetpack }}-torch${{ env.PYTORCH }}
-
-      - name: List generated files
-        run: |
-            echo "Files to be uploaded to wheelhouse:"
-            ls -la ./mmcv/dist
-
-      - name: Upload to wheelhouse bucket
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.WHEELHOUSE_S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.WHEELHOUSE_S3_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-        run: |
-          PYTORCH_TRIMMED=${PYTORCH%.*}
-          PYTORCH_CLEAN=${PYTORCH_TRIMMED//.}
-          aws s3 sync ./mmcv/dist/ s3://${{ secrets.WHEELHOUSE_S3_BUCKET }}/jetpack${{ matrix.jetpack }}-torch"$PYTORCH_CLEAN"0/onedl-mmcv/ \
-          --endpoint-url ${{ secrets.WHEELHOUSE_S3_ENDPOINT }} \
-          --exclude '.gitignore'
+          python-version: '3.12'
+      - name: Publish sdist to PyPI
+        run: uv publish dist/*.tar.gz
 
   discord-release:
     name: Announce Release on Discord
-    needs: public-PyPI
+    needs: [validate-release, publish-wheelhouse, publish-pypi]
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Get Release Info
-        id: release
+      - name: Get release info
         run: |
           curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ needs.validate-release.outputs.release_tag }}" \
             | jq -r '.body // ""' > release_body.txt
-
-      - name: Send Discord Release Message
+      - name: Send Discord release message
+        env:
+          RELEASE_REF: ${{ needs.validate-release.outputs.release_tag }}
         run: |
           RELEASE_BODY=$(cat release_body.txt)
-          CONTENT="$(printf ':tada: **OneDL-MMCV Release Announcement!**\nA new version has just been published: **${{ github.ref_name }}**\n%s\n:rocket: Happy deep learning!' "$RELEASE_BODY")"
+          CONTENT="$(printf ':tada: **OneDL-MMCV Release Announcement!**\nA new version has just been published: **%s**\n%s\n:rocket: Happy deep learning!' "$RELEASE_REF" "$RELEASE_BODY")"
           curl -f -H "Content-Type: application/json" \
             -X POST \
             -d "$(jq -n --arg content "$CONTENT" '{"content": $content}')" \

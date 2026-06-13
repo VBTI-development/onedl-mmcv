@@ -1,70 +1,47 @@
 # Docker images
 
-There are two `Dockerfile` files to build docker images, one to build an image with the mmcv pre-built package and the other with the mmcv development environment.
+This directory contains runtime images and wheel-builder images.
 
 ```text
-.
-|-- README.md
-|-- dev  # build with mmcv development environment
+docker/
+|-- dev/                 # Development/runtime image built from source
 |   `-- Dockerfile
-`-- release  # build with mmcv pre-built package
-    `-- Dockerfile
+|-- release/             # Runtime image that installs a released onedl-mmcv wheel
+|   `-- Dockerfile
+`-- build/               # Images used to build release wheels
+    |-- common/          # Shared wheel-builder entrypoint
+    |-- jetpack/         # Jetson/JetPack aarch64 wheel builders
+    |-- manylinux-cpu/   # x86_64 PyPA manylinux CPU builder images
+    |-- manylinux-cuda/  # x86_64 PyPA manylinux + CUDA builder images
+    `-- legacy/          # Older single-image wheel builders kept for reference
 ```
 
-## Build docker images
+## Runtime images
 
-### Build with mmcv pre-built package
-
-Build with local repository
+Build a release image that installs the pre-built package:
 
 ```bash
-git clone https://github.com/vbti-development/onedl-mmcv.git && cd mmcv
 docker build -t mmcv -f docker/release/Dockerfile .
 ```
 
-Or build with remote repository
+Build a development image:
 
 ```bash
-docker build -t mmcv https://github.com/vbti-development/onedl-mmcv.git#master:docker/release
+docker build -t mmcv-dev -f docker/dev/Dockerfile --build-arg CUDA_ARCH=7.5 .
 ```
 
-The [Dockerfile](release/Dockerfile) installs latest released version of mmcv by default, but you can specify mmcv versions to install expected versions.
-
-```bash
-docker image build -t mmcv -f docker/release/Dockerfile --build-arg MMCV=2.0.0rc1 .
-```
-
-If you also want to use other versions of PyTorch and CUDA, you can also pass them when building docker images.
-
-An example to build an image with PyTorch 1.11 and CUDA 11.3.
-
-```bash
-docker build -t mmcv -f docker/release/Dockerfile \
-    --build-arg PYTORCH=1.9.0 \
-    --build-arg CUDA=11.1 \
-    --build-arg CUDNN=8 \
-    --build-arg MMCV=2.0.0rc1 .
-```
-
-More available versions of PyTorch and CUDA can be found at [dockerhub/pytorch](https://hub.docker.com/r/pytorch/pytorch/tags).
-
-### Build with mmcv development environment
-
-If you want to build an docker image with the mmcv development environment, you can use the following command
-
-```bash
-git clone https://github.com/vbti-development/onedl-mmcv.git && cd mmcv
-docker build -t mmcv -f docker/dev/Dockerfile --build-arg CUDA_ARCH=7.5 .
-```
-
-Note that `CUDA_ARCH` is the cumpute capability of your GPU and you can find it at [Compute Capability](https://developer.nvidia.com/cuda-gpus#compute).
-
-The building process may take 10 minutes or more.
-
-## Run images
+Run an image with GPU access:
 
 ```bash
 docker run --gpus all --shm-size=8g -it mmcv
 ```
 
-See [docker run](https://docs.docker.com/engine/reference/commandline/run/) for more usages.
+## Wheel builder images
+
+Wheel builders live under `docker/build/` and are driven by CI:
+
+- `docker/build/jetpack/` defines Jetson/JetPack aarch64 wheel builder images.
+- `docker/build/manylinux-cpu/` defines x86_64 PyPA manylinux CPU builder images.
+- `docker/build/manylinux-cuda/` defines x86_64 PyPA manylinux + CUDA builder images.
+- `.github/workflows/build-wheel-builder-images.yml` publishes builder images from these directories to GHCR.
+- `docker/build/legacy/` preserves the older ad-hoc wheel builder Dockerfiles.
